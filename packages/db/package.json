@@ -1,6 +1,8 @@
 {
-  "name": "db",
+  "name": "@tramus/db",
   "module": "index.ts",
+  "main":"index.ts",
+  "types":"index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
@@ -10,6 +12,11 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+   "scripts": {
+    "generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
