@@ -3,27 +3,27 @@ import { PrismaClient } from "./generated/prisma/client";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-	throw new Error("DATABASE_URL is not set.");
+  throw new Error("DATABASE_URL is not set.");
 }
 
 const globalForPrisma = globalThis as {
-	prisma?: PrismaClient;
+  prisma?: PrismaClient;
 };
 
 export const prisma =
-	globalForPrisma.prisma ??
-	new PrismaClient({
-		adapter: new PrismaPg({
-			connectionString,
-		}),
-		log:
-			process.env.NODE_ENV === "development"
-				? ["query", "warn", "error"]
-				: ["error"],
-	});
+  globalForPrisma.prisma ??
+  new PrismaClient({
+    adapter: new PrismaPg({
+      connectionString,
+    }),
+    log:
+      process.env.NODE_ENV === "development"
+        ? ["query", "warn", "error"]
+        : ["error"],
+  });
 
 if (process.env.NODE_ENV !== "production") {
-	globalForPrisma.prisma = prisma;
+  globalForPrisma.prisma = prisma;
 }
 
 export * from "./generated/prisma/client";

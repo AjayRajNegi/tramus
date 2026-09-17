@@ -1,18 +1,10 @@
 {
-  "name": "web",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "next dev --port 3000",
-    "build": "next build",
-    "start": "next start"
-  },
   "dependencies": {
     "@repo/ui": "*",
+    "@tramus/db": "workspace:*",
     "next": "16.3.5",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "@tramus/db": "workspace:*"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -22,13 +14,21 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   },
-  "packageManager": "bun@1.3.8",
   "ignoreScripts": [
     "sharp",
     "unrs-resolver"
   ],
+  "name": "web",
+  "packageManager": "bun@1.3.8",
+  "private": true,
+  "scripts": {
+    "build": "next build",
+    "dev": "next dev --port 3000",
+    "start": "next start"
+  },
   "trustedDependencies": [
     "sharp",
     "unrs-resolver"
-  ]
+  ],
+  "version": "0.1.0"
 }

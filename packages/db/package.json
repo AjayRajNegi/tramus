@@ -1,27 +1,27 @@
 {
-  "name": "@tramus/db",
-  "module": "index.ts",
-  "main":"index.ts",
-  "types":"index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/pg": "^8.23.1",
-    "prisma": "7.10.0"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-   "scripts": {
-    "generate": "prisma generate",
-    "db:push": "prisma db push",
-    "db:studio": "prisma studio"
-  },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7.10.0",
     "dotenv": "^17.4.2",
     "pg": "^8.23.0"
-  }
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/pg": "^8.23.1",
+    "prisma": "7.10.0"
+  },
+  "main": "index.ts",
+  "module": "index.ts",
+  "name": "@tramus/db",
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "private": true,
+  "scripts": {
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "generate": "prisma generate"
+  },
+  "type": "module",
+  "types": "index.ts"
 }
