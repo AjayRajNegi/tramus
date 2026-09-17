@@ -1,8 +1,7 @@
-import { getAllUser } from "./actions/dal";
+import { getAllUser } from "../actions/dal";
 
-export default async function Home() {
+export default async function User() {
 	const data = await getAllUser();
-
 	return (
 		<div>
 			Hello
