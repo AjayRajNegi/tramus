@@ -12,7 +12,8 @@
       "env": ["DATABASE_URL"]
     },
     "db:generate": {
-      "cache": false
+      "cache": false,
+      "env": ["DATABASE_URL"]
     },
     "dev": {
       "cache": false,
