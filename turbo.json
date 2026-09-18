@@ -8,7 +8,8 @@
       "outputs": [".next/**", "!.next/cache/**", "!.next/dev/**"]
     },
     "check-types": {
-      "dependsOn": ["db:generate", "^check-types"]
+      "dependsOn": ["db:generate", "^check-types"],
+      "env": ["DATABASE_URL"]
     },
     "db:generate": {
       "cache": false
