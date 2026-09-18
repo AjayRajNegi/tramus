@@ -18,9 +18,11 @@
   },
   "private": true,
   "scripts": {
+    "check-types": "tsc --noEmit",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "generate": "prisma generate"
+    "generate": "prisma generate",
+    "lint": "biome check ."
   },
   "type": "module",
   "types": "index.ts"

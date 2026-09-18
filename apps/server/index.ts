@@ -24,7 +24,7 @@ async function fetchUser() {
   return { data, success: true };
 }
 
-app.get("/", async (req, res) => {
+app.get("/", async (_req, res) => {
   try {
     const json = await fetchUser();
 
@@ -40,6 +40,10 @@ app.get("/", async (req, res) => {
   }
 });
 
+app.get("/health", (_req, res) => {
+  res.send("Server is running.");
+});
+
 app.listen(PORT, () => {
-  console.log("Listening on port", PORT);
+  console.log("Listening on port:", PORT);
 });

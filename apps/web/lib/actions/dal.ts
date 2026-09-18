@@ -4,7 +4,6 @@ import { prisma } from "@tramus/db";
 export async function getUser(id: string) {
   const data = await prisma.user.findUnique({
     include: {
-      name: true,
       posts: true,
     },
     where: {

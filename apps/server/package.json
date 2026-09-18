@@ -3,7 +3,6 @@
     "@tramus/db": "workspace:*",
     "@types/express": "^5.0.6",
     "express": "^5.2.1"
-
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -14,5 +13,9 @@
     "typescript": "^5"
   },
   "private": true,
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "biome check ."
+  },
   "type": "module"
 }
