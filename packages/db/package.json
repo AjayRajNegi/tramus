@@ -19,9 +19,9 @@
   "private": true,
   "scripts": {
     "check-types": "tsc --noEmit",
+    "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "generate": "prisma generate",
     "lint": "biome check ."
   },
   "type": "module",
