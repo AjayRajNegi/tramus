@@ -1,4 +1,4 @@
-import { getAllUser } from "../../lib/actions/dal";
+import { getAllUser } from "@/lib/actions/dal";
 
 export default async function Home() {
   const data = await getAllUser();
