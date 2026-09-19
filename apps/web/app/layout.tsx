@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
 
-const geistSans = Geist({
+const fontSans = Geist({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
+  variable: "--font-sans",
 });
 
-const geistMono = Geist_Mono({
+const fontMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-mono",
+  variable: "--font-mono",
 });
 
 export const metadata: Metadata = {
@@ -18,15 +19,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      lang="en"
-    >
-      <body className="flex min-h-full flex-col">{children}</body>
+    <html lang="en">
+      <body className={`${fontSans.variable} ${fontMono.variable} antialiased`}>
+        {children}
+      </body>
     </html>
   );
 }
