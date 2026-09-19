@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getAllUser } from "@/lib/actions/dal";
 
 export default async function Home() {
