@@ -41,3 +41,16 @@ export async function getAllUser() {
     },
   });
 }
+
+export async function getAllPosts() {
+  return await prisma.post.findMany({
+    select: {
+      content: true,
+      id: true,
+      title: true,
+    },
+    where: {
+      published: true,
+    },
+  });
+}

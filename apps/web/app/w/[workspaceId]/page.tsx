@@ -10,7 +10,6 @@ export default function Workspace() {
   });
 
   if (isPending) return <p>Loading...</p>;
-
   if (isError) return <p>Error...</p>;
 
   return (
