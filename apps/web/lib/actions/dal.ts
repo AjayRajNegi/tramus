@@ -16,16 +16,28 @@ export async function getUser(id: string) {
 }
 
 export async function getAllUser() {
-  const data = await prisma.user.findMany({
-    include: {
-      posts: true,
+  return await prisma.user.findMany({
+    select: {
+      email: true,
+      id: true,
+      name: true,
+      posts: {
+        select: {
+          content: true,
+          id: true,
+          title: true,
+        },
+        where: {
+          published: true,
+        },
+      },
     },
     where: {
       posts: {
-        some: { published: true },
+        some: {
+          published: true,
+        },
       },
     },
   });
-
-  return data;
 }

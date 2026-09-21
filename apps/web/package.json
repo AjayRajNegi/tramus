@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@base-ui/react": "^1.8.0",
+    "@tanstack/react-query": "^5.103.2",
     "@tramus/db": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.3.0",
