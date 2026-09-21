@@ -1,8 +1,7 @@
-export default function DashboardLayout({
+export default function ScenarioLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // useWorkspaces()
   return <div>{children}</div>;
 }
