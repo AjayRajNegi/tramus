@@ -8,6 +8,28 @@ export function TobBar() {
       <Link className="mr-5 underline underline-offset-2" href="/w">
         Tobbar
       </Link>
+      <div>
+        <Link className="mr-5 underline underline-offset-2" href="/w">
+          checkout-flow
+        </Link>
+        <Link className="mr-5 underline underline-offset-2" href="/w">
+          main
+        </Link>
+        <Link className="mr-5 underline underline-offset-2" href="/w">
+          user-service
+        </Link>
+      </div>
+      <div>
+        <Link className="mr-5 underline underline-offset-2" href="/w">
+          Fork Scenario
+        </Link>
+        <Link className="mr-5 underline underline-offset-2" href="/w">
+          Share
+        </Link>
+        <Link className="mr-5 underline underline-offset-2" href="/w">
+          New endpoint
+        </Link>
+      </div>
     </nav>
   );
 }
