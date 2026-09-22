@@ -54,3 +54,11 @@ export async function getAllPosts() {
     },
   });
 }
+
+export async function getWorkspaces() {
+  return await prisma.workspace.findMany({
+    where: {
+      ownerId: "33923283-a008-4e53-8b97-b11be654f1d9",
+    },
+  });
+}
