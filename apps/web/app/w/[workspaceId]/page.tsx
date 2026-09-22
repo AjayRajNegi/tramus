@@ -1,12 +1,12 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getAllUser } from "@/lib/actions/dal";
+import { getWorkspaces } from "@/lib/actions/dal";
 
 export default function Workspace() {
   const { data, isPending, isError } = useQuery({
-    queryFn: getAllUser,
-    queryKey: ["users"],
+    queryFn: getWorkspaces,
+    queryKey: ["workspaces"],
   });
 
   if (isPending) return <p>Loading...</p>;
@@ -16,7 +16,7 @@ export default function Workspace() {
     <div>
       <div>This is workspace:</div>
 
-      {data?.map((user) => (
+      {/* {data?.map((user) => (
         <div key={user.id}>
           <h4>{user.name}</h4>
           <p>{user.email}</p>
@@ -28,7 +28,7 @@ export default function Workspace() {
             </div>
           ))}
         </div>
-      ))}
+      ))} */}
     </div>
   );
 }

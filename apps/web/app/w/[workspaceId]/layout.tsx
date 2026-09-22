@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Sidebar } from "@/components/layout/sidebar/sidebar";
 import { TobBar } from "@/components/layout/topbar/topbar";
-import { getAllPosts } from "@/lib/actions/dal";
+import { getWorkspaces } from "@/lib/actions/dal";
 import { getQueryClient } from "@/provider/get-query-client";
 
 export default async function WorkspaceLayout({
@@ -12,9 +12,10 @@ export default async function WorkspaceLayout({
   const queryClient = getQueryClient();
 
   await queryClient.prefetchQuery({
-    queryFn: getAllPosts,
-    queryKey: ["posts"],
+    queryFn: getWorkspaces,
+    queryKey: ["workspaces"],
   });
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="p-4">
