@@ -1,28 +1,111 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User { 
-  id    String     @id @default(uuid()) 
+model User {
+  id    String  @id @default(uuid())
   email String  @unique
   name  String?
-  posts Post[]
+
+  workspaces Workspace[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("users")
-} 
+}
 
-model Post { 
-  id        String     @id @default(uuid()) 
-  title     String
-  content   String?
-  published Boolean @default(false) 
-  author    User    @relation(fields: [authorId], references: [id]) 
-  authorId  String
+model Workspace {
+  id   String @id @default(uuid())
+  name String
 
-  @@map("posts")
-} 
+  ownerId String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  endpoints   Endpoint[]
+  scenarios   Scenario[]
+  requestLogs RequestLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ownerId])
+  @@map("workspaces")
+}
+
+model Scenario {
+  id   String @id @default(uuid())
+  name String
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  endpoints Endpoint[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+  @@map("scenarios")
+}
+
+model Endpoint {
+  id String @id @default(uuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  scenarioId String
+  scenario   Scenario @relation(fields: [scenarioId], references: [id], onDelete: Cascade)
+
+  method          HttpMethod
+  path            String
+  responseStatus  Int        @default(200)
+  responseHeaders Json       @default("{}")
+  responseBody    Json?
+  errorConfig     Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([scenarioId, method, path])
+  @@index([workspaceId, scenarioId])
+  @@map("endpoints")
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+  HEAD
+  OPTIONS
+}
+
+model RequestLog {
+  id String @id @default(uuid())
+
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  scenarioId        String
+  requestId         String     @unique
+  method            HttpMethod
+  path              String
+  statusCode        Int
+  durationMs        Int
+  responseSizeBytes Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId, createdAt])
+  @@index([scenarioId, createdAt])
+  @@map("request_logs")
+}
