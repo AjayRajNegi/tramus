@@ -2,17 +2,20 @@
 
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
 export default function Workspace() {
-  const path = usePathname();
-  const uuid = path.split("/")[2];
+  const params = useParams<{
+    workspaceId: string;
+    scenarioId: string;
+    endpointId: string;
+  }>();
 
   const { data, isPending, isError } = useQuery({
-    queryFn: () => getScenarios(uuid),
-    queryKey: queryKeys.workspaces.scenarios(uuid),
+    queryFn: () => getScenarios(params.workspaceId),
+    queryKey: queryKeys.workspaces.scenarios(params.workspaceId),
   });
 
   if (isPending) return <p>Loading...</p>;
@@ -25,7 +28,7 @@ export default function Workspace() {
         {data.map((scenario) => (
           <Link
             className="cursor-pointer"
-            href={`/w/${uuid}/${scenario.id}/${scenario.endpoints[0].id}`}
+            href={`/w/${params.workspaceId}/${scenario.id}/${scenario.endpoints[0].id}`}
             key={scenario.id}
           >
             {scenario.name}

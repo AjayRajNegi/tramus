@@ -1,23 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams, usePathname } from "next/navigation";
+import { useParams } from "next/navigation";
 import { getEndpointsData } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
 export default function EndpointPage() {
-  const pathname = usePathname();
   const params = useParams<{
     workspaceId: string;
     scenarioId: string;
     endpointId: string;
   }>();
-  console.log(params.endpointId);
-  const uuid = pathname.split("/")[4];
 
   const { data, isError, isPending } = useQuery({
-    queryFn: () => getEndpointsData(uuid),
-    queryKey: queryKeys.workspaces.endpoints(uuid),
+    queryFn: () => getEndpointsData(params.endpointId),
+    queryKey: queryKeys.workspaces.endpoints(params.endpointId),
   });
 
   if (isPending) return <p>Loading...</p>;
@@ -29,7 +26,7 @@ export default function EndpointPage() {
 
   return (
     <div>
-      <div>The current Endpoint: {uuid}</div>
+      <div>The current Endpoint: {params.endpointId}</div>
       <div>List of all Endpoint</div>
       <div>
         <div>
