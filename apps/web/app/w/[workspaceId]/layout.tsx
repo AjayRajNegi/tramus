@@ -2,6 +2,7 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Sidebar } from "@/components/layout/sidebar/sidebar";
 import { TobBar } from "@/components/layout/topbar/topbar";
 import { getScenarios } from "@/lib/actions/dal";
+import { queryKeys } from "@/lib/constants";
 import { getQueryClient } from "@/provider/get-query-client";
 
 export default async function WorkspaceLayout({
@@ -12,12 +13,11 @@ export default async function WorkspaceLayout({
   params: Promise<{ workspaceId: string }>;
 }) {
   const { workspaceId } = await params;
-  const queryClient = getQueryClient();
-  console.log("id", workspaceId);
 
+  const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
     queryFn: () => getScenarios(workspaceId),
-    queryKey: ["scenarios", workspaceId],
+    queryKey: queryKeys.workspaces.scenarios(workspaceId),
   });
 
   return (

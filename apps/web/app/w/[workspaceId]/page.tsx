@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getScenarios } from "@/lib/actions/dal";
+import { queryKeys } from "@/lib/constants";
 
 export default function Workspace() {
   const path = usePathname();
@@ -11,7 +12,7 @@ export default function Workspace() {
 
   const { data, isPending, isError } = useQuery({
     queryFn: () => getScenarios(uuid),
-    queryKey: ["scenarios", uuid],
+    queryKey: queryKeys.workspaces.scenarios(uuid),
   });
 
   if (isPending) return <p>Loading...</p>;

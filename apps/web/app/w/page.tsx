@@ -4,11 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getWorkspaces } from "@/lib/actions/dal";
+import { queryKeys } from "@/lib/constants";
 
 export default function Dashboard() {
   const { data, isPending, isError } = useQuery({
     queryFn: getWorkspaces,
-    queryKey: ["workspaces"],
+    queryKey: queryKeys.workspaces.lists(),
   });
 
   if (isPending) return <div>Loading...</div>;
