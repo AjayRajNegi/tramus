@@ -1,32 +1,20 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { usePathname } from "next/navigation";
-import { getAllPosts } from "@/lib/actions/dal";
+import { redirect, usePathname } from "next/navigation";
+import { getScenarios } from "@/lib/actions/dal";
 
 export default function ScenarioPage() {
-  const pathname = usePathname();
+  const path = usePathname();
+  const uuid = path.split("/")[1];
 
   const { data, isPending, isError } = useQuery({
-    queryFn: getAllPosts,
-    queryKey: ["posts"],
+    queryFn: () => getScenarios(uuid),
+    queryKey: ["scenarios", uuid],
   });
 
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
 
-  return (
-    <div>
-      <div>The current Scenario: {pathname}</div>
-      <div>List of all Scenarios</div>
-      <div>
-        {data?.map((post) => (
-          <div key={post.id}>
-            <h4>{post.title}</h4>
-            <p>{post.content}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  redirect(`/w/${uuid}/${data[0].id}/${data[0].endpoints[0].id}`);
 }

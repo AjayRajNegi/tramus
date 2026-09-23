@@ -65,8 +65,38 @@ export async function getWorkspaces() {
 
 export async function getScenarios(id: string) {
   return await prisma.scenario.findMany({
+    include: {
+      endpoints: {
+        select: {
+          id: true,
+        },
+      },
+    },
     where: {
       workspaceId: id,
+    },
+  });
+}
+
+export async function getEndpoints(id: string) {
+  return await prisma.endpoint.findMany({
+    where: {
+      scenarioId: id,
+    },
+  });
+}
+
+export async function getEndpointsData(id: string) {
+  return await prisma.endpoint.findFirst({
+    select: {
+      method: true,
+      path: true,
+      responseBody: true,
+      responseHeaders: true,
+      responseStatus: true,
+    },
+    where: {
+      id,
     },
   });
 }

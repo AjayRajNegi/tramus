@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getScenarios } from "@/lib/actions/dal";
 
@@ -13,8 +14,6 @@ export default function Workspace() {
     queryKey: ["scenarios", uuid],
   });
 
-  console.log("uuid", uuid);
-
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
 
@@ -23,7 +22,13 @@ export default function Workspace() {
       <div>This is workspace:</div>
       <div>
         {data.map((scenario) => (
-          <div key={scenario.id}>{scenario.name}</div>
+          <Link
+            className="cursor-pointer"
+            href={`/w/${uuid}/${scenario.id}/${scenario.endpoints[0].id}`}
+            key={scenario.id}
+          >
+            {scenario.name}
+          </Link>
         ))}
       </div>
     </div>
