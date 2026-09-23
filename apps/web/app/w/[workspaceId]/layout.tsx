@@ -1,19 +1,23 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Sidebar } from "@/components/layout/sidebar/sidebar";
 import { TobBar } from "@/components/layout/topbar/topbar";
-import { getWorkspaces } from "@/lib/actions/dal";
+import { getScenarios } from "@/lib/actions/dal";
 import { getQueryClient } from "@/provider/get-query-client";
 
 export default async function WorkspaceLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ workspaceId: string }>;
 }) {
+  const { workspaceId } = await params;
   const queryClient = getQueryClient();
+  console.log("id", workspaceId);
 
   await queryClient.prefetchQuery({
-    queryFn: getWorkspaces,
-    queryKey: ["workspaces"],
+    queryFn: () => getScenarios(workspaceId),
+    queryKey: ["scenarios", workspaceId],
   });
 
   return (

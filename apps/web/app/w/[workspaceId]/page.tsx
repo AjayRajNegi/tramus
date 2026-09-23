@@ -1,13 +1,19 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getWorkspaces } from "@/lib/actions/dal";
+import { usePathname } from "next/navigation";
+import { getScenarios } from "@/lib/actions/dal";
 
 export default function Workspace() {
+  const path = usePathname();
+  const uuid = path.split("/")[2];
+
   const { data, isPending, isError } = useQuery({
-    queryFn: getWorkspaces,
-    queryKey: ["workspaces"],
+    queryFn: () => getScenarios(uuid),
+    queryKey: ["scenarios", uuid],
   });
+
+  console.log("uuid", uuid);
 
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
@@ -15,20 +21,11 @@ export default function Workspace() {
   return (
     <div>
       <div>This is workspace:</div>
-
-      {/* {data?.map((user) => (
-        <div key={user.id}>
-          <h4>{user.name}</h4>
-          <p>{user.email}</p>
-
-          {user.posts.map((post) => (
-            <div key={post.id}>
-              <h4>{post.title}</h4>
-              <p>{post.content}</p>
-            </div>
-          ))}
-        </div>
-      ))} */}
+      <div>
+        {data.map((scenario) => (
+          <div key={scenario.id}>{scenario.name}</div>
+        ))}
+      </div>
     </div>
   );
 }

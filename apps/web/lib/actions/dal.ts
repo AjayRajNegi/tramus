@@ -62,3 +62,11 @@ export async function getWorkspaces() {
     },
   });
 }
+
+export async function getScenarios(id: string) {
+  return await prisma.scenario.findMany({
+    where: {
+      workspaceId: id,
+    },
+  });
+}
