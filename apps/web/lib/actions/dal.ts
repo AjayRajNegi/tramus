@@ -100,3 +100,12 @@ export async function getEndpointsData(id: string) {
     },
   });
 }
+
+export async function createWorkspace({ name }: { name: string }) {
+  return prisma.workspace.create({
+    data: {
+      name,
+      ownerId: "33923283-a008-4e53-8b97-b11be654f1d9",
+    },
+  });
+}
