@@ -10,6 +10,7 @@ export default function Dashboard() {
   const { data, isPending, isError } = useQuery({
     queryFn: getWorkspaces,
     queryKey: queryKeys.workspaces.lists(),
+    staleTime: 2 * 60 * 1000,
   });
 
   if (isPending) return <div>Loading...</div>;

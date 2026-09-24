@@ -20,5 +20,6 @@ export default function ScenarioPage() {
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
 
-  redirect(`/w/${params.scenarioId}/${data[0].id}/${data[0].endpoints[0].id}`);
+  // redirect(`/w/${params.scenarioId}/${data[0].id}/${data[0].endpoints[0].id}`);
+  return <div>{params.scenarioId}</div>;
 }

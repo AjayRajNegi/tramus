@@ -1,7 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { getEndpointsData } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
-import { getQueryClient } from "@/provider/get-query-client";
+import { getQueryClient } from "@/lib/query/get-query-client";
 
 export default async function EndpointLayout({
   children,

@@ -3,7 +3,7 @@ import { Sidebar } from "@/components/layout/sidebar/sidebar";
 import { TobBar } from "@/components/layout/topbar/topbar";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
-import { getQueryClient } from "@/provider/get-query-client";
+import { getQueryClient } from "@/lib/query/get-query-client";
 
 export default async function WorkspaceLayout({
   children,
@@ -18,6 +18,7 @@ export default async function WorkspaceLayout({
   await queryClient.prefetchQuery({
     queryFn: () => getScenarios(workspaceId),
     queryKey: queryKeys.workspaces.scenarios(workspaceId),
+    staleTime: 2 * 60 * 1000,
   });
 
   return (

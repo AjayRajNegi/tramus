@@ -16,6 +16,7 @@ export default function Workspace() {
   const { data, isPending, isError } = useQuery({
     queryFn: () => getScenarios(params.workspaceId),
     queryKey: queryKeys.workspaces.scenarios(params.workspaceId),
+    staleTime: 2 * 60 * 1000,
   });
 
   if (isPending) return <p>Loading...</p>;
