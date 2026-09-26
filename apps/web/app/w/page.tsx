@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,8 @@ import { createWorkspace, getWorkspaces } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
 export default function Dashboard() {
+  const router = useRouter();
+
   const [creatingWorkspace, setCreatingWorkspace] = useState(false);
   const [workspaceTitle, setWorkspaceTitle] = useState("");
 
@@ -37,15 +40,14 @@ export default function Dashboard() {
   const newWorkspace = useMutation({
     mutationFn: createWorkspace,
     onError: () => {},
-    onSuccess: async () => {
+    onSuccess: async (data) => {
       await queryClient.invalidateQueries({
         queryKey: queryKeys.workspaces.lists(),
       });
 
       setWorkspaceTitle("");
       setCreatingWorkspace(false);
-
-      console.log("worked");
+      router.push(`/w/${data.id}`);
     },
   });
 

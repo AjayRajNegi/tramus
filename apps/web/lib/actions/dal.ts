@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@tramus/db";
+import { HttpMethod, prisma } from "@tramus/db";
 
 // export async function getUser(id: string) {
 //   const data = await prisma.user.findUnique({
@@ -102,10 +102,35 @@ export async function getEndpointsData(id: string) {
 }
 
 export async function createWorkspace({ name }: { name: string }) {
-  return prisma.workspace.create({
-    data: {
-      name,
-      ownerId: "33923283-a008-4e53-8b97-b11be654f1d9",
-    },
+  return prisma.$transaction(async (tx) => {
+    const workspace = tx.workspace.create({
+      data: {
+        name,
+        ownerId: "33923283-a008-4e53-8b97-b11be654f1d9",
+      },
+    });
+
+    const scenario = tx.scenario.create({
+      data: {
+        name: "main",
+        workspaceId: (await workspace).id,
+      },
+    });
+
+    await tx.endpoint.create({
+      data: {
+        method: HttpMethod.GET,
+        path: "https://www.google.com",
+        scenarioId: (await scenario).id,
+        workspaceId: (await workspace).id,
+      },
+    });
+
+    return {
+      createdAt: (await workspace).createdAt,
+      id: (await workspace).id,
+      name: (await workspace).name,
+      ownerId: (await workspace).ownerId,
+    };
   });
 }

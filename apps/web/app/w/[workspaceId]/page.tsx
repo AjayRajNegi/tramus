@@ -22,6 +22,8 @@ export default function Workspace() {
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
 
+  console.log(data);
+
   return (
     <div>
       <div>This is workspace:</div>
@@ -29,7 +31,8 @@ export default function Workspace() {
         {data.map((scenario) => (
           <Link
             className="cursor-pointer"
-            href={`/w/${params.workspaceId}/${scenario.id}/${scenario.endpoints[0].id}`}
+            href={`/w/${params.workspaceId}/${scenario.id}/${scenario.endpoints[0]?.id}`}
+            // href={"/"}
             key={scenario.id}
           >
             {scenario.name}
