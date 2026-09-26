@@ -66,11 +66,7 @@ export async function getWorkspaces() {
 export async function getScenarios(id: string) {
   return await prisma.scenario.findMany({
     include: {
-      endpoints: {
-        select: {
-          id: true,
-        },
-      },
+      endpoints: true,
     },
     where: {
       workspaceId: id,

@@ -8,9 +8,9 @@ import { queryKeys } from "@/lib/constants";
 
 export function TopBar() {
   const params = useParams<{
-    workspaceId: string;
-    scenarioId: string;
-    endpointId: string;
+    workspaceId?: string;
+    scenarioId?: string;
+    endpointId?: string;
   }>();
 
   const workspaces = useQuery({
@@ -31,37 +31,39 @@ export function TopBar() {
     queryKey: queryKeys.workspaces.endpoints(params.scenarioId!),
   });
 
+  const currentWorkspace = workspaces.data?.find(
+    (w) => w.id === params.workspaceId,
+  );
+  const currentScenario = scenarios.data?.find(
+    (s) => s.id === params.scenarioId,
+  );
+  const currentEndpoint = endpoints.data?.find(
+    (e) => e.id === params.endpointId,
+  );
+
   return (
     <nav className="fixed top-0 left-1/2 mt-4 flex h-[50px] w-[80%] -translate-x-1/2 items-center justify-between rounded-xl bg-foreground px-4 text-background">
       <Link className="mr-5 underline underline-offset-2" href="/w">
         Tramus
       </Link>
+
       <div className="flex gap-4">
         <div>
-          {workspaces.isPending && <div>Loading...</div>}
-          {
-            workspaces.data?.filter(
-              (workspace) => workspace.id === params.workspaceId,
-            )[0].name
-          }
+          {params.workspaceId && workspaces.isPending && <span>Loading…</span>}
+          {currentWorkspace?.name}
         </div>
+
         <div>
-          {scenarios.isPending && <div>Loading...</div>}
-          {
-            scenarios.data?.filter(
-              (scenario) => scenario.id !== params.scenarioId,
-            )[0].name
-          }
+          {params.scenarioId && scenarios.isPending && <span>Loading…</span>}
+          {currentScenario?.name}
         </div>
+
         <div>
-          {endpoints.isPending && <div>Loading...</div>}
-          {
-            endpoints.data?.filter(
-              (endpoint) => endpoint.id === params.endpointId,
-            )[0].path
-          }
+          {params.endpointId && endpoints.isPending && <span>Loading…</span>}
+          {currentEndpoint?.path}
         </div>
       </div>
+
       <div>
         <Link className="mr-5 underline underline-offset-2" href="/w">
           Fork Scenario

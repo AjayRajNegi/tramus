@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
@@ -9,22 +10,30 @@ export default function ScenarioPage() {
   const params = useParams<{
     workspaceId: string;
     scenarioId: string;
-    endpointId: string;
   }>();
 
-  const router = useRouter();
-
   const { data, isPending, isError } = useQuery({
-    queryFn: () => getScenarios(params.scenarioId),
-    queryKey: queryKeys.workspaces.scenarios(params.scenarioId),
+    enabled: !!params.scenarioId,
+    queryFn: () => getScenarios(params.workspaceId),
+    queryKey: queryKeys.workspaces.detail(params.scenarioId),
   });
+
+  useEffect(() => {
+    const scenario = data?.find((s) => s.id === params.scenarioId);
+    const firstEndpoint = scenario?.endpoints[0];
+
+    if (firstEndpoint) {
+    }
+  }, [data, params]);
 
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
-  console.log(data);
 
-  router.push(
-    `/w/${params.scenarioId}/${data[0].id}/${data[0].endpoints[0].id}`,
+  return (
+    <div>
+      {data[0].endpoints.map((endpoint) => (
+        <div key={endpoint.id}>{endpoint.path}</div>
+      ))}
+    </div>
   );
-  // return <div>{params.scenarioId}</div>;
 }
