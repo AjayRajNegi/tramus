@@ -117,6 +117,7 @@ export async function createWorkspace({ name }: { name: string }) {
       },
     });
 
+    // TODO: Remove auto endpoint creation
     await tx.endpoint.create({
       data: {
         method: HttpMethod.GET,

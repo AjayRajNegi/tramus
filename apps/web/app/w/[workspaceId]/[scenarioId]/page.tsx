@@ -21,6 +21,7 @@ export default function ScenarioPage() {
 
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
+  console.log(data);
 
   router.push(
     `/w/${params.scenarioId}/${data[0].id}/${data[0].endpoints[0].id}`,

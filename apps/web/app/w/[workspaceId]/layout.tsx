@@ -1,6 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { Sidebar } from "@/components/layout/sidebar/sidebar";
-import { TobBar } from "@/components/layout/topbar/topbar";
+import { TopBar } from "@/components/layout/topbar/topbar";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 import { getQueryClient } from "@/lib/query/get-query-client";
@@ -24,7 +24,7 @@ export default async function WorkspaceLayout({
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="p-4">
-        <TobBar />
+        <TopBar />
         <div className="mt-[60px] flex gap-2">
           <Sidebar />
           <div className="flex w-[80%] items-center justify-center rounded-xl bg-foreground text-background">

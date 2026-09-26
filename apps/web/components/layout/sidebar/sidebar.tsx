@@ -24,7 +24,7 @@ export function Sidebar() {
   });
 
   return (
-    <div className="...">
+    <div className="flex min-h-[90vh] w-[20%] flex-col items-center gap-10 rounded-2xl bg-foreground pt-10 text-background">
       <div>
         <p>Scenarios</p>
         {/* {scenarios.isPending && <Skeleton />} */}
@@ -38,11 +38,13 @@ export function Sidebar() {
         <p>Endpoints</p>
         {!scenarioId && <p>Select a scenario</p>}
         {/* {endpoints.isPending && <Skeleton />} */}
-        {endpoints.data?.map((e) => (
-          <Link href={`/w/${workspaceId}/${scenarioId}/${e.id}`} key={e.id}>
-            {e.path}
-          </Link>
-        ))}
+        <div className="flex flex-col">
+          {endpoints.data?.map((e) => (
+            <Link href={`/w/${workspaceId}/${scenarioId}/${e.id}`} key={e.id}>
+              {e.path}
+            </Link>
+          ))}
+        </div>
       </div>
     </div>
   );
