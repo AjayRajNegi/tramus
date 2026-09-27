@@ -1,8 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
@@ -30,9 +31,14 @@ export default function ScenarioPage() {
   if (isError) return <p>Error...</p>;
 
   return (
-    <div>
+    <div className="flex flex-col">
       {data[0].endpoints.map((endpoint) => (
-        <div key={endpoint.id}>{endpoint.path}</div>
+        <Link
+          href={`/w/${params.workspaceId}/${params.scenarioId}/${endpoint.id}`}
+          key={endpoint.id}
+        >
+          {endpoint.path}
+        </Link>
       ))}
     </div>
   );
