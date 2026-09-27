@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { Sidebar } from "@/components/layout/sidebar/sidebar";
+import { AppSidebar } from "@/components/layout/sidebar/app-sidebar";
 import { TopBar } from "@/components/layout/topbar/topbar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 import { getQueryClient } from "@/lib/query/get-query-client";
@@ -22,16 +23,23 @@ export default async function WorkspaceLayout({
   });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className="p-4">
-        <TopBar />
-        <div className="mt-[60px] flex gap-2">
-          <Sidebar />
-          <div className="flex w-[80%] items-center justify-center rounded-xl bg-foreground text-background">
-            {children}
-          </div>
-        </div>
-      </div>
-    </HydrationBoundary>
+    <>
+      <TopBar />
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarTrigger />
+        <main>
+          <HydrationBoundary state={dehydrate(queryClient)}>
+            <div className="p-4">
+              <div className="mt-[60px] flex gap-2">
+                <div className="flex items-center justify-center rounded-xl bg-foreground text-background">
+                  {children}
+                </div>
+              </div>
+            </div>
+          </HydrationBoundary>
+        </main>
+      </SidebarProvider>
+    </>
   );
 }

@@ -42,7 +42,7 @@ export function TopBar() {
   );
 
   return (
-    <nav className="fixed top-0 left-1/2 mt-4 flex h-[50px] w-[80%] -translate-x-1/2 items-center justify-between rounded-xl bg-foreground px-4 text-background">
+    <nav className="mx-auto flex h-[50px] w-full items-center justify-between bg-foreground px-4 text-background">
       <Link className="mr-5 underline underline-offset-2" href="/w">
         Tramus
       </Link>
