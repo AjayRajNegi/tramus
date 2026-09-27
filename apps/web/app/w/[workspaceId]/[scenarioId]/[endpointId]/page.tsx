@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-import { getEndpointsData } from "@/lib/actions/dal";
+import { getEndpoint } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
 export default function EndpointPage() {
@@ -13,7 +13,7 @@ export default function EndpointPage() {
   }>();
 
   const { data, isError, isPending } = useQuery({
-    queryFn: () => getEndpointsData(params.endpointId),
+    queryFn: () => getEndpoint(params.endpointId),
     queryKey: queryKeys.workspaces.endpoints(params.endpointId),
   });
 

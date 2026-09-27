@@ -1,5 +1,5 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getEndpointsData } from "@/lib/actions/dal";
+import { getEndpoint } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 import { getQueryClient } from "@/lib/query/get-query-client";
 
@@ -14,7 +14,7 @@ export default async function EndpointLayout({
 
   const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
-    queryFn: () => getEndpointsData(endpointId),
+    queryFn: () => getEndpoint(endpointId),
     queryKey: queryKeys.workspaces.endpoints(endpointId),
   });
 

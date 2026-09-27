@@ -97,7 +97,6 @@ export default function Dashboard() {
               <Input
                 id="title"
                 onChange={(e) => setWorkspaceTitle(e.target.value)}
-                // value={draftTitle}
               />
             </div>
 
