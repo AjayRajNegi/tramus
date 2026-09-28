@@ -4,6 +4,7 @@
 node_modules
 .pnp
 .pnp.js
+generated
 
 # Local env files
 .env
@@ -26,6 +27,7 @@ coverage
 out/
 build
 dist
+generated
 
 
 # Debug

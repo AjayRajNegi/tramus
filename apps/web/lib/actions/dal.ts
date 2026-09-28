@@ -2,30 +2,80 @@
 
 import { prisma } from "@tramus/db";
 
-export async function getUser(id: string) {
-  const data = await prisma.user.findUnique({
-    include: {
-      posts: true,
-    },
-    where: {
-      id: id,
-    },
-  });
+const ownerId = "33923283-a008-4e53-8b97-b11be654f1d9";
 
-  return data;
+const workspaceSelect = {
+  id: true,
+  name: true,
+  ownerId: true,
+} as const;
+
+const endpointSelect = {
+  id: true,
+  method: true,
+  path: true,
+  responseBody: true,
+  responseHeaders: true,
+  responseStatus: true,
+  scenarioId: true,
+} as const;
+
+export async function getWorkspaces() {
+  return prisma.workspace.findMany({
+    orderBy: { createdAt: "desc" },
+    select: workspaceSelect,
+    where: { ownerId },
+  });
 }
 
-export async function getAllUser() {
-  const data = await prisma.user.findMany({
-    include: {
-      posts: true,
-    },
-    where: {
-      posts: {
-        some: { published: true },
+export async function getScenarios(workspaceId: string) {
+  return prisma.scenario.findMany({
+    select: {
+      _count: {
+        select: {
+          endpoints: true,
+        },
       },
+      endpoints: {
+        select: {
+          id: true,
+          method: true,
+          path: true,
+        },
+      },
+      id: true,
+      name: true,
+      workspaceId: true,
     },
+    where: { workspaceId },
   });
+}
 
-  return data;
+export async function getEndpoints(scenarioId: string) {
+  return prisma.endpoint.findMany({
+    select: endpointSelect,
+    where: { scenarioId },
+  });
+}
+
+export async function getEndpoint(endpointId: string) {
+  return prisma.endpoint.findFirst({
+    select: endpointSelect,
+    where: { id: endpointId },
+  });
+}
+
+export async function createWorkspace({ name }: { name: string }) {
+  return prisma.$transaction(async (tx) => {
+    const workspace = await tx.workspace.create({
+      data: { name, ownerId },
+      select: workspaceSelect,
+    });
+
+    await tx.scenario.create({
+      data: { name: "main", workspaceId: workspace.id },
+    });
+
+    return workspace;
+  });
 }

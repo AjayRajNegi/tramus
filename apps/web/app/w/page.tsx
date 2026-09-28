@@ -1,56 +1,120 @@
-export const dynamic = "force-dynamic";
+"use client";
 
-import { getAllUser } from "@/lib/actions/dal";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { createWorkspace, getWorkspaces } from "@/lib/actions/dal";
+import { queryKeys } from "@/lib/constants";
 
-export default async function Home() {
-  const data = await getAllUser();
+export default function Dashboard() {
+  const router = useRouter();
+
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
+  const [workspaceTitle, setWorkspaceTitle] = useState("");
+
+  const queryClient = useQueryClient();
+
+  const { data, isPending, isError } = useQuery({
+    queryFn: getWorkspaces,
+    queryKey: queryKeys.workspaces.lists(),
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const newWorkspace = useMutation({
+    mutationFn: createWorkspace,
+    onError: () => {},
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.workspaces.lists(),
+      });
+
+      setWorkspaceTitle("");
+      setCreatingWorkspace(false);
+      router.push(`/w/${data.id}`);
+    },
+  });
+
+  if (isPending) return <div>Loading...</div>;
+  if (isError) return <div>Loading...</div>;
+
+  const handleUpdate = () => {
+    if (creatingWorkspace) {
+      newWorkspace.mutate({
+        name: workspaceTitle,
+      });
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-8 font-extrabold text-4xl text-gray-900">
-          User Directory
-        </h1>
-
-        <div className="grid gap-8">
-          {data.map((user) => (
-            <div
-              className="rounded-xl border border-gray-200 bg-white p-6 shadow-md"
-              key={user.id}
-            >
-              {/* User Header Info */}
-              <div className="mb-6 border-b pb-4">
-                <h2 className="font-bold text-2xl text-blue-600">
-                  {user.name}
-                </h2>
-                <p className="text-gray-500 text-sm">{user.email}</p>
+    <div className="flex min-h-screen min-w-full items-center justify-center bg-background text-foreground">
+      <Card>
+        <CardHeader />
+        <CardContent>
+          <CardTitle>Page to list all the workspaces</CardTitle>
+          <div className="mt-5">
+            {data.map((workspaces) => (
+              <div className="flex gap-4" key={workspaces.id}>
+                <Link href={`/w/${workspaces.id}`}>- {workspaces.name}</Link>
               </div>
+            ))}
+          </div>
+        </CardContent>
+        <CardFooter className="p-3">
+          <Button
+            className="ml-auto"
+            onClick={() => setCreatingWorkspace(true)}
+          >
+            + New Workspace
+          </Button>
+        </CardFooter>
+        <Dialog
+          onOpenChange={(open) => !open && setCreatingWorkspace(false)}
+          open={creatingWorkspace}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create new workspace</DialogTitle>
+            </DialogHeader>
 
-              {/* Posts Section */}
-              <div className="space-y-4">
-                <h3 className="font-semibold text-gray-400 text-sm uppercase tracking-wider">
-                  Recent Posts
-                </h3>
-                <div className="grid gap-4">
-                  {user.posts.map((post) => (
-                    <div
-                      className="rounded-lg border border-gray-100 bg-gray-50 p-4"
-                      key={post.id}
-                    >
-                      <h4 className="mb-1 font-bold text-gray-800">
-                        {post.title}
-                      </h4>
-                      <p className="text-gray-600 text-sm leading-relaxed">
-                        {post.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div className="flex flex-col gap-4 py-3">
+              <Input
+                id="title"
+                onChange={(e) => setWorkspaceTitle(e.target.value)}
+              />
             </div>
-          ))}
-        </div>
-      </div>
+
+            <DialogFooter className="p-2">
+              <Button
+                // disabled={updatePost.isPending}
+                onClick={() => setCreatingWorkspace(false)}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+              <Button disabled={newWorkspace.isPending} onClick={handleUpdate}>
+                {newWorkspace.isPending ? "..." : "Save"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </Card>
     </div>
   );
 }

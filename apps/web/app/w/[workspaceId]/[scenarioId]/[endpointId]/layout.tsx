@@ -1,19 +1,21 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-import { getWorkspaces } from "@/lib/actions/dal";
+import { getEndpoint } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 import { getQueryClient } from "@/lib/query/get-query-client";
 
-export default async function DashboardLayout({
+export default async function EndpointLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{ endpointId: string }>;
 }) {
-  const queryClient = getQueryClient();
+  const { endpointId } = await params;
 
+  const queryClient = getQueryClient();
   await queryClient.prefetchQuery({
-    queryFn: getWorkspaces,
-    queryKey: queryKeys.workspaces.lists(),
-    staleTime: 2 * 60 * 1000,
+    queryFn: () => getEndpoint(endpointId),
+    queryKey: queryKeys.workspaces.endpoints(endpointId),
   });
 
   return (

@@ -34,7 +34,8 @@
       "!**/apps/authjs/app/generated",
       "!**/apps/authjs/app/generated/prisma",
       "!**/apps/prisma/app/generated/prisma",
-      "!**/apps/better-auth/app/generated/prisma"
+      "!**/apps/better-auth/app/generated/prisma",
+      "!packages/db/app/generated"
     ]
   },
   "formatter": {
