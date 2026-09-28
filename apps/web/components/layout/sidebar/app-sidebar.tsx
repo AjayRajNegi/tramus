@@ -58,40 +58,43 @@ export function AppSidebar() {
             Scenarios
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {scenarios.data?.map((s) => (
-                <SidebarMenuItem key={s.id}>
-                  <div
-                    // asChild
-                    className={cn(
-                      "flex w-full justify-between rounded px-2 py-1.5 text-sidebar-foreground",
-                      "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      s.id === activeScenario &&
-                        "bg-sidebar-accent text-sidebar-accent-foreground",
-                    )}
-                    key={s.id}
-                  >
-                    <Link
-                      className="flex gap-2"
-                      href={`/w/${workspaceId}/${s.id}`}
-                    >
-                      <span className="hidden size-4 shrink-0 items-center justify-center rounded-[2px] bg-sidebar-accent font-semibold text-[8px] text-sidebar-accent-foreground uppercase group-data-[collapsible=icon]:flex">
-                        {s.name.charAt(0)}
-                      </span>
-                      <span className="truncate group-data-[collapsible=icon]:hidden">
-                        {s.name}
-                      </span>
-                    </Link>
-                  </div>
-                  <SidebarMenuBadge className="text-muted-foreground group-data-[collapsible=icon]:hidden">
-                    <p className="text-muted-foreground group-data-[collapsible=icon]:hidden">
-                      {s._count.endpoints}
-                    </p>
-                  </SidebarMenuBadge>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="gap-1">
+              {scenarios.data?.map((s) => {
+                const isActive = s.id === activeScenario;
 
-              <SidebarMenuItem>
+                return (
+                  <SidebarMenuItem key={s.id}>
+                    <div
+                      className={cn(
+                        "flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1.5 text-sidebar-foreground",
+                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
+                        isActive &&
+                          "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <Link
+                        className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center"
+                        href={`/w/${workspaceId}/${s.id}`}
+                      >
+                        <span className="hidden size-4 shrink-0 items-center justify-center font-semibold text-[10px] uppercase group-data-[collapsible=icon]:flex">
+                          {s.name.charAt(0)}
+                        </span>
+                        <span className="truncate text-xs group-data-[collapsible=icon]:hidden">
+                          {s.name}
+                        </span>
+                        <SidebarMenuBadge className="text-muted-foreground group-data-[collapsible=icon]:hidden">
+                          <p className="text-muted-foreground group-data-[collapsible=icon]:hidden">
+                            {s._count.endpoints}
+                          </p>
+                        </SidebarMenuBadge>
+                      </Link>
+                    </div>
+                  </SidebarMenuItem>
+                );
+              })}
+
+              <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
                   className={cn(
                     "border border-sidebar-border border-dashed text-muted-foreground text-xs",
@@ -120,38 +123,54 @@ export function AppSidebar() {
                 Select a scenario
               </p>
             )}
-            <SidebarMenu>
-              {activeScenarioEndpoints?.map((e) => (
-                <SidebarMenuItem key={e.id}>
-                  <div
-                    // asChild
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded px-2 py-1.5 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      e.id === activeEndpoint &&
-                        "border-sidebar-primary border-l-2 bg-sidebar-accent text-sidebar-accent-foreground",
-                    )}
-                  >
-                    <Link
-                      className="flex gap-2"
-                      href={`/w/${workspaceId}/${scenarioId}/${e.id}`}
-                    >
-                      <span className="flex h-fit w-9 shrink-0 items-center justify-center rounded-[2px] bg-green-950 px-2 py-1 font-semibold text-[8px] text-green-600 uppercase group-data-[collapsible=icon]:hidden">
-                        {e.method}
-                      </span>
-                      <span className="hidden size-4 shrink-0 items-center justify-center rounded-[2px] bg-green-950 font-semibold text-[7px] text-green-600 uppercase group-data-[collapsible=icon]:flex">
-                        {e.method.charAt(0)}
-                      </span>
-                      <span className="truncate group-data-[collapsible=icon]:hidden">
-                        {e.path}
-                      </span>
-                    </Link>
-                  </div>
-                </SidebarMenuItem>
-              ))}
+            <SidebarMenu className="gap-1">
+              {activeScenarioEndpoints?.map((e) => {
+                const isActive = e.id === activeEndpoint;
 
-              <SidebarMenuItem>
+                return (
+                  <SidebarMenuItem key={e.id}>
+                    <div
+                      className={cn(
+                        "flex w-full items-center gap-2 rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
+                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                        "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0",
+
+                        isActive &&
+                          "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground",
+                      )}
+                    >
+                      <Link
+                        className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center"
+                        href={`/w/${workspaceId}/${scenarioId}/${e.id}`}
+                      >
+                        <span className="flex h-fit w-9 shrink-0 items-center justify-center rounded-[2px] bg-green-950 px-2 py-1 font-semibold text-[8px] text-green-600 uppercase group-data-[collapsible=icon]:hidden">
+                          {e.method}
+                        </span>
+
+                        <span
+                          className={cn(
+                            "hidden size-8 shrink-0 items-center justify-center rounded bg-green-950 font-semibold text-[9px] text-green-600 uppercase group-data-[collapsible=icon]:flex",
+                            isActive && "border-white border-l-2",
+                          )}
+                        >
+                          {e.method.charAt(0)}
+                        </span>
+
+                        <span className="truncate text-xs group-data-[collapsible=icon]:hidden">
+                          {e.path}
+                        </span>
+                      </Link>
+                    </div>
+                  </SidebarMenuItem>
+                );
+              })}
+
+              <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
-                  className="border border-muted-foreground border-dashed text-muted-foreground text-xs hover:bg-transparent hover:text-background"
+                  className={cn(
+                    "border border-sidebar-border border-dashed text-muted-foreground text-xs",
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  )}
                   tooltip="Add Endpoint"
                 >
                   <PlusIcon className="size-3" />
