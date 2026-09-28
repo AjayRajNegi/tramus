@@ -63,7 +63,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex min-h-screen min-w-full items-center justify-center bg-foreground text-background">
+    <div className="flex min-h-screen min-w-full items-center justify-center bg-background text-foreground">
       <Card>
         <CardHeader />
         <CardContent>

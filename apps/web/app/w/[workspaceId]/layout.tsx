@@ -1,7 +1,8 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
+import { Footer } from "@/components/layout/footer";
 import { AppSidebar } from "@/components/layout/sidebar/app-sidebar";
 import { TopBar } from "@/components/layout/topbar/topbar";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 import { getQueryClient } from "@/lib/query/get-query-client";
@@ -23,23 +24,20 @@ export default async function WorkspaceLayout({
   });
 
   return (
-    <>
+    <HydrationBoundary state={dehydrate(queryClient)}>
       <TopBar />
       <SidebarProvider>
         <AppSidebar />
-        <SidebarTrigger />
-        <main>
-          <HydrationBoundary state={dehydrate(queryClient)}>
-            <div className="p-4">
-              <div className="mt-[60px] flex gap-2">
-                <div className="flex items-center justify-center rounded-xl bg-foreground text-background">
-                  {children}
-                </div>
-              </div>
-            </div>
-          </HydrationBoundary>
+
+        {/*  */}
+        <main className="mt-[50px] h-[calc(100svh-90px)] w-full border-border border-l bg-background p-4 text-foreground">
+          <div className="flex gap-2">
+            <div className="flex items-center justify-center">{children}</div>
+          </div>
         </main>
+
+        <Footer />
       </SidebarProvider>
-    </>
+    </HydrationBoundary>
   );
 }

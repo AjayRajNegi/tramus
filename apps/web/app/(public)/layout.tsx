@@ -7,7 +7,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto min-h-screen min-w-full bg-foreground text-background">
+    <div className="mx-auto min-h-screen min-w-full bg-background text-foreground">
       <Header />
       <main className="mx-auto mt-[70px] max-w-7xl">{children}</main>
       <Footer />

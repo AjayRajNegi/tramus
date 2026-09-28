@@ -17,7 +17,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
@@ -48,14 +47,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className="top-[50px] h-[calc(100svh-50px)] border-none bg-foreground text-background [&_[data-sidebar=sidebar]]:bg-foreground [&_[data-sidebar=sidebar]]:text-background"
+      className="top-[50px] h-[calc(100svh-90px)] border-none"
       collapsible="icon"
     >
       <SidebarContent>
         {/* Scenarios */}
 
         <SidebarGroup>
-          <SidebarGroupLabel className="font-semibold text-[10px] text-muted-foreground uppercase">
+          <SidebarGroupLabel className="font-semibold text-[10px] text-sidebar-foreground/70 uppercase">
             Scenarios
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -65,10 +64,10 @@ export function AppSidebar() {
                   <div
                     // asChild
                     className={cn(
-                      "flex w-full justify-between rounded px-2 py-1.5",
-                      "hover:bg-transparent hover:text-current",
+                      "flex w-full justify-between rounded px-2 py-1.5 text-sidebar-foreground",
+                      "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                       s.id === activeScenario &&
-                        "bg-violet-500/20 hover:bg-violet-500/20",
+                        "bg-sidebar-accent text-sidebar-accent-foreground",
                     )}
                     key={s.id}
                   >
@@ -76,7 +75,7 @@ export function AppSidebar() {
                       className="flex gap-2"
                       href={`/w/${workspaceId}/${s.id}`}
                     >
-                      <span className="hidden size-4 shrink-0 items-center justify-center rounded-[2px] bg-violet-500/30 font-semibold text-[8px] uppercase group-data-[collapsible=icon]:flex">
+                      <span className="hidden size-4 shrink-0 items-center justify-center rounded-[2px] bg-sidebar-accent font-semibold text-[8px] text-sidebar-accent-foreground uppercase group-data-[collapsible=icon]:flex">
                         {s.name.charAt(0)}
                       </span>
                       <span className="truncate group-data-[collapsible=icon]:hidden">
@@ -84,8 +83,8 @@ export function AppSidebar() {
                       </span>
                     </Link>
                   </div>
-                  <SidebarMenuBadge className="text-muted-foreground hover:text-muted-foreground group-data-[collapsible=icon]:hidden">
-                    <p className="text-muted-foreground hover:text-muted-foreground group-data-[collapsible=icon]:hidden">
+                  <SidebarMenuBadge className="text-muted-foreground group-data-[collapsible=icon]:hidden">
+                    <p className="text-muted-foreground group-data-[collapsible=icon]:hidden">
                       {s._count.endpoints}
                     </p>
                   </SidebarMenuBadge>
@@ -95,8 +94,8 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   className={cn(
-                    "border border-muted-foreground border-dashed text-muted-foreground text-xs",
-                    "hover:bg-transparent hover:text-muted-foreground",
+                    "border border-sidebar-border border-dashed text-muted-foreground text-xs",
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                   tooltip="Fork from Timeline"
                 >
@@ -112,12 +111,12 @@ export function AppSidebar() {
 
         {/* Endpoints */}
         <SidebarGroup>
-          <SidebarGroupLabel className="font-semibold text-[10px] text-muted-foreground uppercase">
+          <SidebarGroupLabel className="font-semibold text-[10px] text-sidebar-foreground/70 uppercase">
             Endpoints
           </SidebarGroupLabel>
           <SidebarGroupContent>
             {!scenarioId && (
-              <p className="px-2 text-background/70 text-xs group-data-[collapsible=icon]:hidden">
+              <p className="px-2 text-muted-foreground text-xs group-data-[collapsible=icon]:hidden">
                 Select a scenario
               </p>
             )}
@@ -126,7 +125,11 @@ export function AppSidebar() {
                 <SidebarMenuItem key={e.id}>
                   <div
                     // asChild
-                    className={`${e.id === activeEndpoint ? "border-l-2 border-l-violet-500 bg-violet-200/10" : ""} flex w-full items-center gap-2 rounded px-2 py-1.5`}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded px-2 py-1.5 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      e.id === activeEndpoint &&
+                        "border-sidebar-primary border-l-2 bg-sidebar-accent text-sidebar-accent-foreground",
+                    )}
                   >
                     <Link
                       className="flex gap-2"

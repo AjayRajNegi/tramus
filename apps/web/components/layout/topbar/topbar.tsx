@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { ModeToggle } from "@/components/layout/mode-toggle";
 import { getEndpoints, getScenarios, getWorkspaces } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
@@ -42,7 +43,7 @@ export function TopBar() {
   );
 
   return (
-    <nav className="mx-auto flex h-[50px] w-full items-center justify-between bg-foreground px-4 text-background">
+    <nav className="fixed top-0 left-1/2 flex h-[50px] w-full -translate-x-1/2 items-center justify-between border-border border-b bg-background px-4 text-foreground">
       <Link className="mr-5 underline underline-offset-2" href="/w">
         Tramus
       </Link>
@@ -64,16 +65,17 @@ export function TopBar() {
         </div>
       </div>
 
-      <div>
-        <Link className="mr-5 underline underline-offset-2" href="/w">
+      <div className="flex items-center gap-4">
+        <Link className="underline underline-offset-2" href="/w">
           Fork Scenario
         </Link>
-        <Link className="mr-5 underline underline-offset-2" href="/w">
+        <Link className="underline underline-offset-2" href="/w">
           Share
         </Link>
         <Link className="underline underline-offset-2" href="/w">
           New endpoint
         </Link>
+        <ModeToggle />
       </div>
     </nav>
   );
