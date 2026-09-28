@@ -1,49 +1,49 @@
-import { prisma } from "@tramus/db";
-import express from "express";
+// import { prisma } from "@tramus/db";
+// import express from "express";
 
-const app = express();
+// const app = express();
 
-const PORT = 8000;
+// const PORT = 8000;
 
-async function fetchUser() {
-  const data = await prisma.user.findMany({
-    include: {
-      posts: true,
-    },
-    where: {
-      posts: {
-        some: { published: true },
-      },
-    },
-  });
+// async function fetchUser() {
+//   const data = await prisma.user.findMany({
+//     include: {
+//       posts: true,
+//     },
+//     where: {
+//       posts: {
+//         some: { published: true },
+//       },
+//     },
+//   });
 
-  if (!data || data.length === 0) {
-    return { data: {}, success: false };
-  }
+//   if (!data || data.length === 0) {
+//     return { data: {}, success: false };
+//   }
 
-  return { data, success: true };
-}
+//   return { data, success: true };
+// }
 
-app.get("/", async (_req, res) => {
-  try {
-    const json = await fetchUser();
+// app.get("/", async (_req, res) => {
+//   try {
+//     const json = await fetchUser();
 
-    if (!json.success) {
-      res.status(401).send("Failed to fetch data");
-    } else {
-      console.log("Successfull");
-      res.send(json.data).status(200);
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Internal Server Error");
-  }
-});
+//     if (!json.success) {
+//       res.status(401).send("Failed to fetch data");
+//     } else {
+//       console.log("Successfull");
+//       res.send(json.data).status(200);
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
 
-app.get("/health", (_req, res) => {
-  res.send("Server is running.");
-});
+// app.get("/health", (_req, res) => {
+//   res.send("Server is running.");
+// });
 
-app.listen(PORT, () => {
-  console.log("Listening on port:", PORT);
-});
+// app.listen(PORT, () => {
+//   console.log("Listening on port:", PORT);
+// });

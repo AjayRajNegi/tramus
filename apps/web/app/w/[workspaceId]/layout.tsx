@@ -29,15 +29,17 @@ export default async function WorkspaceLayout({
       <SidebarProvider>
         <AppSidebar />
 
-        {/*  */}
-        <main className="mt-[50px] h-[calc(100svh-90px)] w-full border-border border-l bg-background p-4 text-foreground">
-          <div className="flex gap-2">
-            <div className="flex items-center justify-center">{children}</div>
-          </div>
-        </main>
+        <div className="flex min-h-screen flex-1 flex-col">{children}</div>
 
         <Footer />
       </SidebarProvider>
     </HydrationBoundary>
   );
 }
+
+//  <main className="mt-[50px] h-[calc(100svh-90px)] w-full border-border border-l bg-background p-4 text-foreground">
+//           <div className="flex gap-2">
+//             <div className="flex items-center justify-center">{children}</div>
+//           </div>
+//           <Footer />
+//         </main>
