@@ -23,23 +23,26 @@ export default function ScenarioPage() {
     const scenario = data?.find((s) => s.id === params.scenarioId);
     const firstEndpoint = scenario?.endpoints[0];
 
-    if (firstEndpoint) {
-    }
+    // if(fris)
   }, [data, params]);
 
   if (isPending) return <p>Loading...</p>;
   if (isError) return <p>Error...</p>;
 
+  console.log(data);
+
   return (
     <div className="flex flex-col">
-      {data[0].endpoints.map((endpoint) => (
-        <Link
-          href={`/w/${params.workspaceId}/${params.scenarioId}/${endpoint.id}`}
-          key={endpoint.id}
-        >
-          {endpoint.path}
-        </Link>
-      ))}
+      {data
+        ?.find((s) => s.id === params.scenarioId)
+        ?.endpoints.map((endpoint) => (
+          <Link
+            href={`/w/${params.workspaceId}/${params.scenarioId}/${endpoint.id}`}
+            key={endpoint.id}
+          >
+            {endpoint.path}
+          </Link>
+        ))}
     </div>
   );
 }
