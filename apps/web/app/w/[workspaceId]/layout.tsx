@@ -29,10 +29,14 @@ export default async function WorkspaceLayout({
         <AppSidebar />
         <TopBar />
 
-        <main className="mt-[50px] h-[calc(100svh-90px)] w-full border-border border-l bg-background p-4 text-foreground">
+        {/* <main className="mt-[50px] h-[calc(100svh-90px)] w-full border-border border-l bg-background p-4 text-foreground">
           <div className="flex gap-2">
             <div className="flex items-center justify-center">{children}</div>
           </div>
+        </main> */}
+
+        <main className="mt-[50px] h-[calc(100svh-90px)] min-w-0 flex-1 border-border border-l bg-background p-4 text-foreground">
+          {children}
         </main>
         <Footer />
       </SidebarProvider>

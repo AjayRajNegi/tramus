@@ -1,49 +1,49 @@
-// import { prisma } from "@tramus/db";
-// import express from "express";
+import { prisma } from "@tramus/db";
+import express from "express";
 
-// const app = express();
+const app = express();
 
-// const PORT = 8000;
+const PORT = 8000;
 
-// async function fetchUser() {
-//   const data = await prisma.user.findMany({
-//     include: {
-//       posts: true,
-//     },
-//     where: {
-//       posts: {
-//         some: { published: true },
-//       },
-//     },
-//   });
+async function fetchUser() {
+  const data = await prisma.workspace.findMany({
+    select: {
+      scenarios: true,
+    },
+    where: {
+      ownerId: "33923283-a008-4e53-8b97-b11be654f1d9",
+    },
+  });
 
-//   if (!data || data.length === 0) {
-//     return { data: {}, success: false };
-//   }
+  console.log(data);
 
-//   return { data, success: true };
-// }
+  if (!data || data.length === 0) {
+    return { data: {}, success: false };
+  }
 
-// app.get("/", async (_req, res) => {
-//   try {
-//     const json = await fetchUser();
+  return { data, success: true };
+}
 
-//     if (!json.success) {
-//       res.status(401).send("Failed to fetch data");
-//     } else {
-//       console.log("Successfull");
-//       res.send(json.data).status(200);
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// });
+app.get("/", async (_req, res) => {
+  try {
+    const json = await fetchUser();
 
-// app.get("/health", (_req, res) => {
-//   res.send("Server is running.");
-// });
+    if (!json.success) {
+      res.status(401).send("Failed to fetch data");
+    } else {
+      console.log("Successfull");
+      res.send(json.data).status(200);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
-// app.listen(PORT, () => {
-//   console.log("Listening on port:", PORT);
-// });
+app.get("/health", (_req, res) => {
+  res.send("Server is running.");
+});
+
+app.listen(PORT, () => {
+  console.log("Listening on port:", PORT);
+});
