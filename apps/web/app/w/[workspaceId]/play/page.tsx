@@ -6,6 +6,9 @@ import {
   type KeyValue,
   KeyValueEditor,
 } from "@/components/layout/editor-shell/key-value-editor";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEditorState } from "@/lib/store/editor.store";
 
 export const MOCK_HEADERS: KeyValue[] = [
   { enabled: true, id: "h1", key: "Content-Type", value: "application/json" },
@@ -28,14 +31,37 @@ export default function Playground() {
   const [headers, setHeaders] = useState(MOCK_HEADERS);
   const [params, setParams] = useState(MOCK_PARAMS);
 
+  const { tabs, activeId, setActiveId, openTab, closeTab, drafts } =
+    useEditorState();
+
+  console.log(tabs, activeId, setActiveId, openTab, closeTab, drafts);
+
+  function openTabs() {
+    const tab = {
+      endpointId: crypto.randomUUID(),
+      id: crypto.randomUUID(),
+      scenarioId: crypto.randomUUID(),
+      workspaceId: crypto.randomUUID(),
+    };
+    openTab(tab);
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-8">
+      <Card>
+        <CardHeader>
+          <CardTitle>Store actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={openTabs}>Open tabs</Button>
+        </CardContent>
+      </Card>
       <section className="space-y-2">
         <h2 className="font-medium text-sm">Headers</h2>
         <KeyValueEditor onChange={setHeaders} rows={headers} />
       </section>
 
-      <section className="space-y-2">
+      {/* <section className="space-y-2">
         <h2 className="font-medium text-sm">Params</h2>
         <KeyValueEditor onChange={setParams} rows={params} />
       </section>
@@ -47,7 +73,7 @@ export default function Playground() {
 
       <pre className="overflow-auto rounded-md bg-muted p-3 text-xs">
         {JSON.stringify(headers, null, 2)}
-      </pre>
+      </pre> */}
     </div>
   );
 }

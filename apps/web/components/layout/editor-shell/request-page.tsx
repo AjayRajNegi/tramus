@@ -43,11 +43,7 @@ export function RequestPane() {
           </TabsContent>
           <TabsContent className="p-3" value="body">
             {/* <KeyValueEditor field="headers" /> */}
-            <pre className="overflow-auto rounded-md bg-muted p-3 text-xs">
-              {JSON.stringify(MOCK_PARAMS, null, 2)}
-            </pre>
           </TabsContent>
-          {/* body, auth, docs */}
         </ScrollArea>
       </Tabs>
     </div>

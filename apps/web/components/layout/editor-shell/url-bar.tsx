@@ -1,7 +1,7 @@
 "use client";
 
+import { cn } from "cn";
 import { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 
+const METHOD_STYLES: Record<string, string> = {
+  DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
+  GET: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  PATCH: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  POST: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  PUT: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+};
 const METHODS = ["GET", "POST", "PATCH", "DELETE"] as const;
 
 type Method = (typeof METHODS)[number];
@@ -59,13 +66,18 @@ export function UrlBar({
           onValueChange={(value) => setMethod(value as Method)}
           value={method}
         >
-          <SelectTrigger className="w-28 shrink-0 border-0 font-mono font-semibold shadow-none focus:ring-0">
+          <SelectTrigger
+            className={cn(
+              "w-28 shrink-0 border-0 font-mono font-semibold shadow-none focus:ring-0",
+              METHOD_STYLES[method],
+            )}
+          >
             <SelectValue />
           </SelectTrigger>
 
           <SelectContent>
             {METHODS.map((m) => (
-              <SelectItem key={m} value={m}>
+              <SelectItem className={cn(METHOD_STYLES[m])} key={m} value={m}>
                 {m}
               </SelectItem>
             ))}
