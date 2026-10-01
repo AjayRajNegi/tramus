@@ -35,7 +35,7 @@ export default async function WorkspaceLayout({
           </div>
         </main> */}
 
-        <main className="mt-[50px] h-[calc(100svh-90px)] min-w-0 flex-1 border-border border-l bg-background p-4 text-foreground">
+        <main className="mt-[50px] h-[calc(100svh-90px)] min-w-0 flex-1 border-border border-l bg-background text-foreground">
           {children}
         </main>
         <Footer />
