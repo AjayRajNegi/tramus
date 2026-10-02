@@ -81,7 +81,6 @@ export const useEditorState = create<EditorState>()(
 
         delete state.drafts[id];
 
-        // If closing the active tab, select another tab.
         if (state.activeId === id) {
           const nextTab = state.tabs[index] ?? state.tabs[index - 1];
 
@@ -95,16 +94,109 @@ export const useEditorState = create<EditorState>()(
         delete state.drafts[id];
       });
     },
-    drafts: {},
+    // drafts: {},
+    drafts: {
+      "tab-1": {
+        baseline: {
+          authorization: {
+            token: undefined,
+            type: "none",
+          },
+          body: {
+            content: "",
+            type: "none",
+          },
+          headers: [],
+          method: "GET",
+          params: [],
+          path: "/users",
+        },
+        draft: {
+          authorization: {
+            token: undefined,
+            type: "none",
+          },
+          body: {
+            content: "",
+            type: "none",
+          },
+          headers: [],
+          method: "GET",
+          params: [],
+          path: "/users",
+        },
+        error: undefined,
+        status: "idle",
+      },
+      "tab-2": {
+        baseline: {
+          authorization: {
+            token: "token-1",
+            type: "bearer",
+          },
+          body: {
+            content: JSON.stringify({ name: "Jane Doe" }),
+            type: "json",
+          },
+          headers: [],
+          method: "POST",
+          params: [],
+          path: "/users",
+        },
+        draft: {
+          authorization: {
+            token: "token-1",
+            type: "bearer",
+          },
+          body: {
+            content: JSON.stringify({ name: "John Doe" }),
+            type: "json",
+          },
+          headers: [],
+          method: "POST",
+          params: [],
+          path: "/users",
+        },
+        error: undefined,
+        status: "idle",
+      },
+      "tab-3": {
+        baseline: {
+          authorization: {
+            token: "token-1",
+            type: "bearer",
+          },
+          body: {
+            content: JSON.stringify({ name: "Jane Doe" }),
+            type: "json",
+          },
+          headers: [],
+          method: "PUT",
+          params: [],
+          path: "/users/1",
+        },
+        draft: {
+          authorization: {
+            token: "token-1",
+            type: "bearer",
+          },
+          body: {
+            content: JSON.stringify({ name: "John Doe" }),
+            type: "json",
+          },
+          headers: [],
+          method: "PUT",
+          params: [],
+          path: "/users/1",
+        },
+        error: undefined,
+        status: "idle",
+      },
+    },
 
-    // --------------------------------
     // Draft lifecycle
-    // --------------------------------
-
     ensureDraft: (id, base) => {
       set((state) => {
-        // If draft already exists, don't overwrite
-        // the user's current edits.
         if (state.drafts[id]) {
           return;
         }
@@ -125,11 +217,6 @@ export const useEditorState = create<EditorState>()(
           return;
         }
 
-        // The saved server version is now both:
-        //
-        // draft    = what we're displaying
-        // baseline = what we're comparing against
-        //
         entry.draft = structuredClone(saved);
         entry.baseline = structuredClone(saved);
 
@@ -138,13 +225,9 @@ export const useEditorState = create<EditorState>()(
       });
     },
 
-    // --------------------------------
     // Tabs
-    // --------------------------------
-
     openTab: (tab) => {
       set((state) => {
-        // Don't open the same tab twice.
         const alreadyOpen = state.tabs.some(
           (existingTab) => existingTab.id === tab.id,
         );
@@ -165,13 +248,9 @@ export const useEditorState = create<EditorState>()(
           return;
         }
 
-        // If a new base was supplied, use it.
-        // Otherwise reset to the current baseline.
         const resetTo = base ?? entry.baseline;
-
         entry.draft = structuredClone(resetTo);
 
-        // If `base` was supplied, it becomes the new baseline.
         if (base) {
           entry.baseline = structuredClone(base);
         }
@@ -187,10 +266,7 @@ export const useEditorState = create<EditorState>()(
       });
     },
 
-    // --------------------------------
     // Save status
-    // --------------------------------
-
     setStatus: (id, status, error) => {
       set((state) => {
         const entry = state.drafts[id];
@@ -203,7 +279,27 @@ export const useEditorState = create<EditorState>()(
         entry.error = error;
       });
     },
-    tabs: [],
+    // tabs: [],
+    tabs: [
+      {
+        endpointId: "endpoint-1",
+        id: "tab-1",
+        scenarioId: "scenario-1",
+        workspaceId: "workspace-1",
+      },
+      {
+        endpointId: "endpoint-2",
+        id: "tab-2",
+        scenarioId: "scenario-2",
+        workspaceId: "workspace-2",
+      },
+      {
+        endpointId: "endpoint-3",
+        id: "tab-3",
+        scenarioId: "scenario-3",
+        workspaceId: "workspace-3",
+      },
+    ],
 
     updateDraft: (id, recipe) => {
       set((state) => {
@@ -213,14 +309,10 @@ export const useEditorState = create<EditorState>()(
           return;
         }
 
-        // `recipe` is the function supplied by the component.
         recipe(entry.draft);
 
-        // Since the user changed the draft,
-        // clear the previous error.
         entry.error = undefined;
 
-        // If we previously had "saved", we're editing again.
         if (entry.status === "saved") {
           entry.status = "idle";
         }
@@ -229,10 +321,7 @@ export const useEditorState = create<EditorState>()(
   })),
 );
 
-// --------------------------------
 // Selectors
-// --------------------------------
-
 export const selectIsDirty = (id: TabId) => (state: EditorState) => {
   const entry = state.drafts[id];
 
