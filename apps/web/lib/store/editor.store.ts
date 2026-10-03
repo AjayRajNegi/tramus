@@ -32,6 +32,7 @@ type EndpointDraft = {
     type: "none" | "bearer" | "basic";
     token?: string;
   };
+  url: string;
 };
 
 type DraftEntry = {
@@ -110,6 +111,7 @@ export const useEditorState = create<EditorState>()(
           method: "GET",
           params: [],
           path: "/users",
+          url: "http://localhost:8000/users",
         },
         draft: {
           authorization: {
@@ -124,6 +126,7 @@ export const useEditorState = create<EditorState>()(
           method: "GET",
           params: [],
           path: "/users",
+          url: "http://localhost:8000/users",
         },
         error: undefined,
         status: "idle",
@@ -142,6 +145,7 @@ export const useEditorState = create<EditorState>()(
           method: "POST",
           params: [],
           path: "/users",
+          url: "http://localhost:8000/users",
         },
         draft: {
           authorization: {
@@ -152,10 +156,34 @@ export const useEditorState = create<EditorState>()(
             content: JSON.stringify({ name: "John Doe" }),
             type: "json",
           },
-          headers: [],
+          headers: [
+            {
+              enabled: true,
+              id: "h1",
+              key: "Content-Type",
+              value: "application/json",
+            },
+            {
+              enabled: true,
+              id: "h2",
+              key: "Authorization",
+              value: "Bearer {{token}}",
+            },
+            {
+              enabled: true,
+              id: "h3",
+              key: "Accept",
+              value: "application/json",
+            },
+            { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+            { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+            { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+            { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+          ],
           method: "POST",
           params: [],
           path: "/users",
+          url: "http://localhost:8000/users",
         },
         error: undefined,
         status: "idle",
@@ -174,6 +202,7 @@ export const useEditorState = create<EditorState>()(
           method: "PUT",
           params: [],
           path: "/users/1",
+          url: "http://localhost:8000/users/1",
         },
         draft: {
           authorization: {
@@ -188,6 +217,7 @@ export const useEditorState = create<EditorState>()(
           method: "PUT",
           params: [],
           path: "/users/1",
+          url: "http://localhost:8000/users/1",
         },
         error: undefined,
         status: "idle",

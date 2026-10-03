@@ -1,5 +1,9 @@
+"use client";
+
+import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useEditorState } from "@/lib/store/editor.store";
 import { type KeyValue, KeyValueEditor } from "./key-value-editor";
 import { UrlBar } from "./url-bar";
 
@@ -20,7 +24,14 @@ export const MOCK_PARAMS: KeyValue[] = [
   { enabled: false, id: "p4", key: "filter", value: "status:active" },
 ];
 
+export const MOCK_BODY = [{ enabled: true, id: "p1", key: "page", value: "1" }];
+
 export function RequestPane() {
+  const { drafts, activeId } = useEditorState();
+
+  // useEffect(() => {
+
+  // }, [activeId]);
   return (
     <div className="flex h-full min-h-0 flex-col">
       <UrlBar />
@@ -30,19 +41,41 @@ export function RequestPane() {
           <TabsTrigger value="headers">Headers</TabsTrigger>
           <TabsTrigger value="body">Body</TabsTrigger>
           <TabsTrigger value="auth">Auth</TabsTrigger>
-          <TabsTrigger value="docs">Docs</TabsTrigger>
         </TabsList>
-        <ScrollArea className="min-h-0 flex-1">
-          <TabsContent className="p-3" value="params">
+        <ScrollArea className="min-h-0 flex-1 p-3.5">
+          <TabsContent value="params">
             <KeyValueEditor
               onChange={() => {
                 console.log("updated");
               }}
-              rows={MOCK_HEADERS}
+              rows={activeId ? drafts[activeId].draft.params : MOCK_PARAMS}
             />
           </TabsContent>
-          <TabsContent className="p-3" value="body">
-            {/* <KeyValueEditor field="headers" /> */}
+          <TabsContent value="headers">
+            <KeyValueEditor
+              onChange={() => {
+                console.log("updated");
+              }}
+              rows={activeId ? drafts[activeId].draft.headers : MOCK_HEADERS}
+            />
+          </TabsContent>
+          <TabsContent value="body">
+            {/* <KeyValueEditor
+              onChange={() => {
+                console.log("updated");
+              }}
+              rows={activeId ? drafts[activeId].draft.body : MOCK_BODY}
+            /> */}
+          </TabsContent>
+          <TabsContent value="auth">
+            {/* <KeyValueEditor
+              onChange={() => {
+                console.log("updated");
+              }}
+              rows={
+                activeId ? drafts[activeId].draft.authorization : MOCK_HEADERS
+              }
+            /> */}
           </TabsContent>
         </ScrollArea>
       </Tabs>
