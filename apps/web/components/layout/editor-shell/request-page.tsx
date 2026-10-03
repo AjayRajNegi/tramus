@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEditorState } from "@/lib/store/editor.store";
+import { AuthorizationEditor, createAuthorization } from "./auth-editor";
 import { BodyEditor, createBody } from "./body-editor";
 import { type KeyValue, KeyValueEditor } from "./key-value-editor";
 import { UrlBar } from "./url-bar";
@@ -34,10 +35,10 @@ export function RequestPane() {
   const draft = activeId ? drafts[activeId]?.draft : undefined;
 
   const EMPTY_BODY = createBody();
+  const EMPTY_AUTH = createAuthorization();
 
-  // useEffect(() => {
+  console.log(draft?.authorization);
 
-  // }, [activeId]);
   return (
     <div className="flex h-full min-h-0 flex-col">
       <UrlBar />
@@ -54,7 +55,7 @@ export function RequestPane() {
               onChange={() => {
                 console.log("updated");
               }}
-              rows={activeId ? drafts[activeId].draft.params : MOCK_PARAMS}
+              rows={draft?.params ?? MOCK_PARAMS}
             />
           </TabsContent>
           <TabsContent value="headers">
@@ -62,7 +63,7 @@ export function RequestPane() {
               onChange={() => {
                 console.log("updated");
               }}
-              rows={activeId ? drafts[activeId].draft.headers : MOCK_HEADERS}
+              rows={draft?.headers ?? MOCK_HEADERS}
             />
           </TabsContent>
           <TabsContent value="body">
@@ -74,14 +75,18 @@ export function RequestPane() {
             />
           </TabsContent>
           <TabsContent value="auth">
-            {/* <KeyValueEditor
+            <AuthorizationEditor
+              // onChange={(authorization) =>
+              //   activeId &&
+              //   updateDraft(activeId, (d) => {
+              //     d.authorization = authorization;
+              //   })
+              // }
               onChange={() => {
                 console.log("updated");
               }}
-              rows={
-                activeId ? drafts[activeId].draft.authorization : MOCK_HEADERS
-              }
-            /> */}
+              value={draft?.authorization ?? EMPTY_AUTH}
+            />
           </TabsContent>
         </ScrollArea>
       </Tabs>

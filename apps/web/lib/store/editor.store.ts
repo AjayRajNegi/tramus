@@ -28,16 +28,22 @@ export type RequestBody = {
   form: KeyValue[];
 };
 
+export type AuthType = "none" | "bearer" | "basic";
+
+export type Authorization = {
+  type: AuthType;
+  token: string;
+  username: string;
+  password: string;
+};
+
 type EndpointDraft = {
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   path: string;
   headers: KeyValue[];
   params: KeyValue[];
   body: RequestBody;
-  authorization: {
-    type: "none" | "bearer" | "basic";
-    token?: string;
-  };
+  authorization: Authorization;
   url: string;
 };
 
@@ -101,13 +107,167 @@ export const useEditorState = create<EditorState>()(
         delete state.drafts[id];
       });
     },
-    // drafts: {},
+    // drafts: {
+    //   "tab-2": {
+    //     baseline: {
+    //       authorization: {
+    //         password: "",
+    //         token: "a98kasdf-d8q23r083h-9tjbt35",
+    //         type: "bearer",
+    //         username: "",
+    //       },
+    //       body: {
+    //         form: [
+    //           {
+    //             enabled: true,
+    //             id: "kv_001",
+    //             key: "username",
+    //             value: "johndoe",
+    //           },
+    //           {
+    //             enabled: true,
+    //             id: "kv_002",
+    //             key: "password",
+    //             value: "s3cr3tP@ss",
+    //           },
+    //           {
+    //             enabled: true,
+    //             id: "kv_003",
+    //             key: "remember_me",
+    //             value: "true",
+    //           },
+    //           {
+    //             enabled: false,
+    //             id: "kv_004",
+    //             key: "csrf_token",
+    //             value: "abc123xyz",
+    //           },
+    //           {
+    //             enabled: true,
+    //             id: "kv_005",
+    //             key: "redirect_url",
+    //             value: "/dashboard",
+    //           },
+    //         ],
+    //         json: "",
+    //         raw: "",
+    //         type: "form",
+    //       },
+    //       headers: [
+    //         {
+    //           enabled: true,
+    //           id: "h1",
+    //           key: "Content-Type",
+    //           value: "application/json",
+    //         },
+    //         {
+    //           enabled: true,
+    //           id: "h2",
+    //           key: "Authorization",
+    //           value: "Bearer {{token}}",
+    //         },
+    //         {
+    //           enabled: true,
+    //           id: "h3",
+    //           key: "Accept",
+    //           value: "application/json",
+    //         },
+    //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+    //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+    //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+    //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+    //       ],
+    //       method: "POST",
+    //       params: [],
+    //       path: "/users",
+    //       url: "http://localhost:8000/users",
+    //     },
+    //     draft: {
+    //       authorization: {
+    //         password: "",
+    //         token: "a98kasdf-d8q23r083h-9tjbt35",
+    //         type: "bearer",
+    //         username: "",
+    //       },
+    //       body: {
+    //         form: [
+    //           {
+    //             enabled: true,
+    //             id: "kv_001",
+    //             key: "username",
+    //             value: "johndoe",
+    //           },
+    //           {
+    //             enabled: true,
+    //             id: "kv_002",
+    //             key: "password",
+    //             value: "s3cr3tP@ss",
+    //           },
+    //           {
+    //             enabled: true,
+    //             id: "kv_003",
+    //             key: "remember_me",
+    //             value: "true",
+    //           },
+    //           {
+    //             enabled: false,
+    //             id: "kv_004",
+    //             key: "csrf_token",
+    //             value: "abc123xyz",
+    //           },
+    //           {
+    //             enabled: true,
+    //             id: "kv_005",
+    //             key: "redirect_url",
+    //             value: "/dashboard",
+    //           },
+    //         ],
+    //         json: "",
+    //         raw: "",
+    //         type: "form",
+    //       },
+    //       headers: [
+    //         {
+    //           enabled: true,
+    //           id: "h1",
+    //           key: "Content-Type",
+    //           value: "application/json",
+    //         },
+    //         {
+    //           enabled: true,
+    //           id: "h2",
+    //           key: "Authorization",
+    //           value: "Bearer {{token}}",
+    //         },
+    //         {
+    //           enabled: true,
+    //           id: "h3",
+    //           key: "Accept",
+    //           value: "application/json",
+    //         },
+    //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+    //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+    //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+    //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+    //       ],
+    //       method: "POST",
+    //       params: [],
+    //       path: "/users",
+    //       url: "http://localhost:8000/users",
+    //     },
+    //     error: undefined,
+    //     status: "idle",
+    //   },
+    // },
     drafts: {
       "tab-1": {
         baseline: {
           authorization: {
-            token: undefined,
-            type: "none",
+            password: "",
+            token:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfOGYzYTkxYjIiLCJuYW1lIjoiSmFuZSBEb2UiLCJpYXQiOjE3MTIzNDU2Nzh9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+            type: "bearer",
+            username: "",
           },
           body: {
             form: [],
@@ -136,8 +296,11 @@ export const useEditorState = create<EditorState>()(
         },
         draft: {
           authorization: {
-            token: undefined,
-            type: "none",
+            password: "",
+            token:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfOGYzYTkxYjIiLCJuYW1lIjoiSmFuZSBEb2UiLCJpYXQiOjE3MTIzNDU2Nzh9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+            type: "bearer",
+            username: "",
           },
           body: {
             form: [],
@@ -170,8 +333,10 @@ export const useEditorState = create<EditorState>()(
       "tab-2": {
         baseline: {
           authorization: {
-            token: "token-1",
-            type: "bearer",
+            password: "s3cr3tP@ss!",
+            token: "",
+            type: "basic",
+            username: "johndoe",
           },
           body: {
             form: [
@@ -241,8 +406,10 @@ export const useEditorState = create<EditorState>()(
         },
         draft: {
           authorization: {
-            token: "token-1",
-            type: "bearer",
+            password: "s3cr3tP@ss!",
+            token: "",
+            type: "basic",
+            username: "johndoe",
           },
           body: {
             form: [
@@ -316,19 +483,21 @@ export const useEditorState = create<EditorState>()(
       "tab-3": {
         baseline: {
           authorization: {
-            token: "token-1",
+            password: "hunter2",
+            token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             type: "bearer",
+            username: "octocat",
           },
           body: {
             form: [],
             json: "",
             raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <GetUser xmlns="http://example.com/api">
-      <UserId>usr_8f3a91b2</UserId>
-    </GetUser>
-  </soap:Body>
-</soap:Envelope>`,
+      <soap:Body>
+        <GetUser xmlns="http://example.com/api">
+          <UserId>usr_8f3a91b2</UserId>
+        </GetUser>
+      </soap:Body>
+    </soap:Envelope>`,
             type: "raw",
           },
           headers: [],
@@ -339,19 +508,21 @@ export const useEditorState = create<EditorState>()(
         },
         draft: {
           authorization: {
-            token: "token-1",
+            password: "hunter2",
+            token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
             type: "bearer",
+            username: "octocat",
           },
           body: {
             form: [],
             json: "",
             raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Body>
-    <GetUser xmlns="http://example.com/api">
-      <UserId>usr_8f3a91b2</UserId>
-    </GetUser>
-  </soap:Body>
-</soap:Envelope>`,
+      <soap:Body>
+        <GetUser xmlns="http://example.com/api">
+          <UserId>usr_8f3a91b2</UserId>
+        </GetUser>
+      </soap:Body>
+    </soap:Envelope>`,
             type: "raw",
           },
           headers: [],
