@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEditorState } from "@/lib/store/editor.store";
+import { BodyEditor, createBody } from "./body-editor";
 import { type KeyValue, KeyValueEditor } from "./key-value-editor";
 import { UrlBar } from "./url-bar";
 
@@ -28,6 +29,11 @@ export const MOCK_BODY = [{ enabled: true, id: "p1", key: "page", value: "1" }];
 
 export function RequestPane() {
   const { drafts, activeId } = useEditorState();
+
+  const updateDraft = useEditorState((s) => s.updateDraft);
+  const draft = activeId ? drafts[activeId]?.draft : undefined;
+
+  const EMPTY_BODY = createBody();
 
   // useEffect(() => {
 
@@ -60,12 +66,12 @@ export function RequestPane() {
             />
           </TabsContent>
           <TabsContent value="body">
-            {/* <KeyValueEditor
+            <BodyEditor
               onChange={() => {
                 console.log("updated");
               }}
-              rows={activeId ? drafts[activeId].draft.body : MOCK_BODY}
-            /> */}
+              value={draft?.body ?? EMPTY_BODY}
+            />
           </TabsContent>
           <TabsContent value="auth">
             {/* <KeyValueEditor

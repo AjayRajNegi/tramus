@@ -19,15 +19,21 @@ type KeyValue = {
   enabled: boolean;
 };
 
+export type BodyType = "none" | "json" | "form" | "raw";
+
+export type RequestBody = {
+  type: BodyType;
+  json: string;
+  raw: string;
+  form: KeyValue[];
+};
+
 type EndpointDraft = {
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   path: string;
   headers: KeyValue[];
   params: KeyValue[];
-  body: {
-    type: "none" | "json" | "form" | "raw";
-    content: string;
-  };
+  body: RequestBody;
   authorization: {
     type: "none" | "bearer" | "basic";
     token?: string;
@@ -104,8 +110,23 @@ export const useEditorState = create<EditorState>()(
             type: "none",
           },
           body: {
-            content: "",
-            type: "none",
+            form: [],
+            json: JSON.stringify(
+              {
+                email: "jane.doe@example.com",
+                name: "Jane Doe",
+                preferences: {
+                  notifications: true,
+                  theme: "dark",
+                },
+                roles: ["admin", "editor"],
+                userId: "usr_8f3a91b2",
+              },
+              null,
+              2,
+            ),
+            raw: "",
+            type: "json",
           },
           headers: [],
           method: "GET",
@@ -119,8 +140,23 @@ export const useEditorState = create<EditorState>()(
             type: "none",
           },
           body: {
-            content: "",
-            type: "none",
+            form: [],
+            json: JSON.stringify(
+              {
+                email: "jane.doe@example.com",
+                name: "Jane Doe",
+                preferences: {
+                  notifications: true,
+                  theme: "dark",
+                },
+                roles: ["admin", "editor"],
+                userId: "usr_8f3a91b2",
+              },
+              null,
+              2,
+            ),
+            raw: "",
+            type: "json",
           },
           headers: [],
           method: "GET",
@@ -138,10 +174,66 @@ export const useEditorState = create<EditorState>()(
             type: "bearer",
           },
           body: {
-            content: JSON.stringify({ name: "Jane Doe" }),
-            type: "json",
+            form: [
+              {
+                enabled: true,
+                id: "kv_001",
+                key: "username",
+                value: "johndoe",
+              },
+              {
+                enabled: true,
+                id: "kv_002",
+                key: "password",
+                value: "s3cr3tP@ss",
+              },
+              {
+                enabled: true,
+                id: "kv_003",
+                key: "remember_me",
+                value: "true",
+              },
+              {
+                enabled: false,
+                id: "kv_004",
+                key: "csrf_token",
+                value: "abc123xyz",
+              },
+              {
+                enabled: true,
+                id: "kv_005",
+                key: "redirect_url",
+                value: "/dashboard",
+              },
+            ],
+            json: "",
+            raw: "",
+            type: "form",
           },
-          headers: [],
+          headers: [
+            {
+              enabled: true,
+              id: "h1",
+              key: "Content-Type",
+              value: "application/json",
+            },
+            {
+              enabled: true,
+              id: "h2",
+              key: "Authorization",
+              value: "Bearer {{token}}",
+            },
+            {
+              enabled: true,
+              id: "h3",
+              key: "Accept",
+              value: "application/json",
+            },
+            { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+            { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+            { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+            { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+          ],
           method: "POST",
           params: [],
           path: "/users",
@@ -153,8 +245,41 @@ export const useEditorState = create<EditorState>()(
             type: "bearer",
           },
           body: {
-            content: JSON.stringify({ name: "John Doe" }),
-            type: "json",
+            form: [
+              {
+                enabled: true,
+                id: "kv_001",
+                key: "username",
+                value: "johndoe",
+              },
+              {
+                enabled: true,
+                id: "kv_002",
+                key: "password",
+                value: "s3cr3tP@ss",
+              },
+              {
+                enabled: true,
+                id: "kv_003",
+                key: "remember_me",
+                value: "true",
+              },
+              {
+                enabled: false,
+                id: "kv_004",
+                key: "csrf_token",
+                value: "abc123xyz",
+              },
+              {
+                enabled: true,
+                id: "kv_005",
+                key: "redirect_url",
+                value: "/dashboard",
+              },
+            ],
+            json: "",
+            raw: "",
+            type: "form",
           },
           headers: [
             {
@@ -195,8 +320,16 @@ export const useEditorState = create<EditorState>()(
             type: "bearer",
           },
           body: {
-            content: JSON.stringify({ name: "Jane Doe" }),
-            type: "json",
+            form: [],
+            json: "",
+            raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetUser xmlns="http://example.com/api">
+      <UserId>usr_8f3a91b2</UserId>
+    </GetUser>
+  </soap:Body>
+</soap:Envelope>`,
+            type: "raw",
           },
           headers: [],
           method: "PUT",
@@ -210,8 +343,16 @@ export const useEditorState = create<EditorState>()(
             type: "bearer",
           },
           body: {
-            content: JSON.stringify({ name: "John Doe" }),
-            type: "json",
+            form: [],
+            json: "",
+            raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <GetUser xmlns="http://example.com/api">
+      <UserId>usr_8f3a91b2</UserId>
+    </GetUser>
+  </soap:Body>
+</soap:Envelope>`,
+            type: "raw",
           },
           headers: [],
           method: "PUT",
