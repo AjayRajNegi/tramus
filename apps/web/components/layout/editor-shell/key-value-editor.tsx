@@ -47,7 +47,7 @@ export function KeyValueEditor({
       return;
     }
     onChange(rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-    console.log(rows);
+    // console.log(rows);
   };
 
   const removeRow = (id: string) => onChange(rows.filter((r) => r.id !== id));

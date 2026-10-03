@@ -34,7 +34,7 @@ export default function Playground() {
   const { tabs, activeId, setActiveId, openTab, closeTab, drafts } =
     useEditorState();
 
-  console.log(tabs, activeId, setActiveId, openTab, closeTab, drafts);
+  // console.log(tabs, activeId, setActiveId, openTab, closeTab, drafts);
 
   function openTabs() {
     const tab = {

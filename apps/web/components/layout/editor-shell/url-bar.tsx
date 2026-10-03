@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { useState } from "react";
+import { act, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useEditorState } from "@/lib/store/editor.store";
 
 const METHOD_STYLES: Record<string, string> = {
   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
@@ -21,7 +22,7 @@ const METHOD_STYLES: Record<string, string> = {
   POST: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
   PUT: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
 };
-const METHODS = ["GET", "POST", "PATCH", "DELETE"] as const;
+const METHODS = ["GET", "POST", "PATCH", "DELETE", "PUT"] as const;
 
 type Method = (typeof METHODS)[number];
 
@@ -40,8 +41,19 @@ export function UrlBar({
   onSend,
   onSave,
 }: UrlBarProps) {
-  const [method, setMethod] = useState<Method>(initialMethod);
-  const [path, setPath] = useState(initialPath);
+  const { drafts, activeId } = useEditorState();
+
+  const [method, setMethod] = useState<Method>(
+    activeId ? drafts[activeId].draft.method : "GET",
+  );
+  const [path, setPath] = useState(
+    activeId ? drafts[activeId].draft.path : "http://localhost:3000",
+  );
+
+  useEffect(() => {
+    setPath(activeId ? drafts[activeId].draft.path : "http://localhost:3000");
+    setMethod(activeId ? drafts[activeId].draft.method : "GET");
+  }, [activeId, drafts]);
 
   function send() {
     if (!path.trim()) {

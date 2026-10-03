@@ -11,7 +11,7 @@ import { RequestPane } from "./request-page";
 
 export default function EditorShell() {
   const { drafts } = useEditorState();
-  console.log(drafts[0]);
+  // console.log(drafts[0]);
   return (
     <div className="h-[calc(100svh-90px)]">
       <ResizablePanelGroup className="min-h-0 flex-1" orientation="vertical">
