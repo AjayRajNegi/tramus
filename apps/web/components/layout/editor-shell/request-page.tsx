@@ -31,25 +31,23 @@ export const MOCK_BODY = [{ enabled: true, id: "p1", key: "page", value: "1" }];
 export function RequestPane() {
   const { drafts, activeId } = useEditorState();
 
-  const updateDraft = useEditorState((s) => s.updateDraft);
+  // const updateDraft = useEditorState((s) => s.updateDraft);
   const draft = activeId ? drafts[activeId]?.draft : undefined;
 
   const EMPTY_BODY = createBody();
   const EMPTY_AUTH = createAuthorization();
 
-  console.log(draft?.authorization);
-
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex h-full min-h-0 flex-col p-4">
       <UrlBar />
       <Tabs className="flex min-h-0 flex-1 flex-col" defaultValue="params">
-        <TabsList className="mx-3 w-fit">
+        <TabsList className="mt-1 w-fit">
           <TabsTrigger value="params">Params</TabsTrigger>
           <TabsTrigger value="headers">Headers</TabsTrigger>
           <TabsTrigger value="body">Body</TabsTrigger>
           <TabsTrigger value="auth">Auth</TabsTrigger>
         </TabsList>
-        <ScrollArea className="min-h-0 flex-1 p-3.5">
+        <ScrollArea className="mt-3 min-h-0 flex-1">
           <TabsContent value="params">
             <KeyValueEditor
               onChange={() => {

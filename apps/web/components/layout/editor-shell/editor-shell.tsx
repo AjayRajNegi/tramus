@@ -10,7 +10,7 @@ import EndpointBar from "./endpoint-bar";
 import { RequestPane } from "./request-page";
 
 export default function EditorShell() {
-  const { drafts } = useEditorState();
+  // const { drafts } = useEditorState();
   // console.log(drafts[0]);
   return (
     <div className="h-[calc(100svh-90px)]">
@@ -20,9 +20,8 @@ export default function EditorShell() {
           <RequestPane />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={50} minSize={15}>
+        <ResizablePanel defaultSize={10} minSize={15}>
           {/* <ResponsePane /> */}
-          Response
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
