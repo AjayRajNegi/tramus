@@ -38,16 +38,19 @@ export function RequestPane() {
   const EMPTY_AUTH = createAuthorization();
 
   return (
-    <div className="flex h-full min-h-0 flex-col p-4">
+    <div className="flex h-full min-h-0 flex-col p-5">
       <UrlBar />
-      <Tabs className="flex min-h-0 flex-1 flex-col" defaultValue="params">
-        <TabsList className="mt-1 w-fit">
+      <Tabs
+        className="mt-5 flex min-h-0 flex-1 flex-col gap-0"
+        defaultValue="params"
+      >
+        <TabsList className="w-fit bg-background p-0">
           <TabsTrigger value="params">Params</TabsTrigger>
           <TabsTrigger value="headers">Headers</TabsTrigger>
           <TabsTrigger value="body">Body</TabsTrigger>
           <TabsTrigger value="auth">Auth</TabsTrigger>
         </TabsList>
-        <ScrollArea className="mt-3 min-h-0 flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <TabsContent value="params">
             <KeyValueEditor
               onChange={() => {

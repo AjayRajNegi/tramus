@@ -73,21 +73,21 @@ export function UrlBar({
 
   return (
     <div className="flex gap-2">
-      <div className="flex min-w-0 flex-1 items-center rounded-md border focus-within:ring-1 focus-within:ring-ring">
+      <div className="flex min-w-0 flex-1 items-center rounded-md border-0 focus-within:ring-0 focus-within:ring-ring">
         <Select
           onValueChange={(value) => setMethod(value as Method)}
           value={method}
         >
           <SelectTrigger
             className={cn(
-              "w-28 shrink-0 border-0 font-mono font-semibold shadow-none focus:ring-0",
+              "w-30 shrink-0 border-0 font-mono font-semibold text-xs shadow-none focus:ring-0",
               METHOD_STYLES[method],
             )}
           >
-            <SelectValue />
+            <SelectValue className="text-[10px]" />
           </SelectTrigger>
 
-          <SelectContent>
+          <SelectContent className="max-w-30">
             {METHODS.map((m) => (
               <SelectItem className={cn(METHOD_STYLES[m])} key={m} value={m}>
                 {m}
@@ -96,7 +96,7 @@ export function UrlBar({
           </SelectContent>
         </Select>
 
-        <Separator orientation="vertical" />
+        {/* <Separator orientation="vertical" /> */}
 
         <Input
           className="min-w-0 border-0 font-mono shadow-none focus-visible:ring-0"
@@ -117,6 +117,7 @@ export function UrlBar({
           className="border-primary py-4 hover:border-muted-foreground"
           disabled={!path.trim()}
           onClick={send}
+          variant="outline"
         >
           Send
         </Button>

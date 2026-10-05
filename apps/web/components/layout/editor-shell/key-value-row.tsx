@@ -9,7 +9,7 @@ const GRID = "grid grid-cols-[2.5rem_1fr_1fr_2.5rem] divide-x";
 
 const cellInput =
   "h-9 rounded-none border-0 bg-transparent px-3 font-mono text-sm shadow-none " +
-  "focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-ring " +
+  // "focus-visible:ring-0 focus-visible:ring-inset focus-visible:ring-ring " +
   "dark:bg-transparent";
 
 type KeyValueRowProps = {
