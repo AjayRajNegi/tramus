@@ -1,10 +1,16 @@
 import { cn } from "cn";
-import { XIcon } from "lucide-react";
+import { PlusIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAddDraftTab } from "@/hooks/use-add-draft-tab";
 import { useEditorState } from "@/lib/store/editor.store";
 
 export default function EndpointBar() {
   const { drafts, setActiveId, activeId, closeTab } = useEditorState();
+
+  const addDraftTab = useAddDraftTab();
+  const activeTab = useEditorState((s) =>
+    s.tabs.find((t) => t.id === s.activeId),
+  );
 
   return (
     <div className="flex items-center bg-secondary">
@@ -44,7 +50,20 @@ export default function EndpointBar() {
           </span>
         </Button>
       ))}
-      <p className="ml-2 cursor-pointer bg-secondary">+</p>
+      {/* <p className="ml-2 cursor-pointer bg-secondary">+</p> */}
+      <Button
+        aria-label="New request"
+        onClick={() =>
+          addDraftTab({
+            scenarioId: activeTab?.scenarioId ?? "",
+            workspaceId: activeTab?.workspaceId ?? "",
+          })
+        }
+        size="icon"
+        variant="ghost"
+      >
+        <PlusIcon className="size-4" />
+      </Button>
     </div>
   );
 }

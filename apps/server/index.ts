@@ -15,8 +15,6 @@ async function fetchUser() {
     },
   });
 
-  console.log(data);
-
   if (!data || data.length === 0) {
     return { data: {}, success: false };
   }

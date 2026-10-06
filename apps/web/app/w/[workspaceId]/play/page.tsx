@@ -29,12 +29,8 @@ export const MOCK_PARAMS: KeyValue[] = [
 
 export default function Playground() {
   const [headers, setHeaders] = useState(MOCK_HEADERS);
-  const [params, setParams] = useState(MOCK_PARAMS);
 
-  const { tabs, activeId, setActiveId, openTab, closeTab, drafts } =
-    useEditorState();
-
-  // console.log(tabs, activeId, setActiveId, openTab, closeTab, drafts);
+  const { openTab } = useEditorState();
 
   function openTabs() {
     const tab = {
@@ -60,20 +56,6 @@ export default function Playground() {
         <h2 className="font-medium text-sm">Headers</h2>
         <KeyValueEditor onChange={setHeaders} rows={headers} />
       </section>
-
-      {/* <section className="space-y-2">
-        <h2 className="font-medium text-sm">Params</h2>
-        <KeyValueEditor onChange={setParams} rows={params} />
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="font-medium text-sm">Read-only</h2>
-        <KeyValueEditor onChange={() => {}} readOnly rows={MOCK_HEADERS} />
-      </section>
-
-      <pre className="overflow-auto rounded-md bg-muted p-3 text-xs">
-        {JSON.stringify(headers, null, 2)}
-      </pre> */}
     </div>
   );
 }

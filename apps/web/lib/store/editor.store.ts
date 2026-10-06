@@ -37,7 +37,7 @@ export type Authorization = {
   password: string;
 };
 
-type EndpointDraft = {
+export type EndpointDraft = {
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   path: string;
   headers: KeyValue[];
@@ -74,7 +74,6 @@ type EditorState = {
   discardDraft: (id: TabId) => void;
 
   setStatus: (id: TabId, status: DraftEntry["status"], error?: string) => void;
-
   markSaved: (id: TabId, saved: EndpointDraft) => void;
 };
 
@@ -111,158 +110,7 @@ export const useEditorState = create<EditorState>()(
         delete state.drafts[id];
       });
     },
-    // drafts: {
-    //   "tab-2": {
-    //     baseline: {
-    //       authorization: {
-    //         password: "",
-    //         token: "a98kasdf-d8q23r083h-9tjbt35",
-    //         type: "bearer",
-    //         username: "",
-    //       },
-    //       body: {
-    //         form: [
-    //           {
-    //             enabled: true,
-    //             id: "kv_001",
-    //             key: "username",
-    //             value: "johndoe",
-    //           },
-    //           {
-    //             enabled: true,
-    //             id: "kv_002",
-    //             key: "password",
-    //             value: "s3cr3tP@ss",
-    //           },
-    //           {
-    //             enabled: true,
-    //             id: "kv_003",
-    //             key: "remember_me",
-    //             value: "true",
-    //           },
-    //           {
-    //             enabled: false,
-    //             id: "kv_004",
-    //             key: "csrf_token",
-    //             value: "abc123xyz",
-    //           },
-    //           {
-    //             enabled: true,
-    //             id: "kv_005",
-    //             key: "redirect_url",
-    //             value: "/dashboard",
-    //           },
-    //         ],
-    //         json: "",
-    //         raw: "",
-    //         type: "form",
-    //       },
-    //       headers: [
-    //         {
-    //           enabled: true,
-    //           id: "h1",
-    //           key: "Content-Type",
-    //           value: "application/json",
-    //         },
-    //         {
-    //           enabled: true,
-    //           id: "h2",
-    //           key: "Authorization",
-    //           value: "Bearer {{token}}",
-    //         },
-    //         {
-    //           enabled: true,
-    //           id: "h3",
-    //           key: "Accept",
-    //           value: "application/json",
-    //         },
-    //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-    //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-    //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-    //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-    //       ],
-    //       method: "POST",
-    //       params: [],
-    //       path: "/users",
-    //       url: "http://localhost:8000/users",
-    //     },
-    //     draft: {
-    //       authorization: {
-    //         password: "",
-    //         token: "a98kasdf-d8q23r083h-9tjbt35",
-    //         type: "bearer",
-    //         username: "",
-    //       },
-    //       body: {
-    //         form: [
-    //           {
-    //             enabled: true,
-    //             id: "kv_001",
-    //             key: "username",
-    //             value: "johndoe",
-    //           },
-    //           {
-    //             enabled: true,
-    //             id: "kv_002",
-    //             key: "password",
-    //             value: "s3cr3tP@ss",
-    //           },
-    //           {
-    //             enabled: true,
-    //             id: "kv_003",
-    //             key: "remember_me",
-    //             value: "true",
-    //           },
-    //           {
-    //             enabled: false,
-    //             id: "kv_004",
-    //             key: "csrf_token",
-    //             value: "abc123xyz",
-    //           },
-    //           {
-    //             enabled: true,
-    //             id: "kv_005",
-    //             key: "redirect_url",
-    //             value: "/dashboard",
-    //           },
-    //         ],
-    //         json: "",
-    //         raw: "",
-    //         type: "form",
-    //       },
-    //       headers: [
-    //         {
-    //           enabled: true,
-    //           id: "h1",
-    //           key: "Content-Type",
-    //           value: "application/json",
-    //         },
-    //         {
-    //           enabled: true,
-    //           id: "h2",
-    //           key: "Authorization",
-    //           value: "Bearer {{token}}",
-    //         },
-    //         {
-    //           enabled: true,
-    //           id: "h3",
-    //           key: "Accept",
-    //           value: "application/json",
-    //         },
-    //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-    //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-    //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-    //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-    //       ],
-    //       method: "POST",
-    //       params: [],
-    //       path: "/users",
-    //       url: "http://localhost:8000/users",
-    //     },
-    //     error: undefined,
-    //     status: "idle",
-    //   },
-    // },
+
     drafts: {
       "tab-1": {
         baseline: {
@@ -606,11 +454,11 @@ export const useEditorState = create<EditorState>()(
       });
     },
 
-    setActiveId: (id) => {
+    setActiveId: (id) =>
       set((state) => {
+        if (id !== null && !state.tabs.some((t) => t.id === id)) return;
         state.activeId = id;
-      });
-    },
+      }),
 
     // Save status
     setStatus: (id, status, error) => {

@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "cn";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -40,25 +39,32 @@ export function UrlBar({
   onSend,
   onSave,
 }: UrlBarProps) {
-  const { drafts, activeId } = useEditorState();
-
-  const [method, setMethod] = useState<Method>(
-    activeId ? drafts[activeId].draft.method : "GET",
-  );
-  const [path, setPath] = useState(
-    activeId ? drafts[activeId].draft.path : "http://localhost:3000",
+  const activeId = useEditorState((s) => s.activeId);
+  const entry = useEditorState((s) =>
+    s.activeId ? s.drafts[s.activeId] : undefined,
   );
 
-  useEffect(() => {
-    setPath(activeId ? drafts[activeId].draft.path : "http://localhost:3000");
-    setMethod(activeId ? drafts[activeId].draft.method : "GET");
-  }, [activeId, drafts]);
+  const method = entry?.draft.method ?? "GET";
+  const path = entry?.draft.path ?? "http://localhost:3000";
+
+  const updateDraft = useEditorState((s) => s.updateDraft);
+
+  const setMethod = (m: Method) =>
+    activeId &&
+    updateDraft(activeId, (d) => {
+      d.method = m;
+    });
+
+  const setPath = (p: string) =>
+    activeId &&
+    updateDraft(activeId, (d) => {
+      d.path = p;
+    });
 
   function send() {
     if (!path.trim()) {
       return;
     }
-
     onSend?.(method, path.trim());
   }
 
@@ -66,7 +72,6 @@ export function UrlBar({
     if (!path.trim()) {
       return;
     }
-
     onSave?.(method, path.trim());
   }
 
