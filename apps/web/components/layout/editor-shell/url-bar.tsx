@@ -71,7 +71,7 @@ export function UrlBar({
   }
 
   return (
-    <div className="flex gap-2">
+    <div className="mb-0 flex gap-2 p-5 pb-0">
       <div className="flex min-w-0 flex-1 items-center rounded-md border-0 focus-within:ring-0 focus-within:ring-ring">
         <Select
           onValueChange={(value) => setMethod(value as Method)}

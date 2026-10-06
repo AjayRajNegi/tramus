@@ -156,7 +156,7 @@ export function AuthorizationEditor({
       )}
 
       {value.type === "bearer" && (
-        <div className="divide-y">
+        <div className="divide-y divide-accent/30">
           <Field
             label="Token"
             onChange={(token) => set({ token })}
@@ -169,7 +169,7 @@ export function AuthorizationEditor({
       )}
 
       {value.type === "basic" && (
-        <div className="divide-y">
+        <div className="divide-y divide-accent/30">
           <Field
             label="Username"
             onChange={(username) => set({ username })}
@@ -192,7 +192,7 @@ export function AuthorizationEditor({
       {value.type !== "none" && (
         <div className="border-accent/30 border-t bg-muted/30 px-3 py-1.5 text-muted-foreground text-xs">
           Sent as the{" "}
-          <code className="font-mono text-foreground">Authorization</code>
+          <code className="font-mono text-foreground">Authorization </code>
           header
         </div>
       )}

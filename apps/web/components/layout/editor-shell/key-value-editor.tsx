@@ -69,14 +69,14 @@ export function KeyValueEditor({
           "bg-[#202020] font-medium text-muted-foreground text-xs",
         )}
       >
-        <div />
+        {/* <div />
         <div className="px-3 py-1.5">{keyPlaceholder}</div>
         <div className="px-3 py-1.5">{valuePlaceholder}</div>
-        <div />
+        <div /> */}
       </div>
 
       {/* Rows */}
-      <div className="divide-y border-accent/40 border-t">
+      <div className="divide-y">
         {visibleRows.map((row) => (
           <KeyValueRow
             isGhost={!readOnly && row.id === ghostId}

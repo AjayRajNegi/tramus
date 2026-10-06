@@ -38,19 +38,27 @@ export function RequestPane() {
   const EMPTY_AUTH = createAuthorization();
 
   return (
-    <div className="flex h-full min-h-0 flex-col p-5">
+    <div className="flex h-full min-h-0 flex-col">
       <UrlBar />
       <Tabs
-        className="mt-5 flex min-h-0 flex-1 flex-col gap-0"
+        className="mt-3 flex min-h-0 flex-1 flex-col gap-0"
         defaultValue="params"
       >
-        <TabsList className="w-fit bg-background p-0">
-          <TabsTrigger value="params">Params</TabsTrigger>
-          <TabsTrigger value="headers">Headers</TabsTrigger>
-          <TabsTrigger value="body">Body</TabsTrigger>
-          <TabsTrigger value="auth">Auth</TabsTrigger>
+        <TabsList className="mx-5 w-fit gap-5 bg-background pb-1">
+          <TabsTrigger className="p-0" value="params">
+            Params
+          </TabsTrigger>
+          <TabsTrigger className="p-0" value="headers">
+            Headers
+          </TabsTrigger>
+          <TabsTrigger className="p-0" value="body">
+            Body
+          </TabsTrigger>
+          <TabsTrigger className="p-0" value="auth">
+            Auth
+          </TabsTrigger>
         </TabsList>
-        <ScrollArea className="mt-1 min-h-0 flex-1">
+        <ScrollArea className="min-h-0 flex-1">
           <TabsContent value="params">
             <KeyValueEditor
               onChange={() => {

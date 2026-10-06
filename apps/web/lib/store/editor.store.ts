@@ -85,8 +85,12 @@ export const useEditorState = create<EditorState>()(
     closeTab: (id) => {
       set((state) => {
         const index = state.tabs.findIndex((tab) => tab.id === id);
+        const draftsLength = Object.keys(state.drafts).length;
 
         if (index === -1) {
+          return;
+        }
+        if (draftsLength <= 1) {
           return;
         }
 

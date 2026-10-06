@@ -99,7 +99,7 @@ export function TopBar() {
         </Breadcrumb>
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4">
         <Link className="underline underline-offset-2" href="/w">
           Fork Scenario
         </Link>
@@ -110,7 +110,7 @@ export function TopBar() {
           New endpoint
         </Link>
         <ModeToggle />
-      </div>
+      </div> */}
     </nav>
   );
 }
