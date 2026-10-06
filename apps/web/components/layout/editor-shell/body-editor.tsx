@@ -110,9 +110,14 @@ export function BodyEditor({
   };
 
   return (
-    <div className={cn("overflow-hidden rounded-md border text-sm", className)}>
+    <div
+      className={cn(
+        "overflow-hidden rounded-md border border-accent/30 text-sm",
+        className,
+      )}
+    >
       {/* Type switcher */}
-      <div className="flex items-center justify-between gap-2 border-b bg-muted/50 px-2 py-1.5">
+      <div className="flex items-center justify-between gap-2 border-accent/30 border-b bg-muted/50 px-2 py-1.5">
         <div aria-label="Body type" className="flex gap-1" role="radiogroup">
           {BODY_TYPES.map((type) => {
             const active = value.type === type.value;
@@ -170,7 +175,7 @@ export function BodyEditor({
 
       {(value.type === "json" || value.type === "raw") && (
         <>
-          <div className="border-b bg-muted/30 px-3 py-1.5 font-medium text-muted-foreground text-xs">
+          <div className="border-accent/30 border-b bg-muted/30 px-3 py-1.5 font-medium text-muted-foreground text-xs">
             Raw Request Body
           </div>
           <CodeMirror
@@ -201,7 +206,7 @@ export function BodyEditor({
             value={value.type === "json" ? value.json : value.raw}
           />
           {jsonError && (
-            <div className="truncate border-t bg-destructive/5 px-3 py-1.5 text-destructive text-xs">
+            <div className="truncate border-accent/30 border-t bg-destructive/5 px-3 py-1.5 text-destructive text-xs">
               {jsonError}
             </div>
           )}

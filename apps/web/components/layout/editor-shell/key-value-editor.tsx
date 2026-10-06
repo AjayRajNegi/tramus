@@ -59,14 +59,14 @@ export function KeyValueEditor({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-md border border-accent/50 text-sm",
+        "overflow-hidden rounded-md border border-accent/40 text-sm",
         className,
       )}
     >
       <div
         className={cn(
           GRID,
-          "bg-muted/50 font-medium text-muted-foreground text-xs",
+          "bg-[#202020] font-medium text-muted-foreground text-xs",
         )}
       >
         <div />
@@ -76,7 +76,7 @@ export function KeyValueEditor({
       </div>
 
       {/* Rows */}
-      <div className="divide-y border-accent/50 border-t">
+      <div className="divide-y border-accent/40 border-t">
         {visibleRows.map((row) => (
           <KeyValueRow
             isGhost={!readOnly && row.id === ghostId}

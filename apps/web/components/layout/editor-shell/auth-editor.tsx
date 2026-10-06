@@ -4,10 +4,6 @@ import * as React from "react";
 import type { Authorization, AuthType } from "@/lib/store/editor.store";
 import { cn } from "@/lib/utils";
 
-/* -------------------------------------------------------------------------- */
-/*                                    Types                                   */
-/* -------------------------------------------------------------------------- */
-
 export const createAuthorization = (
   patch: Partial<Authorization> = {},
 ): Authorization => ({
@@ -31,7 +27,7 @@ const AUTH_TYPES: { value: AuthType; label: string }[] = [
   { label: "Basic Auth", value: "basic" },
 ];
 
-const GRID = "grid grid-cols-[8rem_1fr] divide-x";
+const GRID = "grid grid-cols-[8rem_1fr] divide-x divide-accent/30";
 
 const toBase64 = (input: string) => {
   const bytes = new TextEncoder().encode(input);
@@ -116,8 +112,13 @@ export function AuthorizationEditor({
     onChange({ ...value, ...patch });
 
   return (
-    <div className={cn("overflow-hidden rounded-md border text-sm", className)}>
-      <div className="flex items-center gap-2 border-b bg-muted/50 px-2 py-1.5">
+    <div
+      className={cn(
+        "overflow-hidden rounded-md border border-accent/30 text-sm",
+        className,
+      )}
+    >
+      <div className="flex items-center gap-2 border-accent/30 border-b bg-muted/50 px-2 py-1.5">
         <div
           aria-label="Authorization type"
           className="flex gap-1"
@@ -189,7 +190,7 @@ export function AuthorizationEditor({
 
       {/* Header preview */}
       {value.type !== "none" && (
-        <div className="border-t bg-muted/30 px-3 py-1.5 text-muted-foreground text-xs">
+        <div className="border-accent/30 border-t bg-muted/30 px-3 py-1.5 text-muted-foreground text-xs">
           Sent as the{" "}
           <code className="font-mono text-foreground">Authorization</code>
           header

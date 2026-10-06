@@ -5,8 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import type { KeyValue } from "./key-value-editor";
 
-const GRID = "grid grid-cols-[2.5rem_1fr_1fr_2.5rem] divide-x";
-
+const GRID = "grid grid-cols-[2.5rem_1fr_1fr_2.5rem] divide-x divide-accent/30";
 const cellInput =
   "h-9 rounded-none border-0 bg-transparent px-3 font-mono text-sm shadow-none " +
   // "focus-visible:ring-0 focus-visible:ring-inset focus-visible:ring-ring " +
@@ -43,7 +42,10 @@ export function KeyValueRow({
   };
 
   return (
-    <div className={cn(GRID, "group")} data-kv-row>
+    <div
+      className={cn(GRID, "group border-accent/30 border-b last:border-b-0")}
+      data-kv-row
+    >
       <div className="flex items-center justify-center">
         {!isGhost && (
           <Checkbox

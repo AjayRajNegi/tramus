@@ -78,7 +78,7 @@ export function AppSidebar() {
                         "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                         "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
                         isActive &&
-                          "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground",
+                          "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
                     >
                       <Link
@@ -105,7 +105,7 @@ export function AppSidebar() {
               <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
                   className={cn(
-                    "border border-sidebar-border border-dashed text-muted-foreground text-xs",
+                    "border border-sidebar-accent/40 border-dashed text-muted-foreground text-xs",
                     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                   tooltip="Fork from Timeline"
@@ -144,7 +144,7 @@ export function AppSidebar() {
                         "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0",
 
                         isActive &&
-                          "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground",
+                          "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
                     >
                       <Link
@@ -181,7 +181,7 @@ export function AppSidebar() {
               <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
                   className={cn(
-                    "border border-sidebar-border border-dashed text-muted-foreground text-xs",
+                    "border border-sidebar-accent/40 border-dashed text-muted-foreground text-xs",
                     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                   tooltip="Add Endpoint"

@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "cn";
-import { act, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useEditorState } from "@/lib/store/editor.store";
 
 const METHOD_STYLES: Record<string, string> = {
