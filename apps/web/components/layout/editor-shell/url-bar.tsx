@@ -41,18 +41,17 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
   const method = entry?.draft.method ?? "GET";
   const path = entry?.draft.url ?? "http://localhost:3000";
 
+  const setPath = (p: string) =>
+    activeId &&
+    updateDraft(activeId, (d) => {
+      d.url = p;
+    });
   const updateDraft = useEditorState((s) => s.updateDraft);
 
   const setMethod = (m: Method) =>
     activeId &&
     updateDraft(activeId, (d) => {
       d.method = m;
-    });
-
-  const setPath = (p: string) =>
-    activeId &&
-    updateDraft(activeId, (d) => {
-      d.path = p;
     });
 
   function send() {
@@ -68,6 +67,8 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
     }
     onSave?.(method, path.trim());
   }
+
+  // console.log(path);
 
   return (
     <div className="mb-0 flex gap-2 p-5 pb-0">
