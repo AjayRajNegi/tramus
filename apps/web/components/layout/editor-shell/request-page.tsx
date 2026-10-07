@@ -1,5 +1,6 @@
 "use client";
 
+import { Input } from "@/components/ui/input";
 // import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,9 +30,8 @@ export const MOCK_PARAMS: KeyValue[] = [
 export const MOCK_BODY = [{ enabled: true, id: "p1", key: "page", value: "1" }];
 
 export function RequestPane() {
-  const { drafts, activeId } = useEditorState();
+  const { drafts, activeId, updateDraft } = useEditorState();
 
-  // const updateDraft = useEditorState((s) => s.updateDraft);
   const draft = activeId ? drafts[activeId]?.draft : undefined;
 
   const EMPTY_BODY = createBody();
@@ -61,39 +61,45 @@ export function RequestPane() {
         <ScrollArea className="min-h-0 flex-1">
           <TabsContent value="params">
             <KeyValueEditor
-              onChange={() => {
-                console.log("updated");
+              onChange={(rows) => {
+                activeId &&
+                  updateDraft(activeId, (d) => {
+                    d.params = rows;
+                  });
               }}
               rows={draft?.params ?? MOCK_PARAMS}
             />
           </TabsContent>
           <TabsContent value="headers">
             <KeyValueEditor
-              onChange={() => {
-                console.log("updated");
+              onChange={(rows) => {
+                activeId &&
+                  updateDraft(activeId, (d) => {
+                    d.headers = rows;
+                  });
               }}
               rows={draft?.headers ?? MOCK_HEADERS}
             />
           </TabsContent>
           <TabsContent value="body">
             <BodyEditor
-              onChange={() => {
-                console.log("updated");
+              onChange={(value) => {
+                activeId &&
+                  updateDraft(activeId, (d) => {
+                    d.body = value;
+                  });
               }}
               value={draft?.body ?? EMPTY_BODY}
             />
           </TabsContent>
           <TabsContent value="auth">
             <AuthorizationEditor
-              // onChange={(authorization) =>
-              //   activeId &&
-              //   updateDraft(activeId, (d) => {
-              //     d.authorization = authorization;
-              //   })
-              // }
-              onChange={() => {
-                console.log("updated");
-              }}
+              onChange={(authorization) =>
+                activeId &&
+                updateDraft(activeId, (d) => {
+                  d.authorization = authorization;
+                })
+              }
               value={draft?.authorization ?? EMPTY_AUTH}
             />
           </TabsContent>

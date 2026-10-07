@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ModeToggle } from "@/components/layout/mode-toggle";
 import {
   Breadcrumb,
   BreadcrumbItem,

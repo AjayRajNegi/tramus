@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { Input } from "@/components/ui/input";
+import { useEditorState } from "@/lib/store/editor.store";
 import { cn } from "@/lib/utils";
 import { KeyValueRow } from "./key-value-row";
 
@@ -47,7 +49,6 @@ export function KeyValueEditor({
       return;
     }
     onChange(rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-    // console.log(rows);
   };
 
   const removeRow = (id: string) => onChange(rows.filter((r) => r.id !== id));
@@ -69,10 +70,10 @@ export function KeyValueEditor({
           "bg-[#202020] font-medium text-muted-foreground text-xs",
         )}
       >
-        {/* <div />
+        <div />
         <div className="px-3 py-1.5">{keyPlaceholder}</div>
         <div className="px-3 py-1.5">{valuePlaceholder}</div>
-        <div /> */}
+        <div />
       </div>
 
       {/* Rows */}

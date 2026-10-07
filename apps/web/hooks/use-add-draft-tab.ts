@@ -17,10 +17,10 @@ export function useAddDraftTab() {
   return (ctx: { workspaceId: string; scenarioId: string }) => {
     const id = crypto.randomUUID();
 
-    ensureDraft(id, createEmptyDraft());
+    ensureDraft(`tab-${id.substring(0, 5)}`, createEmptyDraft());
     openTab({
-      endpointId: `new-${id}`,
-      id,
+      endpointId: id,
+      id: `tab-${id.substring(0, 5)}`,
       scenarioId: ctx.scenarioId,
       workspaceId: ctx.workspaceId,
     });
