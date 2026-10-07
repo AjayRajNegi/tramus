@@ -32,20 +32,14 @@ type UrlBarProps = {
   onSave?: (method: Method, path: string) => void;
 };
 
-export function UrlBar({
-  initialMethod = "GET",
-  initialPath = "",
-  isDirty = false,
-  onSend,
-  onSave,
-}: UrlBarProps) {
+export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
   const activeId = useEditorState((s) => s.activeId);
   const entry = useEditorState((s) =>
     s.activeId ? s.drafts[s.activeId] : undefined,
   );
 
   const method = entry?.draft.method ?? "GET";
-  const path = entry?.draft.path ?? "http://localhost:3000";
+  const path = entry?.draft.url ?? "http://localhost:3000";
 
   const updateDraft = useEditorState((s) => s.updateDraft);
 

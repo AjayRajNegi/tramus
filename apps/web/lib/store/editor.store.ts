@@ -3,6 +3,27 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 
+const DEMO_TABS: Tab[] = [
+  {
+    endpointId: "endpoint-1",
+    id: "tab-1",
+    scenarioId: "scenario-1",
+    workspaceId: "workspace-1",
+  },
+  {
+    endpointId: "endpoint-2",
+    id: "tab-2",
+    scenarioId: "scenario-2",
+    workspaceId: "workspace-2",
+  },
+  {
+    endpointId: "endpoint-3",
+    id: "tab-3",
+    scenarioId: "scenario-3",
+    workspaceId: "workspace-3",
+  },
+];
+
 type TabId = string;
 
 type Tab = {
@@ -79,17 +100,17 @@ type EditorState = {
 
 export const useEditorState = create<EditorState>()(
   immer((set) => ({
-    activeId: null,
+    activeId: DEMO_TABS[0]?.id ?? null,
 
     closeTab: (id) => {
       set((state) => {
         const index = state.tabs.findIndex((tab) => tab.id === id);
-        const draftsLength = Object.keys(state.drafts).length;
+        const tabsLength = state.tabs.length;
 
         if (index === -1) {
           return;
         }
-        if (draftsLength <= 1) {
+        if (tabsLength <= 1) {
           return;
         }
 
@@ -173,219 +194,255 @@ export const useEditorState = create<EditorState>()(
             raw: "",
             type: "json",
           },
-          headers: [],
+          headers: [
+            {
+              enabled: true,
+              id: "h1",
+              key: "Content-Type",
+              value: "application/json",
+            },
+            {
+              enabled: true,
+              id: "h2",
+              key: "Authorization",
+              value: "Bearer {{token}}",
+            },
+            {
+              enabled: true,
+              id: "h3",
+              key: "Accept",
+              value: "application/json",
+            },
+            { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+            { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+            { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+            { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+          ],
           method: "GET",
-          params: [],
-          path: "/users",
-          url: "http://localhost:8000/users",
-        },
-        error: undefined,
-        status: "idle",
-      },
-      "tab-2": {
-        baseline: {
-          authorization: {
-            password: "s3cr3tP@ss!",
-            token: "",
-            type: "basic",
-            username: "johndoe",
-          },
-          body: {
-            form: [
-              {
-                enabled: true,
-                id: "kv_001",
-                key: "username",
-                value: "johndoe",
-              },
-              {
-                enabled: true,
-                id: "kv_002",
-                key: "password",
-                value: "s3cr3tP@ss",
-              },
-              {
-                enabled: true,
-                id: "kv_003",
-                key: "remember_me",
-                value: "true",
-              },
-              {
-                enabled: false,
-                id: "kv_004",
-                key: "csrf_token",
-                value: "abc123xyz",
-              },
-              {
-                enabled: true,
-                id: "kv_005",
-                key: "redirect_url",
-                value: "/dashboard",
-              },
-            ],
-            json: "",
-            raw: "",
-            type: "form",
-          },
-          headers: [
+          params: [
             {
               enabled: true,
               id: "h1",
-              key: "Content-Type",
-              value: "application/json",
+              key: "page",
+              value: "3",
             },
             {
               enabled: true,
               id: "h2",
-              key: "Authorization",
-              value: "Bearer {{token}}",
+              key: "take",
+              value: "5",
             },
-            {
-              enabled: true,
-              id: "h3",
-              key: "Accept",
-              value: "application/json",
-            },
-            { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-            { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-            { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-            { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
           ],
-          method: "POST",
-          params: [],
-          path: "/users",
-          url: "http://localhost:8000/users",
-        },
-        draft: {
-          authorization: {
-            password: "s3cr3tP@ss!",
-            token: "",
-            type: "basic",
-            username: "johndoe",
-          },
-          body: {
-            form: [
-              {
-                enabled: true,
-                id: "kv_001",
-                key: "username",
-                value: "johndoe",
-              },
-              {
-                enabled: true,
-                id: "kv_002",
-                key: "password",
-                value: "s3cr3tP@ss",
-              },
-              {
-                enabled: true,
-                id: "kv_003",
-                key: "remember_me",
-                value: "true",
-              },
-              {
-                enabled: false,
-                id: "kv_004",
-                key: "csrf_token",
-                value: "abc123xyz",
-              },
-              {
-                enabled: true,
-                id: "kv_005",
-                key: "redirect_url",
-                value: "/dashboard",
-              },
-            ],
-            json: "",
-            raw: "",
-            type: "form",
-          },
-          headers: [
-            {
-              enabled: true,
-              id: "h1",
-              key: "Content-Type",
-              value: "application/json",
-            },
-            {
-              enabled: true,
-              id: "h2",
-              key: "Authorization",
-              value: "Bearer {{token}}",
-            },
-            {
-              enabled: true,
-              id: "h3",
-              key: "Accept",
-              value: "application/json",
-            },
-            { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-            { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-            { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-            { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-          ],
-          method: "POST",
-          params: [],
           path: "/users",
           url: "http://localhost:8000/users",
         },
         error: undefined,
         status: "idle",
       },
-      "tab-3": {
-        baseline: {
-          authorization: {
-            password: "hunter2",
-            token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            type: "bearer",
-            username: "octocat",
-          },
-          body: {
-            form: [],
-            json: "",
-            raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <GetUser xmlns="http://example.com/api">
-          <UserId>usr_8f3a91b2</UserId>
-        </GetUser>
-      </soap:Body>
-    </soap:Envelope>`,
-            type: "raw",
-          },
-          headers: [],
-          method: "PUT",
-          params: [],
-          path: "/users/1",
-          url: "http://localhost:8000/users/1",
-        },
-        draft: {
-          authorization: {
-            password: "hunter2",
-            token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-            type: "bearer",
-            username: "octocat",
-          },
-          body: {
-            form: [],
-            json: "",
-            raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-      <soap:Body>
-        <GetUser xmlns="http://example.com/api">
-          <UserId>usr_8f3a91b2</UserId>
-        </GetUser>
-      </soap:Body>
-    </soap:Envelope>`,
-            type: "raw",
-          },
-          headers: [],
-          method: "PUT",
-          params: [],
-          path: "/users/1",
-          url: "http://localhost:8000/users/1",
-        },
-        error: undefined,
-        status: "idle",
-      },
+      //   "tab-2": {
+      //     baseline: {
+      //       authorization: {
+      //         password: "s3cr3tP@ss!",
+      //         token: "",
+      //         type: "basic",
+      //         username: "johndoe",
+      //       },
+      //       body: {
+      //         form: [
+      //           {
+      //             enabled: true,
+      //             id: "kv_001",
+      //             key: "username",
+      //             value: "johndoe",
+      //           },
+      //           {
+      //             enabled: true,
+      //             id: "kv_002",
+      //             key: "password",
+      //             value: "s3cr3tP@ss",
+      //           },
+      //           {
+      //             enabled: true,
+      //             id: "kv_003",
+      //             key: "remember_me",
+      //             value: "true",
+      //           },
+      //           {
+      //             enabled: false,
+      //             id: "kv_004",
+      //             key: "csrf_token",
+      //             value: "abc123xyz",
+      //           },
+      //           {
+      //             enabled: true,
+      //             id: "kv_005",
+      //             key: "redirect_url",
+      //             value: "/dashboard",
+      //           },
+      //         ],
+      //         json: "",
+      //         raw: "",
+      //         type: "form",
+      //       },
+      //       headers: [
+      //         {
+      //           enabled: true,
+      //           id: "h1",
+      //           key: "Content-Type",
+      //           value: "application/json",
+      //         },
+      //         {
+      //           enabled: true,
+      //           id: "h2",
+      //           key: "Authorization",
+      //           value: "Bearer {{token}}",
+      //         },
+      //         {
+      //           enabled: true,
+      //           id: "h3",
+      //           key: "Accept",
+      //           value: "application/json",
+      //         },
+      //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+      //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+      //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+      //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+      //       ],
+      //       method: "POST",
+      //       params: [],
+      //       path: "/users",
+      //       url: "http://localhost:8000/users",
+      //     },
+      //     draft: {
+      //       authorization: {
+      //         password: "s3cr3tP@ss!",
+      //         token: "",
+      //         type: "basic",
+      //         username: "johndoe",
+      //       },
+      //       body: {
+      //         form: [
+      //           {
+      //             enabled: true,
+      //             id: "kv_001",
+      //             key: "username",
+      //             value: "johndoe",
+      //           },
+      //           {
+      //             enabled: true,
+      //             id: "kv_002",
+      //             key: "password",
+      //             value: "s3cr3tP@ss",
+      //           },
+      //           {
+      //             enabled: true,
+      //             id: "kv_003",
+      //             key: "remember_me",
+      //             value: "true",
+      //           },
+      //           {
+      //             enabled: false,
+      //             id: "kv_004",
+      //             key: "csrf_token",
+      //             value: "abc123xyz",
+      //           },
+      //           {
+      //             enabled: true,
+      //             id: "kv_005",
+      //             key: "redirect_url",
+      //             value: "/dashboard",
+      //           },
+      //         ],
+      //         json: "",
+      //         raw: "",
+      //         type: "form",
+      //       },
+      //       headers: [
+      //         {
+      //           enabled: true,
+      //           id: "h1",
+      //           key: "Content-Type",
+      //           value: "application/json",
+      //         },
+      //         {
+      //           enabled: true,
+      //           id: "h2",
+      //           key: "Authorization",
+      //           value: "Bearer {{token}}",
+      //         },
+      //         {
+      //           enabled: true,
+      //           id: "h3",
+      //           key: "Accept",
+      //           value: "application/json",
+      //         },
+      //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
+      //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
+      //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
+      //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
+      //       ],
+      //       method: "POST",
+      //       params: [],
+      //       path: "/users",
+      //       url: "http://localhost:8000/users",
+      //     },
+      //     error: undefined,
+      //     status: "idle",
+      //   },
+      //   "tab-3": {
+      //     baseline: {
+      //       authorization: {
+      //         password: "hunter2",
+      //         token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      //         type: "bearer",
+      //         username: "octocat",
+      //       },
+      //       body: {
+      //         form: [],
+      //         json: "",
+      //         raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      //   <soap:Body>
+      //     <GetUser xmlns="http://example.com/api">
+      //       <UserId>usr_8f3a91b2</UserId>
+      //     </GetUser>
+      //   </soap:Body>
+      // </soap:Envelope>`,
+      //         type: "raw",
+      //       },
+      //       headers: [],
+      //       method: "PUT",
+      //       params: [],
+      //       path: "/users/1",
+      //       url: "http://localhost:8000/users/1",
+      //     },
+      //     draft: {
+      //       authorization: {
+      //         password: "hunter2",
+      //         token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+      //         type: "bearer",
+      //         username: "octocat",
+      //       },
+      //       body: {
+      //         form: [],
+      //         json: "",
+      //         raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      //   <soap:Body>
+      //     <GetUser xmlns="http://example.com/api">
+      //       <UserId>usr_8f3a91b2</UserId>
+      //     </GetUser>
+      //   </soap:Body>
+      // </soap:Envelope>`,
+      //         type: "raw",
+      //       },
+      //       headers: [],
+      //       method: "PUT",
+      //       params: [],
+      //       path: "/users/1",
+      //       url: "http://localhost:8000/users/1",
+      //     },
+      //     error: undefined,
+      //     status: "idle",
+      //   },
     },
 
     // Draft lifecycle
@@ -474,26 +531,7 @@ export const useEditorState = create<EditorState>()(
       });
     },
     // tabs: [],
-    tabs: [
-      {
-        endpointId: "endpoint-1",
-        id: "tab-1",
-        scenarioId: "scenario-1",
-        workspaceId: "workspace-1",
-      },
-      {
-        endpointId: "endpoint-2",
-        id: "tab-2",
-        scenarioId: "scenario-2",
-        workspaceId: "workspace-2",
-      },
-      {
-        endpointId: "endpoint-3",
-        id: "tab-3",
-        scenarioId: "scenario-3",
-        workspaceId: "workspace-3",
-      },
-    ],
+    tabs: DEMO_TABS,
 
     updateDraft: (id, recipe) => {
       set((state) => {

@@ -1,7 +1,5 @@
 "use client";
 
-import { Input } from "@/components/ui/input";
-// import { useEffect } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEditorState } from "@/lib/store/editor.store";
