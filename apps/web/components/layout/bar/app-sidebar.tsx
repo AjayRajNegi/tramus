@@ -21,6 +21,14 @@ import {
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
 
+const METHOD_STYLES: Record<string, string> = {
+  DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
+  GET: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  PATCH: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+  POST: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  PUT: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+};
+
 export function AppSidebar() {
   const { workspaceId, scenarioId, endpointId } = useParams<{
     workspaceId: string;
@@ -70,7 +78,7 @@ export function AppSidebar() {
                         "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                         "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
                         isActive &&
-                          "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground",
+                          "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
                     >
                       <Link
@@ -97,7 +105,7 @@ export function AppSidebar() {
               <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
                   className={cn(
-                    "border border-sidebar-border border-dashed text-muted-foreground text-xs",
+                    "border border-sidebar-accent/40 border-dashed text-muted-foreground text-xs",
                     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                   tooltip="Fork from Timeline"
@@ -136,14 +144,19 @@ export function AppSidebar() {
                         "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0",
 
                         isActive &&
-                          "border-sidebar-primary bg-sidebar-accent text-sidebar-accent-foreground",
+                          "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
                     >
                       <Link
                         className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center"
                         href={`/w/${workspaceId}/${scenarioId}/${e.id}`}
                       >
-                        <span className="flex h-fit w-9 shrink-0 items-center justify-center rounded-[2px] bg-green-950 px-2 py-1 font-semibold text-[8px] text-green-600 uppercase group-data-[collapsible=icon]:hidden">
+                        <span
+                          className={cn(
+                            "flex h-fit w-9 shrink-0 items-center justify-center rounded-[2px] py-1 font-semibold text-[8px] uppercase group-data-[collapsible=icon]:hidden",
+                            METHOD_STYLES[e.method],
+                          )}
+                        >
                           {e.method}
                         </span>
 
@@ -168,7 +181,7 @@ export function AppSidebar() {
               <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
                   className={cn(
-                    "border border-sidebar-border border-dashed text-muted-foreground text-xs",
+                    "border border-sidebar-accent/40 border-dashed text-muted-foreground text-xs",
                     "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   )}
                   tooltip="Add Endpoint"

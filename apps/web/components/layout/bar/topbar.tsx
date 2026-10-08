@@ -3,7 +3,6 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ModeToggle } from "@/components/layout/mode-toggle";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -30,13 +29,17 @@ export function TopBar() {
 
   const scenarios = useQuery({
     enabled: !!params.workspaceId,
+    // biome-ignore lint/style/noNonNullAssertion: tobbar
     queryFn: () => getScenarios(params.workspaceId!),
+    // biome-ignore lint/style/noNonNullAssertion: tobbar
     queryKey: queryKeys.workspaces.scenarios(params.workspaceId!),
   });
 
   const endpoints = useQuery({
     enabled: !!params.scenarioId,
+    // biome-ignore lint/style/noNonNullAssertion: <tobbar>
     queryFn: () => getEndpoints(params.scenarioId!),
+    // biome-ignore lint/style/noNonNullAssertion: <tobbar>
     queryKey: queryKeys.workspaces.endpoints(params.scenarioId!),
   });
 
@@ -99,7 +102,7 @@ export function TopBar() {
         </Breadcrumb>
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4">
         <Link className="underline underline-offset-2" href="/w">
           Fork Scenario
         </Link>
@@ -110,7 +113,7 @@ export function TopBar() {
           New endpoint
         </Link>
         <ModeToggle />
-      </div>
+      </div> */}
     </nav>
   );
 }
