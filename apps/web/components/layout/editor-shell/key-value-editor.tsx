@@ -1,8 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/components/ui/input";
-import { useEditorState } from "@/lib/store/editor.store";
 import { cn } from "@/lib/utils";
 import { KeyValueRow } from "./key-value-row";
 

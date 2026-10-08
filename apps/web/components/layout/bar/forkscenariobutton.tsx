@@ -1,9 +1,6 @@
 import { Input } from "@base-ui/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { GitFork, Loader2 } from "lucide-react";
+import { GitFork } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { queryKeys } from "@/lib/constants";
 import { Button } from "../../ui/button";
 import {
   Dialog,
@@ -25,7 +22,7 @@ type ForkScenarioButtonProps = {
 export function ForkScenarioButton({
   scenarioId,
   scenarioName,
-  workspaceId,
+  // workspaceId,
 }: ForkScenarioButtonProps) {
   // const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);

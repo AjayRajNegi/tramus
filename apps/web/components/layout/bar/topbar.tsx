@@ -29,13 +29,17 @@ export function TopBar() {
 
   const scenarios = useQuery({
     enabled: !!params.workspaceId,
+    // biome-ignore lint/style/noNonNullAssertion: tobbar
     queryFn: () => getScenarios(params.workspaceId!),
+    // biome-ignore lint/style/noNonNullAssertion: tobbar
     queryKey: queryKeys.workspaces.scenarios(params.workspaceId!),
   });
 
   const endpoints = useQuery({
     enabled: !!params.scenarioId,
+    // biome-ignore lint/style/noNonNullAssertion: <tobbar>
     queryFn: () => getEndpoints(params.scenarioId!),
+    // biome-ignore lint/style/noNonNullAssertion: <tobbar>
     queryKey: queryKeys.workspaces.endpoints(params.scenarioId!),
   });
 

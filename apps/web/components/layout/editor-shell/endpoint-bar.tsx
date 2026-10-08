@@ -14,7 +14,7 @@ export default function EndpointBar() {
 
   return (
     <div className="flex items-center bg-secondary">
-      {Object.entries(drafts).map(([id, draft]) => (
+      {Object.entries(drafts).map(([id, _draft]) => (
         <Button
           className={cn(
             "group border-0 p-2 py-4 text-xs",
