@@ -68,7 +68,12 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
     onSave?.(method, path.trim());
   }
 
-  // console.log(path);
+  async function getRequest() {
+    const res = await fetch("/api/proxy");
+    const data = await res.json();
+
+    console.log(data);
+  }
 
   return (
     <div className="mb-0 flex gap-2 p-5 pb-0">
@@ -115,7 +120,7 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
         <Button
           className="border-primary py-4 hover:border-muted-foreground"
           disabled={!path.trim()}
-          onClick={send}
+          onClick={getRequest}
           variant="outline"
         >
           Send
