@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "@tramus/protocol": "workspace:*"
+  },
+  "description": "Tramus Interceptor: browser extension that sends Tramus requests without CORS limits.",
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "wxt": "^0.20.0"
+  },
+  "name": "@tramus/extension",
+  "private": true,
+  "scripts": {
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "postinstall": "wxt prepare",
+    "typecheck": "wxt prepare && tsc --noEmit",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox"
+  },
+  "type": "module",
+  "version": "0.1.0"
+}
