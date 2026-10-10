@@ -6,7 +6,6 @@ import {
 } from "../node_modules/@tramus/protocol/index";
 import { APP_MATCH_PATTERNS } from "../utils/app-origin";
 
-// `defineContentScript` and `browser` are auto-imported by WXT.
 export default defineContentScript({
   main() {
     const post = (message: ExtToWeb) =>

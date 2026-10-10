@@ -1,9 +1,9 @@
-import './style.css';
-import typescriptLogo from '@/assets/typescript.svg';
-import wxtLogo from '/wxt.svg';
-import { setupCounter } from '@/components/counter';
+import "./style.css";
+import typescriptLogo from "@/assets/typescript.svg";
+import { setupCounter } from "@/components/counter";
+import wxtLogo from "/wxt.svg";
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
+document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
     <a href="https://wxt.dev" target="_blank">
       <img src="${wxtLogo}" class="logo" alt="WXT logo" />
@@ -21,4 +21,4 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   </div>
 `;
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!);
+setupCounter(document.querySelector<HTMLButtonElement>("#counter")!);
