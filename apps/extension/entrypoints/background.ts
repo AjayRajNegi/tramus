@@ -1,8 +1,10 @@
+import { execute } from "@/utils/execute";
 import {
   type BackgroundPong,
+  type BackgroundResponse,
   isBackgroundPing,
+  isBackgroundRequest,
 } from "../node_modules/@tramus/protocol/index";
-import { isAllowedOrigin } from "../utils/app-origin";
 
 export default defineBackground(() => {
   browser.runtime.onMessage.addListener(
@@ -16,7 +18,17 @@ export default defineBackground(() => {
           version: browser.runtime.getManifest().version,
         };
         sendResponse(reply);
+        return false;
       }
+
+      if (isBackgroundRequest(message)) {
+        execute(message.request).then((result) => {
+          const reply: BackgroundResponse = { result, type: "response" };
+          sendResponse(reply);
+        });
+        return true;
+      }
+
       return false;
     },
   );

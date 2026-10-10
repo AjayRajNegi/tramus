@@ -14,6 +14,7 @@ export default defineConfig({
   manifest: {
     description:
       "Send Tramus API requests to localhost and cloud APIs without CORS limits.",
+    host_permissions: ["<all_urls>"],
     name: "Tramus Interceptor",
   },
 });

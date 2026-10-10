@@ -2,6 +2,7 @@ import {
   BRIDGE_SOURCE_EXT,
   type ExtToWeb,
   isBackgroundPong,
+  isBackgroundResponse,
   isWebToExt,
 } from "../node_modules/@tramus/protocol/index";
 import { APP_MATCH_PATTERNS } from "../utils/app-origin";
@@ -18,7 +19,6 @@ export default defineContentScript({
 
       if (event.data.type === "ping") {
         try {
-          // Round-trip through the background worker so 'connected' means the whole chain works.
           const reply: unknown = await browser.runtime.sendMessage({
             type: "ping",
           });
@@ -29,13 +29,42 @@ export default defineContentScript({
               version: reply.version,
             });
           }
+        } catch {}
+      }
+      if (event.data.type === "request") {
+        const { id, request } = event.data;
+        try {
+          const reply: unknown = await browser.runtime.sendMessage({
+            request,
+            type: "request",
+          });
+          if (isBackgroundResponse(reply)) {
+            post({
+              id,
+              result: reply.result,
+              source: BRIDGE_SOURCE_EXT,
+              type: "response",
+            });
+            return;
+          }
+          throw new Error("Invalid background reply");
         } catch {
-          // Background unreachable: stay silent so the app reports 'not installed'.
+          post({
+            id,
+            result: {
+              error: {
+                code: "NETWORK",
+                message: "Extension background unreachable",
+              },
+              ok: false,
+            },
+            source: BRIDGE_SOURCE_EXT,
+            type: "response",
+          });
         }
       }
     });
 
-    // Best-effort announcement. The page may not be listening yet, so the app also pings.
     post({
       source: BRIDGE_SOURCE_EXT,
       type: "pong",
