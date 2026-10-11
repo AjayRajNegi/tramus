@@ -8,6 +8,6 @@ app.use("/", (_req, res) => {
   res.json({ message: "Hello" });
 });
 
-app.listen(8000, () => {
+app.listen(8080, () => {
   console.log("Server is running");
 });
