@@ -69,7 +69,7 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
   }
 
   async function getRequest() {
-    const res = await fetch("/api/proxy");
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
     const data = await res.json();
 
     console.log(data);
