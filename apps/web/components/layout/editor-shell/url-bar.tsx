@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
 import { useEditorState } from "@/lib/store/editor.store";
 
 const METHOD_STYLES: Record<string, string> = {
@@ -28,11 +29,10 @@ type UrlBarProps = {
   initialMethod?: Method;
   initialPath?: string;
   isDirty?: boolean;
-  onSend?: (method: Method, path: string) => void;
   onSave?: (method: Method, path: string) => void;
 };
 
-export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
+export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   const activeId = useEditorState((s) => s.activeId);
   const entry = useEditorState((s) =>
     s.activeId ? s.drafts[s.activeId] : undefined,
@@ -54,11 +54,21 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
       d.method = m;
     });
 
-  function send() {
-    if (!path.trim()) {
+  async function send() {
+    if (!path.trim() || !activeId) {
       return;
     }
-    onSend?.(method, path.trim());
+
+    const draft = useEditorState.getState().drafts[activeId]?.draft;
+    if (!draft) return;
+
+    console.log(draft);
+
+    const request = toTramusRequest(draft);
+    const result = await sendRequest(request);
+
+    console.log("Request sent:", request);
+    console.log("Response:", result);
   }
 
   function save() {
@@ -66,13 +76,6 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
       return;
     }
     onSave?.(method, path.trim());
-  }
-
-  async function getRequest() {
-    const res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
-    const data = await res.json();
-
-    console.log(data);
   }
 
   return (
@@ -120,7 +123,7 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
         <Button
           className="border-primary py-4 hover:border-muted-foreground"
           disabled={!path.trim()}
-          onClick={getRequest}
+          onClick={send}
           variant="outline"
         >
           Send

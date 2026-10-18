@@ -72,12 +72,12 @@ function isHeaderPairs(v: unknown): v is [string, string] {
         Array.isArray(p) &&
         p.length === 2 &&
         typeof p[0] === "string" &&
-        p[0] === "string",
+        typeof p[1] === "string",
     )
   );
 }
 
-export function isTramusRequest(v: unknown): v is TramusResult {
+export function isTramusRequest(v: unknown): v is TramusRequest {
   return (
     isRecord(v) &&
     typeof v.method === "string" &&
