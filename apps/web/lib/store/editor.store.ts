@@ -44,6 +44,11 @@ const DEMO_DRAFT: Record<TabId, DraftEntry> = {
       method: "GET",
       params: [],
       path: "/users",
+      response: {
+        body: '{"message":"Hello"}',
+        ok: true,
+        status: 200,
+      },
       url: "http://localhost:8000/users",
     },
     draft: {
@@ -100,6 +105,11 @@ const DEMO_DRAFT: Record<TabId, DraftEntry> = {
       method: "GET",
       params: [],
       path: "/users",
+      response: {
+        body: '{"message":"Hello"}',
+        ok: true,
+        status: 200,
+      },
       url: "http://localhost:8000/users",
     },
     error: undefined,
@@ -336,6 +346,12 @@ export type RequestBody = {
   form: KeyValue[];
 };
 
+export type ResponseType = {
+  ok: boolean;
+  body: string;
+  status: number;
+};
+
 export type AuthType = "none" | "bearer" | "basic";
 
 export type Authorization = {
@@ -353,6 +369,7 @@ export type EndpointDraft = {
   body: RequestBody;
   authorization: Authorization;
   url: string;
+  response: ResponseType;
 };
 
 type DraftEntry = {

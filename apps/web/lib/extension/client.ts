@@ -35,9 +35,6 @@ export function sendViaExtension(
   request: TramusRequest,
 ): Promise<TramusResult> {
   ensureListener();
-
-  console.log("sendViaExtension");
-
   const id = crypto.randomUUID();
 
   return new Promise((resolve) => {
@@ -54,7 +51,6 @@ export function sendViaExtension(
           },
           window.location.origin,
         );
-        console.log("postMessage");
       } catch (error) {
         error instanceof Error
           ? console.log(error.message)

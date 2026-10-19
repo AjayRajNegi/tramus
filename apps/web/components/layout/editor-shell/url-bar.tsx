@@ -62,13 +62,23 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     const draft = useEditorState.getState().drafts[activeId]?.draft;
     if (!draft) return;
 
-    console.log(draft);
-
     const request = toTramusRequest(draft);
     const result = await sendRequest(request);
 
-    console.log("Request sent:", request);
-    console.log("Response:", result);
+    if (result !== null && result.ok !== null) {
+      updateDraft(activeId, (d) => {
+        d.response.ok = result.ok;
+        d.response.body = Object.values(result)[1].body
+          ? Object.values(result)[1].body
+          : null;
+
+        d.response.status = Object.values(result)[1].status;
+      });
+    }
+
+    // console.log("Request sent:", request);
+    // console.log(Object.values(result));
+    // console.log("Response:", Object.values(result)[1].body);
   }
 
   function save() {

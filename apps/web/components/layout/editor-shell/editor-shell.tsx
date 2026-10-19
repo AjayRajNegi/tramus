@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/resizable";
 import EndpointBar from "./endpoint-bar";
 import { RequestPane } from "./request-page";
+import ResponsePane from "./response-pane";
 
 export default function EditorShell() {
   return (
@@ -18,7 +19,7 @@ export default function EditorShell() {
         </ResizablePanel>
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={10} minSize={15}>
-          {/* <ResponsePane /> */}
+          <ResponsePane />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
