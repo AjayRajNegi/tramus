@@ -11,11 +11,11 @@ export default function ResponsePane() {
   return (
     <div className="p-4">
       Response
-      <div>
+      {/* <div>
         {entry?.baseline.response.status} -{" "}
         {entry?.baseline.response.ok ? "successfull" : "failed"}
       </div>
-      <div>{entry?.baseline.response.body}</div>
+      <div>{entry?.baseline.response.body}</div> */}
     </div>
   );
 }

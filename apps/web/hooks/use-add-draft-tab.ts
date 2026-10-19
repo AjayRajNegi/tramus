@@ -7,11 +7,11 @@ const createEmptyDraft = (): EndpointDraft => ({
   method: "GET",
   params: [],
   path: "http://localhost:3000",
-  response: {
-    body: '{"message":"Hello Draft"}',
-    ok: true,
-    status: 200,
-  },
+  // response: {
+  //   body: '{"message":"Hello Draft"}',
+  //   ok: true,
+  //   status: 200,
+  // },
   url: "",
 });
 

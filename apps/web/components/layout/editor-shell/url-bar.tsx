@@ -65,18 +65,19 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     const request = toTramusRequest(draft);
     const result = await sendRequest(request);
 
-    if (result !== null && result.ok !== null) {
-      updateDraft(activeId, (d) => {
-        d.response.ok = result.ok;
-        d.response.body = Object.values(result)[1].body
-          ? Object.values(result)[1].body
-          : null;
+    // if (result !== null && result.ok !== null) {
+    //   updateDraft(activeId, (d) => {
+    //     d.response.ok = result.ok;
+    //     d.response.body = Object.values(result)[1].body
+    //       ? Object.values(result)[1].body
+    //       : null;
 
-        d.response.status = Object.values(result)[1].status;
-      });
-    }
+    //     d.response.status = Object.values(result)[1].status;
+    //   });
+    // }
 
-    // console.log("Request sent:", request);
+    console.log("Request sent:", result);
+
     // console.log(Object.values(result));
     // console.log("Response:", Object.values(result)[1].body);
   }
