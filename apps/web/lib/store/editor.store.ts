@@ -6,163 +6,15 @@ import type {
   HttpResponse,
   RequestFailure,
   ResponseState,
-} from "./store-types";
-
-const DEMO_TABS: Tab[] = [
-  {
-    endpointId: "endpoint-1",
-    id: "tab-1",
-    scenarioId: "scenario-1",
-    workspaceId: "workspace-1",
-  },
-];
-const DEMO_DRAFT: Record<TabId, DraftEntry> = {
-  "tab-1": {
-    baseline: {
-      authorization: {
-        password: "",
-        token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfOGYzYTkxYjIiLCJuYW1lIjoiSmFuZSBEb2UiLCJpYXQiOjE3MTIzNDU2Nzh9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-        type: "bearer",
-        username: "",
-      },
-      body: {
-        form: [],
-        json: JSON.stringify(
-          {
-            email: "jane.doe@example.com",
-            name: "Jane Doe",
-            preferences: {
-              notifications: true,
-              theme: "dark",
-            },
-            roles: ["admin", "editor"],
-            userId: "usr_8f3a91b2",
-          },
-          null,
-          2,
-        ),
-        raw: "",
-        type: "json",
-      },
-      headers: [],
-      method: "GET",
-      params: [],
-      path: "/users",
-      url: "http://localhost:8000/users",
-    },
-    draft: {
-      authorization: {
-        password: "",
-        token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfOGYzYTkxYjIiLCJuYW1lIjoiSmFuZSBEb2UiLCJpYXQiOjE3MTIzNDU2Nzh9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-        type: "bearer",
-        username: "",
-      },
-      body: {
-        form: [],
-        json: JSON.stringify(
-          {
-            email: "jane.doe@example.com",
-            name: "Jane Doe",
-            preferences: {
-              notifications: true,
-              theme: "dark",
-            },
-            roles: ["admin", "editor"],
-            userId: "usr_8f3a91b2",
-          },
-          null,
-          2,
-        ),
-        raw: "",
-        type: "json",
-      },
-      headers: [
-        {
-          enabled: true,
-          id: "h1",
-          key: "Content-Type",
-          value: "application/json",
-        },
-        {
-          enabled: true,
-          id: "h2",
-          key: "Authorization",
-          value: "Bearer {{token}}",
-        },
-        {
-          enabled: true,
-          id: "h3",
-          key: "Accept",
-          value: "application/json",
-        },
-        { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-        { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-        { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-        { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-      ],
-      method: "GET",
-      params: [],
-      path: "/users",
-
-      url: "http://localhost:8000/users",
-    },
-    error: undefined,
-    status: "idle",
-  },
-};
-
-type TabId = string;
-
-type Tab = {
-  id: TabId;
-  endpointId: string;
-  scenarioId: string;
-  workspaceId: string;
-};
-
-type KeyValue = {
-  id: string;
-  key: string;
-  value: string;
-  enabled: boolean;
-};
-
-export type BodyType = "none" | "json" | "form" | "raw";
-
-export type RequestBody = {
-  type: BodyType;
-  json: string;
-  raw: string;
-  form: KeyValue[];
-};
-
-export type AuthType = "none" | "bearer" | "basic";
-
-export type Authorization = {
-  type: AuthType;
-  token: string;
-  username: string;
-  password: string;
-};
-
-export type EndpointDraft = {
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  path: string;
-  headers: KeyValue[];
-  params: KeyValue[];
-  body: RequestBody;
-  authorization: Authorization;
-  url: string;
-};
-
-type DraftEntry = {
-  draft: EndpointDraft;
-  baseline: EndpointDraft;
-  status: "idle" | "saving" | "saved" | "error";
-  error?: string;
-};
+} from "./response.store.types";
+import type {
+  DraftEntry,
+  EndpointDraft,
+  KeyValue,
+  Tab,
+  TabId,
+} from "./tab.store.types";
+import { DEMO_DRAFT, DEMO_TABS } from "./tab.store.types";
 
 type EditorState = {
   tabs: Tab[];
@@ -333,11 +185,8 @@ export const useEditorState = create<EditorState>()(
         const current = state.responses[id];
 
         if (current?.phase !== "loading" || current.requestId !== response.id) {
-          // console.log("setResponse return");
           return;
         }
-
-        // console.log("setResponse", response);
 
         state.responses[id] = { phase: "success", response };
       });
@@ -366,7 +215,6 @@ export const useEditorState = create<EditorState>()(
           requestId,
           startedAt: Date.now(),
         };
-        // console.log("startRequest", id, requestId);
       });
     },
 

@@ -1,5 +1,6 @@
 "use client";
 
+import type { TramusRequest } from "@tramus/protocol";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -11,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toHttpResponse } from "@/lib/helper/to-http-response";
 import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
 import { useEditorState } from "@/lib/store/editor.store";
 
@@ -49,6 +51,7 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   const updateDraft = useEditorState((s) => s.updateDraft);
   const setResponse = useEditorState((s) => s.setResponse);
   const startRequest = useEditorState((s) => s.startRequest);
+  const failRequest = useEditorState((s) => s.setFailure);
 
   const setMethod = (m: Method) =>
     activeId &&
@@ -56,66 +59,85 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       d.method = m;
     });
 
+  // async function send() {
+  //   if (!path.trim() || !activeId) {
+  //     return;
+  //   }
+
+  //   const draft = useEditorState.getState().drafts[activeId]?.draft;
+  //   if (!draft) return;
+
+  //   const request = toTramusRequest(draft);
+  //   const result = await sendRequest(request);
+
+  //   const extracted = Object.values(result)[1];
+
+  //   if (result !== null) {
+  //     startRequest(activeId, activeId);
+  //     setResponse(activeId, {
+  //       body: {
+  //         kind: "json",
+  //         mimeType: "",
+  //         parseError: "none",
+  //         size: extracted.sizeBytes,
+  //         text: extracted.body,
+  //         truncated: false,
+  //       },
+  //       cookies: [],
+  //       headers: [],
+  //       httpVersion: "HTTP/1.1",
+  //       id: activeId,
+  //       ok: result.ok,
+  //       receivedAt: 1643723912346,
+  //       redirectChain: undefined,
+  //       redirected: false,
+  //       size: {
+  //         body: 123,
+  //         headers: 0,
+  //         total: 123,
+  //       },
+  //       status: extracted.status,
+  //       statusText: extracted.statusText,
+  //       timing: {
+  //         startedAt: 1643723912345,
+  //         total: extracted.timeMs,
+  //       },
+  //       url: "https://example.com",
+  //     });
+  //   }
+  // }
+
   async function send() {
-    if (!path.trim() || !activeId) {
-      return;
-    }
+    if (!path.trim() || !activeId) return;
 
     const draft = useEditorState.getState().drafts[activeId]?.draft;
     if (!draft) return;
 
-    const request = toTramusRequest(draft);
-    const result = await sendRequest(request);
-
-    // if (result !== null && result.ok !== null) {
-    //   updateDraft(activeId, (d) => {
-    //     d.response.ok = result.ok;
-    //     d.response.body = Object.values(result)[1].body
-    //       ? Object.values(result)[1].body
-    //       : null;
-
-    //     d.response.status = Object.values(result)[1].status;
-    //   });
-    // }
-
-    const extracted = Object.values(result)[1];
-    console.log(request);
-
-    if (result !== null) {
-      startRequest(activeId, activeId);
-      setResponse(activeId, {
-        body: {
-          kind: "json",
-          mimeType: "",
-          parseError: "none",
-          size: extracted.sizeBytes,
-          text: extracted.body,
-          truncated: false,
-        },
-        cookies: [],
-        headers: [],
-        httpVersion: "HTTP/1.1",
-        id: activeId,
-        ok: result.ok,
-        receivedAt: 1643723912346,
-        redirectChain: undefined,
-        redirected: false,
-        size: {
-          body: 123,
-          headers: 0,
-          total: 123,
-        },
-        status: extracted.status,
-        statusText: extracted.statusText,
-        timing: {
-          startedAt: 1643723912345,
-          total: extracted.timeMs,
-        },
-        url: "https://example.com",
-      });
+    let request: TramusRequest;
+    try {
+      request = toTramusRequest(draft);
+    } catch {
+      // failRequest(activeId, "Invalid URL");
+      console.log("INvalid");
+      return;
     }
 
-    // console.log("Response:", result);
+    startRequest(activeId, activeId);
+    const startedAt = Date.now();
+
+    const result = await sendRequest(request);
+    const receivedAt = Date.now();
+
+    if (!result.ok) {
+      // failRequest(activeId, result.error.message);
+      console.log("!result.ok");
+      return;
+    }
+
+    setResponse(
+      activeId,
+      toHttpResponse(activeId, request, result.response, startedAt, receivedAt),
+    );
   }
 
   function save() {

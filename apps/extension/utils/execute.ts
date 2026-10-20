@@ -1,4 +1,9 @@
-import type { TramusRequest, TramusResult } from "@tramus/protocol";
+import {
+  classifyMime,
+  mimeOf,
+  type TramusRequest,
+  type TramusResult,
+} from "@tramus/protocol";
 
 export function decodeBody(
   bytes: ArrayBuffer,
@@ -36,11 +41,20 @@ export async function execute(req: TramusRequest): Promise<TramusResult> {
     });
 
     const buffer = await res.arrayBuffer();
+    const headers = [...res.headers.entries()];
+    const kind = classifyMime(mimeOf(headers));
+    const isBinary = kind === "image" || kind === "pdf" || kind === "binary";
+
     return {
       ok: true,
       response: {
-        body: decodeBody(buffer, res.headers.get("content-type")),
-        headers: [...res.headers.entries()],
+        body: isBinary
+          ? ""
+          : decodeBody(buffer, res.headers.get("content-type")),
+        bodyBase64: isBinary ? bytesToBase64(buffer) : undefined,
+        finalUrl: res.url,
+        headers,
+        redirected: res.redirected,
         sizeBytes: buffer.byteLength,
         status: res.status,
         statusText: res.statusText,
@@ -56,4 +70,13 @@ export async function execute(req: TramusRequest): Promise<TramusResult> {
       ok: false,
     };
   }
+}
+
+function bytesToBase64(buf: ArrayBuffer): string {
+  const bytes = new Uint8Array(buf);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(bin);
 }

@@ -10,9 +10,37 @@ export type TramusResponse = {
   statusText: string;
   headers: [string, string][];
   body: string;
+  bodyBase64?: string;
+  finalUrl: string;
+  redirected: boolean;
   sizeBytes: number;
   timeMs: number;
 };
+
+export type BodyKind =
+  | "json"
+  | "xml"
+  | "html"
+  | "text"
+  | "image"
+  | "pdf"
+  | "binary";
+
+export function classifyMime(mime: string): BodyKind {
+  if (mime.startsWith("image/") && !mime.includes("svg")) return "image";
+  if (mime === "application/pdf") return "pdf";
+  if (mime.includes("json")) return "json";
+  if (mime.includes("html")) return "html";
+  if (mime.includes("xml")) return "xml";
+  if (mime === "" || mime.startsWith("text/")) return "text";
+  if (/javascript|x-www-form-urlencoded|graphql/.test(mime)) return "text";
+  return "binary";
+}
+
+export function mimeOf(headers: [string, string][]): string {
+  const ct = headers.find(([k]) => k.toLowerCase() === "content-type")?.[1];
+  return ct?.split(";")[0]?.trim().toLowerCase() ?? "";
+}
 
 export type TramusError = { code: "NETWORK"; message: string };
 
@@ -64,7 +92,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function isHeaderPairs(v: unknown): v is [string, string] {
+function isHeaderPairs(v: unknown): v is [string, string][] {
   return (
     Array.isArray(v) &&
     v.every(

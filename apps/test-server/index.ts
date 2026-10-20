@@ -4,10 +4,6 @@ const app = express();
 
 app.use(express.json());
 
-// app.use("/", (_req, res) => {
-//   res.json({ message: "Hello" });
-// });
-
 app.get("/health", (_req, res) => {
   res.json({
     message: "Server is running.",
@@ -17,7 +13,6 @@ app.get("/health", (_req, res) => {
 });
 
 app.get("/users", (req, res) => {
-  // const searchParam = req.query.search; // Accessing req.query
   res.json({ query: req.query, user: "AjayRajNegi" });
 });
 

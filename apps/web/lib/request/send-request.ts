@@ -1,7 +1,7 @@
 import type { TramusRequest, TramusResult } from "@tramus/protocol";
 import { isExtensionInstalled } from "@/lib/extension";
 import { sendViaExtension } from "@/lib/extension/client";
-import type { EndpointDraft } from "@/lib/store/editor.store";
+import type { EndpointDraft } from "../store/tab.store.types";
 
 function toTramusRequest(draft: EndpointDraft): TramusRequest {
   const headers: [string, string][] = [];
