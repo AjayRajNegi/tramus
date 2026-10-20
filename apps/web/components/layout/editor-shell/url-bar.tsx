@@ -115,7 +115,7 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       });
     }
 
-    console.log("Response:", result);
+    // console.log("Response:", result);
   }
 
   function save() {

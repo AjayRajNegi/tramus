@@ -8,10 +8,6 @@ app.use(express.json());
 //   res.json({ message: "Hello" });
 // });
 
-app.get("/users", (_req, res) => {
-  res.json({ user: "AjayRajNegi" });
-});
-
 app.get("/health", (_req, res) => {
   res.json({
     message: "Server is running.",
@@ -20,11 +16,14 @@ app.get("/health", (_req, res) => {
   });
 });
 
-// app.get("/health", (_req, res) => {
-//   res.json({
-//     message: "Server is running.",
-//   });
-// });
+app.get("/users", (req, res) => {
+  // const searchParam = req.query.search; // Accessing req.query
+  res.json({ query: req.query, user: "AjayRajNegi" });
+});
+
+app.get("/posts/:id", (req, res) => {
+  res.json({ params: req.params, user: "AjayRajNegi" });
+});
 
 app.listen(8080, () => {
   console.log("Server is running");

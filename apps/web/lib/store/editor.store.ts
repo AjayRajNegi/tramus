@@ -333,11 +333,11 @@ export const useEditorState = create<EditorState>()(
         const current = state.responses[id];
 
         if (current?.phase !== "loading" || current.requestId !== response.id) {
-          console.log("setResponse return");
+          // console.log("setResponse return");
           return;
         }
 
-        console.log("setResponse", response);
+        // console.log("setResponse", response);
 
         state.responses[id] = { phase: "success", response };
       });
@@ -366,7 +366,7 @@ export const useEditorState = create<EditorState>()(
           requestId,
           startedAt: Date.now(),
         };
-        console.log("startRequest", id, requestId);
+        // console.log("startRequest", id, requestId);
       });
     },
 
