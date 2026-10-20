@@ -92,7 +92,6 @@ export type RedirectHop = {
 
 export type HttpResponse = {
   id: string;
-  request: RequestSnapshot;
 
   status: number;
   statusText: string;
@@ -125,7 +124,6 @@ export type RequestErrorCode =
 
 export type RequestFailure = {
   id: string;
-  request: RequestSnapshot;
   code: RequestErrorCode;
   message: string;
   duration: number;

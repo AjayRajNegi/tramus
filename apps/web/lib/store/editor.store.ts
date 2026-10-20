@@ -333,8 +333,11 @@ export const useEditorState = create<EditorState>()(
         const current = state.responses[id];
 
         if (current?.phase !== "loading" || current.requestId !== response.id) {
+          console.log("setResponse return");
           return;
         }
+
+        console.log("setResponse", response);
 
         state.responses[id] = { phase: "success", response };
       });
@@ -357,11 +360,13 @@ export const useEditorState = create<EditorState>()(
     startRequest: (id, requestId) => {
       set((state) => {
         revokeBodyUrl(state.responses[id]);
+
         state.responses[id] = {
           phase: "loading",
           requestId,
           startedAt: Date.now(),
         };
+        console.log("startRequest", id, requestId);
       });
     },
 

@@ -1,21 +1,29 @@
 import { useEditorState } from "@/lib/store/editor.store";
 
 export default function ResponsePane() {
-  // const activeId = useEditorState((s) => s.activeId);
-
-  const entry = useEditorState((s) =>
-    s.activeId ? s.drafts[s.activeId] : undefined,
+  const response = useEditorState((s) =>
+    s.activeId ? s.responses[s.activeId] : undefined,
   );
-
-  console.log(entry);
   return (
     <div className="p-4">
-      Response
-      {/* <div>
-        {entry?.baseline.response.status} -{" "}
-        {entry?.baseline.response.ok ? "successfull" : "failed"}
+      <h4>Responses</h4>
+      <div>
+        {response?.phase === "success" ? (
+          <div>
+            <div className="flex">
+              {response.response.status} - {response.response.timing.total}ms -
+              {response.response.size.total}kb
+            </div>
+            <div>
+              {response.response.body.kind === "json"
+                ? response.response.body.text
+                : "No body"}
+            </div>
+          </div>
+        ) : (
+          <div>Fetching....</div>
+        )}
       </div>
-      <div>{entry?.baseline.response.body}</div> */}
     </div>
   );
 }

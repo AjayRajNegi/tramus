@@ -47,6 +47,8 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       d.url = p;
     });
   const updateDraft = useEditorState((s) => s.updateDraft);
+  const setResponse = useEditorState((s) => s.setResponse);
+  const startRequest = useEditorState((s) => s.startRequest);
 
   const setMethod = (m: Method) =>
     activeId &&
@@ -76,10 +78,44 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     //   });
     // }
 
-    console.log("Request sent:", result);
+    const extracted = Object.values(result)[1];
+    console.log(request);
 
-    // console.log(Object.values(result));
-    // console.log("Response:", Object.values(result)[1].body);
+    if (result !== null) {
+      startRequest(activeId, activeId);
+      setResponse(activeId, {
+        body: {
+          kind: "json",
+          mimeType: "",
+          parseError: "none",
+          size: extracted.sizeBytes,
+          text: extracted.body,
+          truncated: false,
+        },
+        cookies: [],
+        headers: [],
+        httpVersion: "HTTP/1.1",
+        id: activeId,
+        ok: result.ok,
+        receivedAt: 1643723912346,
+        redirectChain: undefined,
+        redirected: false,
+        size: {
+          body: 123,
+          headers: 0,
+          total: 123,
+        },
+        status: extracted.status,
+        statusText: extracted.statusText,
+        timing: {
+          startedAt: 1643723912345,
+          total: extracted.timeMs,
+        },
+        url: "https://example.com",
+      });
+    }
+
+    console.log("Response:", result);
   }
 
   function save() {
