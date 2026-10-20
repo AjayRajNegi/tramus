@@ -1,4 +1,3 @@
-// lib/to-http-response.ts
 import {
   classifyMime,
   mimeOf,
@@ -82,7 +81,6 @@ function buildBody(res: TramusResponse, mimeType: string): ResponseBody {
       const blob = new Blob([bytes], { type: mimeType });
       return { ...base, kind, objectUrl: URL.createObjectURL(blob) };
     }
-    // Protocol didn't carry bytes: don't show corrupted text as if it were real
     return {
       ...base,
       kind: "text",
@@ -109,7 +107,7 @@ function buildBody(res: TramusResponse, mimeType: string): ResponseBody {
   return { ...textBase, kind };
 }
 
-export function toHttpResponse(
+export function httpResponseBuilder(
   id: string,
   request: TramusRequest,
   res: TramusResponse,
@@ -126,7 +124,6 @@ export function toHttpResponse(
     .map(([, raw]) => parseSetCookie(raw))
     .filter((c): c is ResponseCookie => c !== null);
 
-  // Approximation: fetch never exposes real wire sizes
   const headersSize = res.headers.reduce(
     (n, [k, v]) => n + encoder.encode(`${k}: ${v}\r\n`).length,
     0,

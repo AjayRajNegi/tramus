@@ -1,6 +1,6 @@
 "use client";
 
-import type { TramusRequest } from "@tramus/protocol";
+import type { TramusRequest, TramusResult } from "@tramus/protocol";
 import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -12,9 +12,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toHttpResponse } from "@/lib/helper/to-http-response";
+import { httpResponseBuilder } from "@/lib/helper/http-response-builder";
 import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
 import { useEditorState } from "@/lib/store/editor.store";
+import type { RequestErrorCode } from "@/lib/store/response.store.types";
 
 const METHOD_STYLES: Record<string, string> = {
   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
@@ -51,7 +52,7 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   const updateDraft = useEditorState((s) => s.updateDraft);
   const setResponse = useEditorState((s) => s.setResponse);
   const startRequest = useEditorState((s) => s.startRequest);
-  const failRequest = useEditorState((s) => s.setFailure);
+  const setFailure = useEditorState((s) => s.setFailure);
 
   const setMethod = (m: Method) =>
     activeId &&
@@ -59,85 +60,75 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       d.method = m;
     });
 
-  // async function send() {
-  //   if (!path.trim() || !activeId) {
-  //     return;
-  //   }
-
-  //   const draft = useEditorState.getState().drafts[activeId]?.draft;
-  //   if (!draft) return;
-
-  //   const request = toTramusRequest(draft);
-  //   const result = await sendRequest(request);
-
-  //   const extracted = Object.values(result)[1];
-
-  //   if (result !== null) {
-  //     startRequest(activeId, activeId);
-  //     setResponse(activeId, {
-  //       body: {
-  //         kind: "json",
-  //         mimeType: "",
-  //         parseError: "none",
-  //         size: extracted.sizeBytes,
-  //         text: extracted.body,
-  //         truncated: false,
-  //       },
-  //       cookies: [],
-  //       headers: [],
-  //       httpVersion: "HTTP/1.1",
-  //       id: activeId,
-  //       ok: result.ok,
-  //       receivedAt: 1643723912346,
-  //       redirectChain: undefined,
-  //       redirected: false,
-  //       size: {
-  //         body: 123,
-  //         headers: 0,
-  //         total: 123,
-  //       },
-  //       status: extracted.status,
-  //       statusText: extracted.statusText,
-  //       timing: {
-  //         startedAt: 1643723912345,
-  //         total: extracted.timeMs,
-  //       },
-  //       url: "https://example.com",
-  //     });
-  //   }
-  // }
-
   async function send() {
     if (!path.trim() || !activeId) return;
 
     const draft = useEditorState.getState().drafts[activeId]?.draft;
     if (!draft) return;
 
+    const id = activeId;
+
+    const fail = (
+      code: RequestErrorCode,
+      message: string,
+      startedAt: number,
+    ) => {
+      const now = Date.now();
+      setFailure(id, {
+        code,
+        duration: now - startedAt,
+        id,
+        message,
+        occurredAt: now,
+      });
+    };
+
+    const startedAt = Date.now();
+    startRequest(id, id);
+
     let request: TramusRequest;
     try {
       request = toTramusRequest(draft);
     } catch {
-      // failRequest(activeId, "Invalid URL");
-      console.log("INvalid");
+      fail("invalid_url", "Invalid URL", startedAt);
       return;
     }
 
-    startRequest(activeId, activeId);
-    const startedAt = Date.now();
-
-    const result = await sendRequest(request);
-    const receivedAt = Date.now();
+    let result: TramusResult;
+    try {
+      result = await sendRequest(request);
+    } catch (e) {
+      fail(
+        "unknown",
+        e instanceof Error ? e.message : "Request failed",
+        startedAt,
+      );
+      return;
+    }
 
     if (!result.ok) {
-      // failRequest(activeId, result.error.message);
-      console.log("!result.ok");
+      fail(result.error.code, result.error.message, startedAt);
       return;
     }
 
-    setResponse(
-      activeId,
-      toHttpResponse(activeId, request, result.response, startedAt, receivedAt),
-    );
+    try {
+      setResponse(
+        id,
+        httpResponseBuilder(
+          id,
+          request,
+          result.response,
+          startedAt,
+          Date.now(),
+        ),
+      );
+    } catch (e) {
+      fail(
+        "unknown",
+        e instanceof Error ? e.message : "Failed to process response",
+        startedAt,
+      );
+    }
   }
 
   function save() {

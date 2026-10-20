@@ -42,7 +42,7 @@ export function mimeOf(headers: [string, string][]): string {
   return ct?.split(";")[0]?.trim().toLowerCase() ?? "";
 }
 
-export type TramusError = { code: "NETWORK"; message: string };
+export type TramusError = { code: "network"; message: string };
 
 export type TramusResult =
   | { ok: true; response: TramusResponse }
