@@ -20,8 +20,20 @@ export default function ResponsePane() {
                 : "No body"}
             </div>
           </div>
-        ) : (
+        ) : response?.phase === "error" ? (
+          <div className="text-destructive">
+            <div className="font-mono text-sm">
+              Error: {response.failure.code}
+            </div>
+            <div className="text-sm">{response.failure.message}</div>
+            <div className="text-muted-foreground text-xs">
+              Duration: {response.failure.duration}ms
+            </div>
+          </div>
+        ) : response?.phase === "loading" ? (
           <div>Fetching....</div>
+        ) : (
+          <div className="text-muted-foreground">No response yet</div>
         )}
       </div>
     </div>

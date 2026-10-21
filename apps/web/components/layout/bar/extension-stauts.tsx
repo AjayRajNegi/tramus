@@ -30,7 +30,7 @@ export function ExtensionStatusIndicator() {
 
   return status.installed ? (
     <span className="flex items-center gap-2 text-green-600 text-sm">
-      <span className="size-2 rounded-full bg-green-500" />
+      <span className="size-2 animate-pulse rounded-full bg-green-500" />
       Connected (v{status.version})
     </span>
   ) : (

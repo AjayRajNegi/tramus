@@ -60,6 +60,21 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       d.method = m;
     });
 
+  function mapErrorCode(code: string): RequestErrorCode {
+    switch (code) {
+      case "INVALID_REQUEST":
+        return "invalid_url";
+      case "NETWORK":
+        return "network";
+      case "TIMEOUT":
+        return "timeout";
+      case "EXTENSION_ERROR":
+        return "unknown";
+      default:
+        return "unknown";
+    }
+  }
+
   async function send() {
     if (!path.trim() || !activeId) return;
 
@@ -107,7 +122,8 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     }
 
     if (!result.ok) {
-      fail(result.error.code, result.error.message, startedAt);
+      const code = mapErrorCode(result.error.code);
+      fail(code, result.error.message, startedAt);
       return;
     }
 

@@ -7,7 +7,7 @@ import { EditorView } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import CodeMirror from "@uiw/react-codemirror";
 import * as React from "react";
-import type { BodyType, RequestBody } from "@/lib/store/editor.store";
+import type { BodyType, RequestBody } from "@/lib/store/tab.store.types";
 import { cn } from "@/lib/utils";
 import { KeyValueEditor } from "./key-value-editor";
 

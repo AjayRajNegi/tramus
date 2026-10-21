@@ -18,13 +18,27 @@ export function decodeBody(
   }
 }
 
-export async function execute(req: TramusRequest): Promise<TramusResult> {
+export async function execute(
+  req: TramusRequest,
+  timeoutMs = 30000,
+  externalSignal?: AbortSignal,
+): Promise<TramusResult> {
   const start = performance.now();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort("timeout"), timeoutMs);
+
+  // Handle external abort signal
+  const abortHandler = () => controller.abort();
+  externalSignal?.addEventListener("abort", abortHandler, { once: true });
+
   try {
     const url = new URL(req.url);
     if (url.protocol !== "http:" && url.protocol !== "https:") {
       return {
-        error: { code: "NETWORK", message: "Only http(s) URLs are supported" },
+        error: {
+          code: "INVALID_REQUEST",
+          message: "Only http(s) URLs are supported",
+        },
         ok: false,
       };
     }
@@ -38,8 +52,11 @@ export async function execute(req: TramusRequest): Promise<TramusResult> {
       credentials: "omit",
       headers: req.headers,
       method: req.method,
+      signal: controller.signal,
     });
 
+    clearTimeout(timeoutId);
+    externalSignal?.removeEventListener("abort", abortHandler);
     const buffer = await res.arrayBuffer();
     const headers = [...res.headers.entries()];
     const kind = classifyMime(mimeOf(headers));
@@ -62,6 +79,21 @@ export async function execute(req: TramusRequest): Promise<TramusResult> {
       },
     };
   } catch (e) {
+    clearTimeout(timeoutId);
+    externalSignal?.removeEventListener("abort", abortHandler);
+    if (e instanceof DOMException && e.name === "AbortError") {
+      // Check if it was our timeout or external abort
+      if (externalSignal?.aborted) {
+        return {
+          error: { code: "ABORTED", message: "Request aborted" },
+          ok: false,
+        };
+      }
+      return {
+        error: { code: "TIMEOUT", message: "Request timed out" },
+        ok: false,
+      };
+    }
     return {
       error: {
         code: "NETWORK",

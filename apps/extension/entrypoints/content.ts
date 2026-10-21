@@ -53,7 +53,7 @@ export default defineContentScript({
             id,
             result: {
               error: {
-                code: "NETWORK",
+                code: "EXTENSION_ERROR",
                 message: "Extension background unreachable",
               },
               ok: false,
@@ -61,6 +61,17 @@ export default defineContentScript({
             source: BRIDGE_SOURCE_EXT,
             type: "response",
           });
+        }
+      }
+      if (event.data.type === "abort") {
+        const { id } = event.data;
+        try {
+          await browser.runtime.sendMessage({
+            id,
+            type: "abort",
+          });
+        } catch {
+          // Ignore errors when aborting
         }
       }
     });

@@ -42,7 +42,14 @@ export function mimeOf(headers: [string, string][]): string {
   return ct?.split(";")[0]?.trim().toLowerCase() ?? "";
 }
 
-export type TramusError = { code: "network"; message: string };
+export type TramusError = { code: ErrorCode; message: string };
+
+export type ErrorCode =
+  | "INVALID_REQUEST"
+  | "NETWORK"
+  | "TIMEOUT"
+  | "EXTENSION_ERROR"
+  | "ABORTED";
 
 export type TramusResult =
   | { ok: true; response: TramusResponse }
@@ -55,7 +62,12 @@ export type WebRequest = {
   id: string; // correlates the response with the request
   request: TramusRequest;
 };
-export type WebToExt = WebPing | WebRequest;
+export type WebAbort = {
+  source: typeof BRIDGE_SOURCE_WEB;
+  type: "abort";
+  id: string;
+};
+export type WebToExt = WebPing | WebRequest | WebAbort;
 
 // content script -> web
 export type ExtResponse = {
@@ -69,6 +81,7 @@ export type ExtToWeb = ExtPong | ExtResponse;
 // content script <-> background
 export type BackgroundRequest = { type: "request"; request: TramusRequest };
 export type BackgroundResponse = { type: "response"; result: TramusResult };
+export type BackgroundAbort = { type: "abort"; id: string };
 
 export const BRIDGE_SOURCE_WEB = "tramus-web" as const;
 
@@ -123,6 +136,10 @@ export function isBackgroundRequest(v: unknown): v is BackgroundRequest {
   return isRecord(v) && v.type === "request" && isTramusRequest(v.request);
 }
 
+export function isBackgroundAbort(v: unknown): v is BackgroundAbort {
+  return isRecord(v) && v.type === "abort" && typeof v.id === "string";
+}
+
 export function isBackgroundResponse(v: unknown): v is BackgroundResponse {
   return isRecord(v) && v.type === "response" && isTramusResult(v.result);
 }
@@ -130,6 +147,7 @@ export function isBackgroundResponse(v: unknown): v is BackgroundResponse {
 export function isWebToExt(value: unknown): value is WebToExt {
   if (!isRecord(value) || value.source !== BRIDGE_SOURCE_WEB) return false;
   if (value.type === "ping") return true;
+  if (value.type === "abort") return typeof value.id === "string";
   return (
     value.type === "request" &&
     typeof value.id === "string" &&
