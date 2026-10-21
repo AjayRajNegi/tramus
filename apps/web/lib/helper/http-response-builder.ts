@@ -67,7 +67,11 @@ function parseSetCookie(raw: string): ResponseCookie | null {
 }
 
 function buildBody(res: TramusResponse, mimeType: string): ResponseBody {
-  const base = { mimeType, size: res.sizeBytes, truncated: false };
+  const base = {
+    mimeType,
+    size: res.sizeBytes,
+    truncated: res.truncated ?? false,
+  };
 
   if (res.sizeBytes === 0) return { ...base, kind: "empty" };
 
@@ -89,11 +93,15 @@ function buildBody(res: TramusResponse, mimeType: string): ResponseBody {
     };
   }
 
-  const truncated = res.body.length > MAX_TEXT_CHARS;
-  const text = truncated ? res.body.slice(0, MAX_TEXT_CHARS) : res.body;
-  const textBase = { ...base, text, truncated };
+  const textTruncated = res.body.length > MAX_TEXT_CHARS;
+  const text = textTruncated ? res.body.slice(0, MAX_TEXT_CHARS) : res.body;
+  const textBase = {
+    ...base,
+    text,
+    truncated: textTruncated || base.truncated,
+  };
 
-  if (kind === "json" && !truncated) {
+  if (kind === "json" && !textTruncated) {
     try {
       JSON.parse(text);
     } catch (e) {

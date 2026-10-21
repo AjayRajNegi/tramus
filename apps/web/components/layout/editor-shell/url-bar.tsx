@@ -2,6 +2,8 @@
 
 import type { TramusRequest, TramusResult } from "@tramus/protocol";
 import { cn } from "cn";
+import { X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -12,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { abortViaExtension } from "@/lib/extension/client";
 import { httpResponseBuilder } from "@/lib/helper/http-response-builder";
 import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
 import { useEditorState } from "@/lib/store/editor.store";
@@ -53,12 +56,15 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   const setResponse = useEditorState((s) => s.setResponse);
   const startRequest = useEditorState((s) => s.startRequest);
   const setFailure = useEditorState((s) => s.setFailure);
+  const abortRequest = useEditorState((s) => s.abortRequest);
 
   const setMethod = (m: Method) =>
     activeId &&
     updateDraft(activeId, (d) => {
       d.method = m;
     });
+
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
 
   function mapErrorCode(code: string): RequestErrorCode {
     switch (code) {
@@ -96,6 +102,7 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
         message,
         occurredAt: now,
       });
+      setCurrentRequestId(null);
     };
 
     const startedAt = Date.now();
@@ -109,9 +116,10 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       return;
     }
 
-    let result: TramusResult;
+    let result: TramusResult & { requestId: string };
     try {
       result = await sendRequest(request);
+      setCurrentRequestId(result.requestId);
     } catch (e) {
       fail(
         "unknown",
@@ -144,7 +152,16 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
         e instanceof Error ? e.message : "Failed to process response",
         startedAt,
       );
+    } finally {
+      setCurrentRequestId(null);
     }
+  }
+
+  function abort() {
+    if (!activeId || !currentRequestId) return;
+    abortRequest(activeId);
+    abortViaExtension(currentRequestId);
+    setCurrentRequestId(null);
   }
 
   function save() {
@@ -196,17 +213,28 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       </div>
 
       <ButtonGroup>
-        <Button
-          className="border-primary py-4 hover:border-muted-foreground"
-          disabled={!path.trim()}
-          onClick={send}
-          variant="outline"
-        >
-          Send
-        </Button>
+        {currentRequestId ? (
+          <Button
+            className="border-destructive py-4 text-destructive hover:border-destructive"
+            onClick={abort}
+            size="icon"
+            variant="outline"
+          >
+            <X className="size-4" />
+          </Button>
+        ) : (
+          <Button
+            className="border-primary py-4 hover:border-muted-foreground"
+            disabled={!path.trim()}
+            onClick={send}
+            variant="outline"
+          >
+            Send
+          </Button>
+        )}
         <Button
           className="py-4"
-          disabled={!isDirty || !path.trim()}
+          disabled={!isDirty || !path.trim() || !!currentRequestId}
           onClick={save}
           variant="outline"
         >

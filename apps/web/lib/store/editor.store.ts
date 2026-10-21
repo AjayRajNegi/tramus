@@ -43,10 +43,29 @@ type EditorState = {
 
   setStatus: (id: TabId, status: DraftEntry["status"], error?: string) => void;
   markSaved: (id: TabId, saved: EndpointDraft) => void;
+
+  abortRequest: (id: string) => void;
 };
 
 export const useEditorState = create<EditorState>()(
   immer((set) => ({
+    abortRequest: (id) => {
+      set((state) => {
+        const response = state.responses[id];
+        if (response?.phase === "loading") {
+          state.responses[id] = {
+            failure: {
+              code: "aborted",
+              duration: Date.now() - response.startedAt,
+              id,
+              message: "Request aborted",
+              occurredAt: Date.now(),
+            },
+            phase: "error",
+          };
+        }
+      });
+    },
     activeId: DEMO_TABS[0]?.id ?? null,
 
     clearResponse: (id) => {

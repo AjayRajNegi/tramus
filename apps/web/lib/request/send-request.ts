@@ -9,6 +9,8 @@ import { isExtensionInstalled } from "@/lib/extension";
 import { sendViaExtension } from "@/lib/extension/client";
 import type { EndpointDraft } from "@/lib/store/tab.store.types";
 
+const MAX_RESPONSE_SIZE = 20 * 1024 * 1024; // 20 MB
+
 export function decodeBody(
   bytes: ArrayBuffer,
   contentType: string | null,
@@ -22,6 +24,52 @@ export function decodeBody(
   }
 }
 
+async function readBodyWithLimit(
+  body: ReadableStream<Uint8Array> | null,
+  limit: number,
+): Promise<{ buffer: ArrayBuffer; truncated: boolean }> {
+  if (!body) {
+    return { buffer: new ArrayBuffer(0), truncated: false };
+  }
+
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let totalSize = 0;
+  let truncated = false;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      if (value) {
+        totalSize += value.length;
+        if (totalSize > limit) {
+          truncated = true;
+          const remaining = limit - (totalSize - value.length);
+          if (remaining > 0) {
+            chunks.push(value.subarray(0, remaining));
+          }
+          break;
+        }
+        chunks.push(value);
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const combined = new Uint8Array(totalSize > limit ? limit : totalSize);
+  let offset = 0;
+  for (const chunk of chunks) {
+    const toCopy = Math.min(chunk.length, combined.length - offset);
+    combined.set(chunk.subarray(0, toCopy), offset);
+    offset += toCopy;
+  }
+
+  return { buffer: combined.buffer, truncated };
+}
+
 function toTramusRequest(draft: EndpointDraft): TramusRequest {
   let headers: [string, string][] = [];
 
@@ -31,7 +79,6 @@ function toTramusRequest(draft: EndpointDraft): TramusRequest {
     }
   }
 
-  // Add Authorization header from auth config (overrides any user-defined Authorization header)
   const authHeader = buildAuthorizationHeader(draft.authorization);
   if (authHeader) {
     headers = headers.filter(([k]) => k.toLowerCase() !== "authorization");
@@ -59,7 +106,6 @@ function toTramusRequest(draft: EndpointDraft): TramusRequest {
     }
   }
 
-  // GET and HEAD never carry a body
   if (["GET", "HEAD"].includes(draft.method.toUpperCase())) {
     body = undefined;
   }
@@ -85,7 +131,7 @@ export async function sendRequest(
 ): Promise<TramusResult & { requestId: string }> {
   const requestId = request.id ?? crypto.randomUUID();
   const requestWithId = { ...request, id: requestId };
-  
+
   const status = await isExtensionInstalled(500);
 
   if (status.installed) {
@@ -124,24 +170,19 @@ export async function sendRequest(
     });
 
     clearTimeout(timeoutId);
-    const buffer = await res.arrayBuffer();
     const headers = [...res.headers.entries()];
     const kind = classifyMime(mimeOf(headers));
     const isBinary = kind === "image" || kind === "pdf" || kind === "binary";
-    const charset =
-      /charset=["']?([^;"'\s]+)/i.exec(
-        res.headers.get("content-type") ?? "",
-      )?.[1] ?? "utf-8";
 
-    let _body: string;
-    try {
-      _body = new TextDecoder(charset).decode(buffer);
-    } catch {
-      _body = new TextDecoder("utf-8").decode(buffer);
-    }
+    // Read body incrementally with size limit
+    const { buffer, truncated } = await readBodyWithLimit(
+      res.body,
+      MAX_RESPONSE_SIZE,
+    );
 
     return {
       ok: true,
+      requestId,
       response: {
         body: isBinary
           ? ""
@@ -154,8 +195,8 @@ export async function sendRequest(
         status: res.status,
         statusText: res.statusText,
         timeMs: Math.round(performance.now() - start),
+        truncated,
       },
-      requestId,
     };
   } catch (e) {
     clearTimeout(timeoutId);

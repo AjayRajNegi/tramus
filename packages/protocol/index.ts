@@ -3,6 +3,7 @@ export type TramusRequest = {
   url: string;
   headers: [string, string][];
   body?: string;
+  id?: string;
 };
 
 export type TramusResponse = {
@@ -15,6 +16,7 @@ export type TramusResponse = {
   redirected: boolean;
   sizeBytes: number;
   timeMs: number;
+  truncated?: boolean;
 };
 
 export type BodyKind =
