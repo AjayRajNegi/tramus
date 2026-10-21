@@ -3,6 +3,7 @@ export type TramusRequest = {
   url: string;
   headers: [string, string][];
   body?: string;
+  bodyBase64?: string;
   id?: string;
 };
 
@@ -126,7 +127,8 @@ export function isTramusRequest(v: unknown): v is TramusRequest {
     typeof v.method === "string" &&
     typeof v.url === "string" &&
     isHeaderPairs(v.headers) &&
-    (v.body === undefined || typeof v.body === "string")
+    (v.body === undefined || typeof v.body === "string") &&
+    (v.bodyBase64 === undefined || typeof v.bodyBase64 === "string")
   );
 }
 

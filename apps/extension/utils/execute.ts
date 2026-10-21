@@ -20,6 +20,15 @@ export function decodeBody(
   }
 }
 
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
 async function readBodyWithLimit(
   body: ReadableStream<Uint8Array> | null,
   limit: number,
@@ -91,11 +100,19 @@ export async function execute(
       };
     }
 
-    const hasBody =
-      req.body !== undefined &&
-      !["GET", "HEAD"].includes(req.method.toUpperCase());
+    // Handle base64 body for file uploads
+    let body: string | Uint8Array | undefined;
+    if (req.bodyBase64 !== undefined) {
+      body = base64ToBytes(req.bodyBase64);
+    } else {
+      const hasBody =
+        req.body !== undefined &&
+        !["GET", "HEAD"].includes(req.method.toUpperCase());
+      body = hasBody ? req.body : undefined;
+    }
+
     const res = await fetch(url, {
-      body: hasBody ? req.body : undefined,
+      body,
       cache: "no-store",
       credentials: "omit",
       headers: req.headers,

@@ -86,6 +86,7 @@ function toTramusRequest(draft: EndpointDraft): TramusRequest {
   }
 
   let body: string | undefined;
+  let bodyBase64: string | undefined;
   if (draft.body.type === "json" && draft.body.json.trim()) {
     body = draft.body.json;
     if (!headers.some(([k]) => k.toLowerCase() === "content-type")) {
@@ -104,10 +105,19 @@ function toTramusRequest(draft: EndpointDraft): TramusRequest {
     if (body && !headers.some(([k]) => k.toLowerCase() === "content-type")) {
       headers.push(["Content-Type", "application/x-www-form-urlencoded"]);
     }
+  } else if (draft.body.type === "file" && draft.body.file) {
+    bodyBase64 = draft.body.file.base64;
+    if (!headers.some(([k]) => k.toLowerCase() === "content-type")) {
+      headers.push([
+        "Content-Type",
+        draft.body.file.type || "application/octet-stream",
+      ]);
+    }
   }
 
   if (["GET", "HEAD"].includes(draft.method.toUpperCase())) {
     body = undefined;
+    bodyBase64 = undefined;
   }
 
   const url = new URL(draft.url);
@@ -119,6 +129,7 @@ function toTramusRequest(draft: EndpointDraft): TramusRequest {
 
   return {
     body,
+    bodyBase64,
     headers,
     method: draft.method,
     url: url.toString(),

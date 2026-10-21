@@ -119,13 +119,19 @@ export type KeyValue = {
   enabled: boolean;
 };
 
-export type BodyType = "none" | "json" | "form" | "raw";
+export type BodyType = "none" | "json" | "form" | "raw" | "file";
 
 export type RequestBody = {
   type: BodyType;
   json: string;
   raw: string;
   form: KeyValue[];
+  file?: {
+    name: string;
+    type: string;
+    size: number;
+    base64: string;
+  } | null;
 };
 
 export type AuthType = "none" | "bearer" | "basic";

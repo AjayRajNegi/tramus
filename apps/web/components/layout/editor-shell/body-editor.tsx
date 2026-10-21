@@ -6,12 +6,14 @@ import { linter } from "@codemirror/lint";
 import { EditorView } from "@codemirror/view";
 import { tags as t } from "@lezer/highlight";
 import CodeMirror from "@uiw/react-codemirror";
+import { FileIcon } from "lucide-react";
 import * as React from "react";
 import type { BodyType, RequestBody } from "@/lib/store/tab.store.types";
 import { cn } from "@/lib/utils";
 import { KeyValueEditor } from "./key-value-editor";
 
 export const createBody = (patch: Partial<RequestBody> = {}): RequestBody => ({
+  file: null,
   form: [],
   json: "",
   raw: "",
@@ -31,7 +33,10 @@ const BODY_TYPES: { value: BodyType; label: string }[] = [
   { label: "JSON", value: "json" },
   { label: "Form", value: "form" },
   { label: "Raw", value: "raw" },
+  { label: "File", value: "file" },
 ];
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
 const editorTheme = EditorView.theme({
   ".cm-activeLine": { backgroundColor: "rgba(128,128,128,0.10)" },
@@ -212,6 +217,76 @@ export function BodyEditor({
           )}
         </>
       )}
+
+      {value.type === "file" && (
+        <div className="p-3">
+          {value.file ? (
+            <div className="flex items-center gap-3 rounded border bg-muted/30 p-3">
+              <FileIcon className="size-6 text-muted-foreground" />
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-mono text-sm">
+                  {value.file.name}
+                </div>
+                <div className="text-muted-foreground text-xs">
+                  {value.file.type || "unknown"} -{" "}
+                  {(value.file.size / 1024).toFixed(1)} KB
+                </div>
+              </div>
+              <button
+                className="text-muted-foreground text-sm hover:text-foreground"
+                onClick={() => set({ file: null })}
+                type="button"
+              >
+                Remove
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <input
+                className="block w-full text-muted-foreground text-sm file:mr-4 file:rounded file:border-0 file:bg-primary file:px-4 file:py-2 file:text-primary-foreground file:text-sm hover:file:bg-primary/90"
+                disabled={readOnly}
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > MAX_FILE_SIZE) {
+                    alert(
+                      `File size exceeds 20 MB limit. Selected file is ${(file.size / 1024 / 1024).toFixed(2)} MB.`,
+                    );
+                    return;
+                  }
+                  const base64 = await fileToBase64(file);
+                  set({
+                    file: {
+                      base64,
+                      name: file.name,
+                      size: file.size,
+                      type: file.type,
+                    },
+                  });
+                }}
+                type="file"
+              />
+              <p className="text-muted-foreground text-xs">
+                Maximum file size: 20 MB
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
+}
+
+function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove data URL prefix (e.g., "data:image/png;base64,")
+      const base64 = result.split(",")[1] || result;
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
