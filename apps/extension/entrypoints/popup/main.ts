@@ -3,6 +3,7 @@ import typescriptLogo from "@/assets/typescript.svg";
 import { setupCounter } from "@/components/counter";
 import wxtLogo from "/wxt.svg";
 
+// biome-ignore lint/style/noNonNullAssertion: app
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   <div>
     <a href="https://wxt.dev" target="_blank">
@@ -21,4 +22,5 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
 `;
 
+// biome-ignore lint/style/noNonNullAssertion: counter
 setupCounter(document.querySelector<HTMLButtonElement>("#counter")!);

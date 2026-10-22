@@ -26,7 +26,10 @@ export default defineBackground(() => {
 
       if (isBackgroundRequest(message)) {
         const controller = new AbortController();
-        inFlightControllers.set(message.request.id ?? crypto.randomUUID(), controller);
+        inFlightControllers.set(
+          message.request.id ?? crypto.randomUUID(),
+          controller,
+        );
 
         execute(message.request, 30000, controller.signal)
           .then((result) => {
