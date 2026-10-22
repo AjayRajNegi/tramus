@@ -110,8 +110,8 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
 
     let request: TramusRequest;
     try {
+      console.log(draft);
       request = toTramusRequest(draft);
-
       console.log(request);
     } catch {
       fail("invalid_url", "Invalid URL", startedAt);

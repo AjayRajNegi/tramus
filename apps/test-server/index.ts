@@ -37,22 +37,32 @@ app.get("/posts/:id", (req, res) => {
   res.json({ params: req.params, user: "AjayRajNegi" });
 });
 
-app.post("/upload", upload.single("file"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({
-      message: "No file uploaded. Please ensure the field name is 'file'.",
+app.post("/upload", upload.any(), (req, res) => {
+  try {
+    if (!req.files) {
+      return res.status(400).json({
+        message: "No files uploaded.",
+        success: false,
+      });
+    }
+
+    const files = req.files;
+    const fileNames = files.map((file) => file.originalname);
+    const filePaths = files.map((file) => file.path);
+
+    res.json({
+      fileNames,
+      filePaths,
+      message: "Files uploaded successfully",
+      success: true,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      message: "An error occurred while uploading files.",
       success: false,
     });
   }
-
-  const fileName = req.file.originalname;
-  const filePath = req.file.path;
-
-  res.json({
-    filePath,
-    message: `File uploaded successfully: ${fileName}`,
-    success: true,
-  });
 });
 
 app.listen(8080, () => {

@@ -35,6 +35,8 @@ export function RequestPane() {
   const EMPTY_BODY = createBody();
   const EMPTY_AUTH = createAuthorization();
 
+  // console.log(draft);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <UrlBar />
