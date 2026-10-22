@@ -1,6 +1,9 @@
 "use client";
 
+import type { TramusRequest, TramusResult } from "@tramus/protocol";
 import { cn } from "cn";
+import { X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -11,7 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { abortViaExtension } from "@/lib/extension/client";
+import { httpResponseBuilder } from "@/lib/helper/http-response-builder";
+import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
 import { useEditorState } from "@/lib/store/editor.store";
+import type { RequestErrorCode } from "@/lib/store/response.store.types";
 
 const METHOD_STYLES: Record<string, string> = {
   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
@@ -28,11 +35,10 @@ type UrlBarProps = {
   initialMethod?: Method;
   initialPath?: string;
   isDirty?: boolean;
-  onSend?: (method: Method, path: string) => void;
   onSave?: (method: Method, path: string) => void;
 };
 
-export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
+export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   const activeId = useEditorState((s) => s.activeId);
   const entry = useEditorState((s) =>
     s.activeId ? s.drafts[s.activeId] : undefined,
@@ -47,6 +53,10 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
       d.url = p;
     });
   const updateDraft = useEditorState((s) => s.updateDraft);
+  const setResponse = useEditorState((s) => s.setResponse);
+  const startRequest = useEditorState((s) => s.startRequest);
+  const setFailure = useEditorState((s) => s.setFailure);
+  const abortRequest = useEditorState((s) => s.abortRequest);
 
   const setMethod = (m: Method) =>
     activeId &&
@@ -54,11 +64,106 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
       d.method = m;
     });
 
-  function send() {
-    if (!path.trim()) {
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
+
+  function mapErrorCode(code: string): RequestErrorCode {
+    switch (code) {
+      case "INVALID_REQUEST":
+        return "invalid_url";
+      case "NETWORK":
+        return "network";
+      case "TIMEOUT":
+        return "timeout";
+      case "EXTENSION_ERROR":
+        return "unknown";
+      default:
+        return "unknown";
+    }
+  }
+
+  async function send() {
+    if (!path.trim() || !activeId) return;
+
+    const draft = useEditorState.getState().drafts[activeId]?.draft;
+    if (!draft) return;
+
+    const id = activeId;
+
+    const fail = (
+      code: RequestErrorCode,
+      message: string,
+      startedAt: number,
+    ) => {
+      const now = Date.now();
+      setFailure(id, {
+        code,
+        duration: now - startedAt,
+        id,
+        message,
+        occurredAt: now,
+      });
+      setCurrentRequestId(null);
+    };
+
+    const startedAt = Date.now();
+    startRequest(id, id);
+
+    let request: TramusRequest;
+    try {
+      console.log(draft);
+      request = toTramusRequest(draft);
+      console.log(request);
+    } catch {
+      fail("invalid_url", "Invalid URL", startedAt);
       return;
     }
-    onSend?.(method, path.trim());
+
+    let result: TramusResult & { requestId: string };
+    try {
+      result = await sendRequest(request);
+      setCurrentRequestId(result.requestId);
+    } catch (e) {
+      fail(
+        "unknown",
+        e instanceof Error ? e.message : "Request failed",
+        startedAt,
+      );
+      return;
+    }
+
+    if (!result.ok) {
+      const code = mapErrorCode(result.error.code);
+      fail(code, result.error.message, startedAt);
+      return;
+    }
+
+    try {
+      setResponse(
+        id,
+        httpResponseBuilder(
+          id,
+          request,
+          result.response,
+          startedAt,
+          Date.now(),
+        ),
+      );
+    } catch (e) {
+      fail(
+        "unknown",
+        e instanceof Error ? e.message : "Failed to process response",
+        startedAt,
+      );
+    } finally {
+      setCurrentRequestId(null);
+    }
+  }
+
+  function abort() {
+    if (!activeId || !currentRequestId) return;
+    abortRequest(activeId);
+    abortViaExtension(currentRequestId);
+    setCurrentRequestId(null);
   }
 
   function save() {
@@ -66,13 +171,6 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
       return;
     }
     onSave?.(method, path.trim());
-  }
-
-  async function getRequest() {
-    const res = await fetch("/api/proxy");
-    const data = await res.json();
-
-    console.log(data);
   }
 
   return (
@@ -117,17 +215,28 @@ export function UrlBar({ isDirty = true, onSend, onSave }: UrlBarProps) {
       </div>
 
       <ButtonGroup>
-        <Button
-          className="border-primary py-4 hover:border-muted-foreground"
-          disabled={!path.trim()}
-          onClick={getRequest}
-          variant="outline"
-        >
-          Send
-        </Button>
+        {currentRequestId ? (
+          <Button
+            className="border-destructive py-4 text-destructive hover:border-destructive"
+            onClick={abort}
+            size="icon"
+            variant="outline"
+          >
+            <X className="size-4" />
+          </Button>
+        ) : (
+          <Button
+            className="border-primary py-4 hover:border-muted-foreground"
+            disabled={!path.trim()}
+            onClick={send}
+            variant="outline"
+          >
+            Send
+          </Button>
+        )}
         <Button
           className="py-4"
-          disabled={!isDirty || !path.trim()}
+          disabled={!isDirty || !path.trim() || !!currentRequestId}
           onClick={save}
           variant="outline"
         >

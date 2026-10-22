@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getEndpoints, getScenarios, getWorkspaces } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
+import { ExtensionStatusIndicator } from "./extension-stauts";
 
 export function TopBar() {
   const params = useParams<{
@@ -114,6 +115,10 @@ export function TopBar() {
         </Link>
         <ModeToggle />
       </div> */}
+
+      <div className="flex items-center gap-4">
+        <ExtensionStatusIndicator />
+      </div>
     </nav>
   );
 }

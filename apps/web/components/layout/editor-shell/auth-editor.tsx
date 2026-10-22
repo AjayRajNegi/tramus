@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { Authorization, AuthType } from "@/lib/store/editor.store";
+import type { Authorization, AuthType } from "@/lib/store/tab.store.types";
 import { cn } from "@/lib/utils";
 
 export const createAuthorization = (

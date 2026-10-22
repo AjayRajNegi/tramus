@@ -2,370 +2,30 @@ import type { Draft } from "immer";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
-
-const DEMO_TABS: Tab[] = [
-  {
-    endpointId: "endpoint-1",
-    id: "tab-1",
-    scenarioId: "scenario-1",
-    workspaceId: "workspace-1",
-  },
-];
-const DEMO_DRAFT: Record<TabId, DraftEntry> = {
-  "tab-1": {
-    baseline: {
-      authorization: {
-        password: "",
-        token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfOGYzYTkxYjIiLCJuYW1lIjoiSmFuZSBEb2UiLCJpYXQiOjE3MTIzNDU2Nzh9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-        type: "bearer",
-        username: "",
-      },
-      body: {
-        form: [],
-        json: JSON.stringify(
-          {
-            email: "jane.doe@example.com",
-            name: "Jane Doe",
-            preferences: {
-              notifications: true,
-              theme: "dark",
-            },
-            roles: ["admin", "editor"],
-            userId: "usr_8f3a91b2",
-          },
-          null,
-          2,
-        ),
-        raw: "",
-        type: "json",
-      },
-      headers: [],
-      method: "GET",
-      params: [],
-      path: "/users",
-      url: "http://localhost:8000/users",
-    },
-    draft: {
-      authorization: {
-        password: "",
-        token:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c3JfOGYzYTkxYjIiLCJuYW1lIjoiSmFuZSBEb2UiLCJpYXQiOjE3MTIzNDU2Nzh9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
-        type: "bearer",
-        username: "",
-      },
-      body: {
-        form: [],
-        json: JSON.stringify(
-          {
-            email: "jane.doe@example.com",
-            name: "Jane Doe",
-            preferences: {
-              notifications: true,
-              theme: "dark",
-            },
-            roles: ["admin", "editor"],
-            userId: "usr_8f3a91b2",
-          },
-          null,
-          2,
-        ),
-        raw: "",
-        type: "json",
-      },
-      headers: [
-        {
-          enabled: true,
-          id: "h1",
-          key: "Content-Type",
-          value: "application/json",
-        },
-        {
-          enabled: true,
-          id: "h2",
-          key: "Authorization",
-          value: "Bearer {{token}}",
-        },
-        {
-          enabled: true,
-          id: "h3",
-          key: "Accept",
-          value: "application/json",
-        },
-        { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-        { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-        { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-        { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-      ],
-      method: "GET",
-      params: [],
-      path: "/users",
-      url: "http://localhost:8000/users",
-    },
-    error: undefined,
-    status: "idle",
-  },
-  //   "tab-2": {
-  //     baseline: {
-  //       authorization: {
-  //         password: "s3cr3tP@ss!",
-  //         token: "",
-  //         type: "basic",
-  //         username: "johndoe",
-  //       },
-  //       body: {
-  //         form: [
-  //           {
-  //             enabled: true,
-  //             id: "kv_001",
-  //             key: "username",
-  //             value: "johndoe",
-  //           },
-  //           {
-  //             enabled: true,
-  //             id: "kv_002",
-  //             key: "password",
-  //             value: "s3cr3tP@ss",
-  //           },
-  //           {
-  //             enabled: true,
-  //             id: "kv_003",
-  //             key: "remember_me",
-  //             value: "true",
-  //           },
-  //           {
-  //             enabled: false,
-  //             id: "kv_004",
-  //             key: "csrf_token",
-  //             value: "abc123xyz",
-  //           },
-  //           {
-  //             enabled: true,
-  //             id: "kv_005",
-  //             key: "redirect_url",
-  //             value: "/dashboard",
-  //           },
-  //         ],
-  //         json: "",
-  //         raw: "",
-  //         type: "form",
-  //       },
-  //       headers: [
-  //         {
-  //           enabled: true,
-  //           id: "h1",
-  //           key: "Content-Type",
-  //           value: "application/json",
-  //         },
-  //         {
-  //           enabled: true,
-  //           id: "h2",
-  //           key: "Authorization",
-  //           value: "Bearer {{token}}",
-  //         },
-  //         {
-  //           enabled: true,
-  //           id: "h3",
-  //           key: "Accept",
-  //           value: "application/json",
-  //         },
-  //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-  //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-  //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-  //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-  //       ],
-  //       method: "POST",
-  //       params: [],
-  //       path: "/users",
-  //       url: "http://localhost:8000/users",
-  //     },
-  //     draft: {
-  //       authorization: {
-  //         password: "s3cr3tP@ss!",
-  //         token: "",
-  //         type: "basic",
-  //         username: "johndoe",
-  //       },
-  //       body: {
-  //         form: [
-  //           {
-  //             enabled: true,
-  //             id: "kv_001",
-  //             key: "username",
-  //             value: "johndoe",
-  //           },
-  //           {
-  //             enabled: true,
-  //             id: "kv_002",
-  //             key: "password",
-  //             value: "s3cr3tP@ss",
-  //           },
-  //           {
-  //             enabled: true,
-  //             id: "kv_003",
-  //             key: "remember_me",
-  //             value: "true",
-  //           },
-  //           {
-  //             enabled: false,
-  //             id: "kv_004",
-  //             key: "csrf_token",
-  //             value: "abc123xyz",
-  //           },
-  //           {
-  //             enabled: true,
-  //             id: "kv_005",
-  //             key: "redirect_url",
-  //             value: "/dashboard",
-  //           },
-  //         ],
-  //         json: "",
-  //         raw: "",
-  //         type: "form",
-  //       },
-  //       headers: [
-  //         {
-  //           enabled: true,
-  //           id: "h1",
-  //           key: "Content-Type",
-  //           value: "application/json",
-  //         },
-  //         {
-  //           enabled: true,
-  //           id: "h2",
-  //           key: "Authorization",
-  //           value: "Bearer {{token}}",
-  //         },
-  //         {
-  //           enabled: true,
-  //           id: "h3",
-  //           key: "Accept",
-  //           value: "application/json",
-  //         },
-  //         { enabled: false, id: "h4", key: "X-Debug", value: "true" },
-  //         { enabled: true, id: "h5", key: "X-Trace-Id", value: "" },
-  //         { enabled: true, id: "h6", key: "Cookie", value: "session=abc123" },
-  //         { enabled: true, id: "h7", key: "Cookie", value: "theme=dark" },
-  //       ],
-  //       method: "POST",
-  //       params: [],
-  //       path: "/users",
-  //       url: "http://localhost:8000/users",
-  //     },
-  //     error: undefined,
-  //     status: "idle",
-  //   },
-  //   "tab-3": {
-  //     baseline: {
-  //       authorization: {
-  //         password: "hunter2",
-  //         token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  //         type: "bearer",
-  //         username: "octocat",
-  //       },
-  //       body: {
-  //         form: [],
-  //         json: "",
-  //         raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  //   <soap:Body>
-  //     <GetUser xmlns="http://example.com/api">
-  //       <UserId>usr_8f3a91b2</UserId>
-  //     </GetUser>
-  //   </soap:Body>
-  // </soap:Envelope>`,
-  //         type: "raw",
-  //       },
-  //       headers: [],
-  //       method: "PUT",
-  //       params: [],
-  //       path: "/users/1",
-  //       url: "http://localhost:8000/users/1",
-  //     },
-  //     draft: {
-  //       authorization: {
-  //         password: "hunter2",
-  //         token: "ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  //         type: "bearer",
-  //         username: "octocat",
-  //       },
-  //       body: {
-  //         form: [],
-  //         json: "",
-  //         raw: `<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  //   <soap:Body>
-  //     <GetUser xmlns="http://example.com/api">
-  //       <UserId>usr_8f3a91b2</UserId>
-  //     </GetUser>
-  //   </soap:Body>
-  // </soap:Envelope>`,
-  //         type: "raw",
-  //       },
-  //       headers: [],
-  //       method: "PUT",
-  //       params: [],
-  //       path: "/users/1",
-  //       url: "http://localhost:8000/users/1",
-  //     },
-  //     error: undefined,
-  //     status: "idle",
-  //   },
-};
-
-type TabId = string;
-
-type Tab = {
-  id: TabId;
-  endpointId: string;
-  scenarioId: string;
-  workspaceId: string;
-};
-
-type KeyValue = {
-  id: string;
-  key: string;
-  value: string;
-  enabled: boolean;
-};
-
-export type BodyType = "none" | "json" | "form" | "raw";
-
-export type RequestBody = {
-  type: BodyType;
-  json: string;
-  raw: string;
-  form: KeyValue[];
-};
-
-export type AuthType = "none" | "bearer" | "basic";
-
-export type Authorization = {
-  type: AuthType;
-  token: string;
-  username: string;
-  password: string;
-};
-
-export type EndpointDraft = {
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-  path: string;
-  headers: KeyValue[];
-  params: KeyValue[];
-  body: RequestBody;
-  authorization: Authorization;
-  url: string;
-};
-
-type DraftEntry = {
-  draft: EndpointDraft;
-  baseline: EndpointDraft;
-  status: "idle" | "saving" | "saved" | "error";
-  error?: string;
-};
+import type {
+  HttpResponse,
+  RequestFailure,
+  ResponseState,
+} from "./response.store.types";
+import type {
+  DraftEntry,
+  EndpointDraft,
+  KeyValue,
+  Tab,
+  TabId,
+} from "./tab.store.types";
+import { DEMO_DRAFT, DEMO_TABS } from "./tab.store.types";
 
 type EditorState = {
   tabs: Tab[];
   activeId: TabId | null;
   drafts: Record<TabId, DraftEntry>;
+  responses: Record<string, ResponseState>;
+
+  startRequest: (id: string, requestId: string) => void;
+  setResponse: (id: string, response: HttpResponse) => void;
+  setFailure: (id: string, failure: RequestFailure) => void;
+  clearResponse: (id: string) => void;
 
   openTab: (tab: Tab) => void;
   closeTab: (id: TabId) => void;
@@ -383,11 +43,37 @@ type EditorState = {
 
   setStatus: (id: TabId, status: DraftEntry["status"], error?: string) => void;
   markSaved: (id: TabId, saved: EndpointDraft) => void;
+
+  abortRequest: (id: string) => void;
 };
 
 export const useEditorState = create<EditorState>()(
   immer((set) => ({
+    abortRequest: (id) => {
+      set((state) => {
+        const response = state.responses[id];
+        if (response?.phase === "loading") {
+          state.responses[id] = {
+            failure: {
+              code: "aborted",
+              duration: Date.now() - response.startedAt,
+              id,
+              message: "Request aborted",
+              occurredAt: Date.now(),
+            },
+            phase: "error",
+          };
+        }
+      });
+    },
     activeId: DEMO_TABS[0]?.id ?? null,
+
+    clearResponse: (id) => {
+      set((state) => {
+        revokeBodyUrl(state.responses[id]);
+        delete state.responses[id];
+      });
+    },
 
     closeTab: (id) => {
       set((state) => {
@@ -492,11 +178,38 @@ export const useEditorState = create<EditorState>()(
       });
     },
 
+    // Responses
+    responses: {},
+
     setActiveId: (id) =>
       set((state) => {
         if (id !== null && !state.tabs.some((t) => t.id === id)) return;
         state.activeId = id;
       }),
+
+    setFailure: (id, failure) => {
+      set((state) => {
+        const current = state.responses[id];
+
+        if (current?.phase !== "loading" || current.requestId !== failure.id) {
+          return;
+        }
+
+        state.responses[id] = { failure, phase: "error" };
+      });
+    },
+
+    setResponse: (id, response) => {
+      set((state) => {
+        const current = state.responses[id];
+
+        if (current?.phase !== "loading" || current.requestId !== response.id) {
+          return;
+        }
+
+        state.responses[id] = { phase: "success", response };
+      });
+    },
 
     // Save status
     setStatus: (id, status, error) => {
@@ -511,7 +224,19 @@ export const useEditorState = create<EditorState>()(
         entry.error = error;
       });
     },
-    // tabs: [],
+
+    startRequest: (id, requestId) => {
+      set((state) => {
+        revokeBodyUrl(state.responses[id]);
+
+        state.responses[id] = {
+          phase: "loading",
+          requestId,
+          startedAt: Date.now(),
+        };
+      });
+    },
+
     tabs: DEMO_TABS,
 
     updateDraft: (id, recipe) => {
@@ -536,7 +261,10 @@ export const useEditorState = create<EditorState>()(
   })),
 );
 
-// Selectors
+/* -------------------------------------------------------------------------- */
+/* 4. Selectors                                                               */
+/* -------------------------------------------------------------------------- */
+
 export const selectIsDirty = (id: TabId) => (state: EditorState) => {
   const entry = state.drafts[id];
 
@@ -553,6 +281,37 @@ export const selectDraft = (id: TabId) => (state: EditorState) => {
 
 export const selectDraftStatus = (id: TabId) => (state: EditorState) => {
   return state.drafts[id]?.status ?? "idle";
+};
+
+type EditorStateLike = { responses: Record<string, ResponseState> };
+
+export const selectResponseState =
+  (id: string) =>
+  (state: EditorStateLike): ResponseState =>
+    state.responses[id] ?? { phase: "idle" };
+
+export const selectIsSending = (id: string) => (state: EditorStateLike) =>
+  state.responses[id]?.phase === "loading";
+
+/* -------------------------------------------------------------------------- */
+/* 5. Helpers                                                                 */
+/* -------------------------------------------------------------------------- */
+
+const revokeBodyUrl = (entry: ResponseState | undefined) => {
+  if (entry?.phase !== "success") return;
+
+  const { body } = entry.response;
+
+  if ("objectUrl" in body) {
+    URL.revokeObjectURL(body.objectUrl);
+  }
+};
+
+const inFlight = new Map<string, AbortController>();
+
+export const registerRequest = (tabId: string, controller: AbortController) => {
+  inFlight.get(tabId)?.abort();
+  inFlight.set(tabId, controller);
 };
 
 const buildUrl = (url: string, params: KeyValue[]): string => {

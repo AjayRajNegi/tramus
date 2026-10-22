@@ -1,4 +1,5 @@
-import { type EndpointDraft, useEditorState } from "@/lib/store/editor.store";
+import { useEditorState } from "@/lib/store/editor.store";
+import type { EndpointDraft } from "@/lib/store/tab.store.types";
 
 const createEmptyDraft = (): EndpointDraft => ({
   authorization: { password: "", token: "", type: "none", username: "" },
@@ -7,6 +8,11 @@ const createEmptyDraft = (): EndpointDraft => ({
   method: "GET",
   params: [],
   path: "http://localhost:3000",
+  // response: {
+  //   body: '{"message":"Hello Draft"}',
+  //   ok: true,
+  //   status: 200,
+  // },
   url: "",
 });
 

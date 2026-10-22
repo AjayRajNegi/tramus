@@ -1,0 +1,19 @@
+{
+  "description": "Shared message contract between the Tramus web app and the Tramus Interceptor extension.",
+  "devDependencies": {
+    "typescript": "^5.6.0"
+  },
+  "exports": {
+    ".": "./index.ts"
+  },
+  "main": "./index.ts",
+  "name": "@tramus/protocol",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "types": "./index.ts",
+  "version": "0.1.0"
+}
