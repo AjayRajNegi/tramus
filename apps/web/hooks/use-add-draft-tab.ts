@@ -3,7 +3,7 @@ import type { EndpointDraft } from "@/lib/store/tab.store.types";
 
 const createEmptyDraft = (): EndpointDraft => ({
   authorization: { password: "", token: "", type: "none", username: "" },
-  body: { form: [], json: "", raw: "", type: "none" },
+  body: { form: [], formData: [], json: "", raw: "", type: "none" },
   headers: [],
   method: "GET",
   params: [],
