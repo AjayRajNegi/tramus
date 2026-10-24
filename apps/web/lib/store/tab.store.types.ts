@@ -18,6 +18,7 @@ export const DEMO_DRAFT: Record<TabId, DraftEntry> = {
       },
       body: {
         form: [],
+        formData: [],
         json: JSON.stringify(
           {
             email: "jane.doe@example.com",
@@ -51,6 +52,7 @@ export const DEMO_DRAFT: Record<TabId, DraftEntry> = {
       },
       body: {
         form: [],
+        formData: [],
         json: JSON.stringify(
           {
             email: "jane.doe@example.com",
@@ -119,19 +121,31 @@ export type KeyValue = {
   enabled: boolean;
 };
 
-export type BodyType = "none" | "json" | "form" | "raw" | "file";
+export type BodyType = "none" | "json" | "form" | "raw" | "file" | "formdata";
+
+export type FileValue = {
+  name: string;
+  type: string;
+  size: number;
+  base64: string;
+};
+
+export type FormDataRow = {
+  id: string;
+  key: string;
+  enabled: boolean;
+  kind: "text" | "file";
+  text: string;
+  files: FileValue[];
+};
 
 export type RequestBody = {
   type: BodyType;
   json: string;
   raw: string;
   form: KeyValue[];
-  file?: {
-    name: string;
-    type: string;
-    size: number;
-    base64: string;
-  } | null;
+  file?: FileValue | null;
+  formData: FormDataRow[];
 };
 
 export type AuthType = "none" | "bearer" | "basic";

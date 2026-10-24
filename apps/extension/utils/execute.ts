@@ -7,28 +7,6 @@ import {
 
 const MAX_RESPONSE_SIZE = 20 * 1024 * 1024; // 20 MB
 
-export function decodeBody(
-  bytes: ArrayBuffer,
-  contentType: string | null,
-): string {
-  const charset =
-    /charset=["']?([^;"'\s]+)/i.exec(contentType ?? "")?.[1] ?? "utf-8";
-  try {
-    return new TextDecoder(charset).decode(bytes);
-  } catch {
-    return new TextDecoder("utf-8").decode(bytes);
-  }
-}
-
-function base64ToBytes(base64: string): Uint8Array {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
 async function readBodyWithLimit(
   body: ReadableStream<Uint8Array> | null,
   limit: number,
@@ -100,15 +78,14 @@ export async function execute(
       };
     }
 
-    // Handle base64 body for file uploads
-    let body: string | Uint8Array | undefined;
-    if (req.bodyBase64 !== undefined) {
+    let body: string | Uint8Array<ArrayBuffer> | undefined;
+    const noBody = ["GET", "HEAD"].includes(req.method.toUpperCase());
+    if (noBody) {
+      body = undefined;
+    } else if (req.bodyBase64 !== undefined) {
       body = base64ToBytes(req.bodyBase64);
     } else {
-      const hasBody =
-        req.body !== undefined &&
-        !["GET", "HEAD"].includes(req.method.toUpperCase());
-      body = hasBody ? req.body : undefined;
+      body = req.body;
     }
 
     const res = await fetch(url, {
@@ -153,7 +130,6 @@ export async function execute(
     clearTimeout(timeoutId);
     externalSignal?.removeEventListener("abort", abortHandler);
     if (e instanceof DOMException && e.name === "AbortError") {
-      // Check if it was our timeout or external abort
       if (externalSignal?.aborted) {
         return {
           error: { code: "ABORTED", message: "Request aborted" },
@@ -182,4 +158,24 @@ function bytesToBase64(buf: ArrayBuffer): string {
     bin += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
   }
   return btoa(bin);
+}
+
+function base64ToBytes(b64: string): Uint8Array<ArrayBuffer> {
+  const bin = atob(b64);
+  const out = new Uint8Array(new ArrayBuffer(bin.length));
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+export function decodeBody(
+  bytes: ArrayBuffer,
+  contentType: string | null,
+): string {
+  const charset =
+    /charset=["']?([^;"'\s]+)/i.exec(contentType ?? "")?.[1] ?? "utf-8";
+  try {
+    return new TextDecoder(charset).decode(bytes);
+  } catch {
+    return new TextDecoder("utf-8").decode(bytes);
+  }
 }

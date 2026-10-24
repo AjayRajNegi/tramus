@@ -4,9 +4,10 @@ import {
   type TramusRequest,
   type TramusResult,
 } from "@tramus/protocol";
-import { buildAuthorizationHeader } from "@/components/layout/editor-shell/auth-editor";
+import { buildAuthorizationHeader } from "@/components/layout/editor-shell/request/auth-editor";
 import { isExtensionInstalled } from "@/lib/extension";
 import { sendViaExtension } from "@/lib/extension/client";
+import { buildMultipart } from "@/lib/helper/build-multipart";
 import type { EndpointDraft } from "@/lib/store/tab.store.types";
 
 const MAX_RESPONSE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -112,6 +113,14 @@ function toTramusRequest(draft: EndpointDraft): TramusRequest {
         "Content-Type",
         draft.body.file.type || "application/octet-stream",
       ]);
+    }
+  } else if (draft.body.type === "formdata") {
+    const multipart = buildMultipart(draft.body.formData ?? []);
+
+    if (multipart) {
+      bodyBase64 = multipart.base64;
+      headers = headers.filter(([k]) => k.toLowerCase() !== "content-type");
+      headers.push(["Content-Type", multipart.contentType]);
     }
   }
 
