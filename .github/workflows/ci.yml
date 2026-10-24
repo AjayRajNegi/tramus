@@ -7,6 +7,9 @@ on:
   push:
     branches: [main, master]
 
+env:
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tramus?schema=public"
+
 jobs:
   lint-and-typecheck:
     name: Lint & Typecheck
