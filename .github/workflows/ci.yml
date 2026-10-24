@@ -1,33 +1,61 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main, master]
+  push:
+    branches: [main, master]
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+env:
+  DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/tramus?schema=public"
 
 jobs:
-  format:
-    name: Format Check
-    uses: ./.github/workflows/format.yml
-    secrets: inherit
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  lint:
-    name: Lint
-    uses: ./.github/workflows/lint.yml
-    secrets: inherit
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.8"
 
-  typecheck:
-    name: Typecheck
-    uses: ./.github/workflows/typecheck.yml
-    secrets: inherit
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run lint
+        run: bun run lint
+
+      - name: Run typecheck
+        run: bun run check-types
 
   build:
     name: Build
-    needs: [format, lint, typecheck]
-    uses: ./.github/workflows/build.yml
-    secrets: inherit
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.8"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build all packages
+        run: bun run build
+
+  pr-checks:
+    name: PR Checks
+    runs-on: ubuntu-latest
+    needs: [lint-and-typecheck, build]
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: All checks passed
+        run: echo "All PR checks passed!"

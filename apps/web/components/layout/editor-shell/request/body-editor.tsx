@@ -10,11 +10,13 @@ import { FileIcon } from "lucide-react";
 import * as React from "react";
 import type { BodyType, RequestBody } from "@/lib/store/tab.store.types";
 import { cn } from "@/lib/utils";
+import { FormDataEditor } from "./form-data-editor";
 import { KeyValueEditor } from "./key-value-editor";
 
 export const createBody = (patch: Partial<RequestBody> = {}): RequestBody => ({
   file: null,
   form: [],
+  formData: [],
   json: "",
   raw: "",
   type: "none",
@@ -34,9 +36,10 @@ const BODY_TYPES: { value: BodyType; label: string }[] = [
   { label: "Form", value: "form" },
   { label: "Raw", value: "raw" },
   { label: "File", value: "file" },
+  { label: "Form Data", value: "formdata" },
 ];
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
 const editorTheme = EditorView.theme({
   ".cm-activeLine": { backgroundColor: "rgba(128,128,128,0.10)" },
@@ -73,7 +76,7 @@ const editorTheme = EditorView.theme({
 });
 
 const highlightStyle = HighlightStyle.define([
-  { color: "#d946ef", tag: t.propertyName }, // JSON keys
+  { color: "#d946ef", tag: t.propertyName },
   { color: "#818cf8", tag: t.string },
   { color: "#f59e0b", tag: [t.number, t.integer, t.float] },
   { color: "#14b8a6", tag: [t.bool, t.null] },
@@ -273,6 +276,14 @@ export function BodyEditor({
           )}
         </div>
       )}
+
+      {value.type === "formdata" && (
+        <FormDataEditor
+          onChange={(formData) => set({ formData })}
+          readOnly={readOnly}
+          rows={value.formData ?? []}
+        />
+      )}
     </div>
   );
 }
@@ -282,7 +293,6 @@ function fileToBase64(file: File): Promise<string> {
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result as string;
-      // Remove data URL prefix (e.g., "data:image/png;base64,")
       const base64 = result.split(",")[1] || result;
       resolve(base64);
     };

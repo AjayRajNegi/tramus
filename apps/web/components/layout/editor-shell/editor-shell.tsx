@@ -6,8 +6,8 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import EndpointBar from "./endpoint-bar";
-import { RequestPane } from "./request-page";
-import ResponsePane from "./response-pane";
+import { RequestPane } from "./request/request-page";
+import ResponsePane from "./response/response-pane";
 
 export default function EditorShell() {
   return (

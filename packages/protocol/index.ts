@@ -62,7 +62,7 @@ export type TramusResult =
 export type WebRequest = {
   source: typeof BRIDGE_SOURCE_WEB;
   type: "request";
-  id: string; // correlates the response with the request
+  id: string;
   request: TramusRequest;
 };
 export type WebAbort = {
