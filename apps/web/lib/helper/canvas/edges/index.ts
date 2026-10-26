@@ -1,4 +1,5 @@
-import type { Edge, EdgeTypes } from "@xyflow/react";
+import { type Edge, type EdgeTypes, Position } from "@xyflow/react";
+import { hierarchy, tree } from "d3-hierarchy";
 import type { AppNode } from "../nodes";
 
 export const initialEdges = [
@@ -16,87 +17,150 @@ type StoredNode = {
   parentId?: string | null;
   endpointId?: string;
   requestSnapshot?: {
-    url?: string;
     method?: string;
+    url?: string;
+  };
+  outcome?: {
+    status?: number;
+    state?: string;
   };
 };
 
-type StoredNodes = Record<string, StoredNode>;
+type StoreNodes = Record<string, StoredNode>;
 
-type ConstructedGraph = {
-  nodes: AppNode[];
-  edges: Edge[];
+type LayoutItem = {
+  id: string;
+  record: StoredNode | null;
+  children: LayoutItem[];
 };
 
-export function constructGraph(storeNodes: StoredNodes): ConstructedGraph {
-  // Use each stored node's ID, falling back to its record key.
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 70;
+
+const HORIZONTAL_GAP = 100;
+const VERTICAL_GAP = 80;
+const PADDING = 40;
+
+export function constructGraph(storeNodes: StoreNodes): {
+  nodes: AppNode[];
+  edges: Edge[];
+} {
   const records = Object.entries(storeNodes)
-    .map(([key, value]) => ({
-      id: value.id ?? key,
-      value,
+    .map(([key, record]) => ({
+      id: record.id ?? key,
+      record,
     }))
     .sort((a, b) => a.id.localeCompare(b.id));
 
-  const byId = new Map<string, StoredNode>(
-    records.map(({ id, value }) => [id, value]),
-  );
+  if (records.length === 0) {
+    return { edges: [], nodes: [] };
+  }
 
-  // Count children so we can distinguish intermediate and leaf nodes.
-  const childCount = new Map<string, number>();
+  const ids = new Set(records.map(({ id }) => id));
 
-  for (const { value } of records) {
-    const parentId = value.parentId;
+  // Normalize parent references. Missing parents become roots.
+  const parentById = new Map<string, string | undefined>();
 
-    if (parentId && byId.has(parentId)) {
-      childCount.set(parentId, (childCount.get(parentId) ?? 0) + 1);
+  for (const { id, record } of records) {
+    const parentId = record.parentId;
+
+    parentById.set(
+      id,
+      parentId && parentId !== id && ids.has(parentId) ? parentId : undefined,
+    );
+  }
+
+  // Break parent cycles so the hierarchy algorithm cannot recurse forever.
+  const visitState = new Map<string, number>();
+
+  function breakCycles(id: string): void {
+    const state = visitState.get(id) ?? 0;
+
+    if (state === 2 || state === 1) return;
+
+    visitState.set(id, 1);
+
+    const parentId = parentById.get(id);
+
+    if (parentId) {
+      if (visitState.get(parentId) === 1) {
+        parentById.set(id, undefined);
+      } else {
+        breakCycles(parentId);
+      }
+    }
+
+    visitState.set(id, 2);
+  }
+
+  for (const { id } of records) {
+    breakCycles(id);
+  }
+
+  // Create a hierarchy-friendly representation of the store.
+  const items = new Map<string, LayoutItem>();
+
+  for (const { id, record } of records) {
+    items.set(id, {
+      children: [],
+      id,
+      record,
+    });
+  }
+
+  const roots: LayoutItem[] = [];
+
+  for (const { id } of records) {
+    const item = items.get(id)!;
+    const parentId = parentById.get(id);
+
+    if (parentId) {
+      items.get(parentId)!.children.push(item);
+    } else {
+      roots.push(item);
     }
   }
 
-  // Calculate each node's depth in the parent-child hierarchy.
-  const depthCache = new Map<string, number>();
+  // A virtual root allows multiple independent roots.
+  const hierarchyRoot = hierarchy<LayoutItem>(
+    {
+      children: roots,
+      id: "__layout_root__",
+      record: null,
+    },
+    (item) => item.children,
+  );
 
-  function getDepth(id: string, visiting = new Set<string>()): number {
-    const cached = depthCache.get(id);
+  // First nodeSize dimension controls horizontal spacing;
+  // second dimension controls vertical spacing.
+  tree<LayoutItem>()
+    .nodeSize([NODE_WIDTH + HORIZONTAL_GAP, NODE_HEIGHT + VERTICAL_GAP])
+    .separation((a, b) => (a.parent === b.parent ? 1 : 1.25))(hierarchyRoot);
 
-    if (cached !== undefined) return cached;
-    if (visiting.has(id)) return 0; // Avoid infinite recursion.
+  const positionedNodes = hierarchyRoot
+    .descendants()
+    .filter((node) => node.data.record !== null);
 
-    visiting.add(id);
+  // Normalize coordinates so the graph starts near the top-left.
+  const minX = Math.min(...positionedNodes.map((node) => node.x));
+  const minY = Math.min(...positionedNodes.map((node) => node.y));
 
-    const parentId = byId.get(id)?.parentId;
-    const depth =
-      parentId && byId.has(parentId) ? getDepth(parentId, visiting) + 1 : 0;
+  const nodes: AppNode[] = positionedNodes.map((node) => {
+    const { id, record } = node.data;
+    const value = record!;
+    const hasParent = Boolean(parentById.get(id));
+    const hasChildren = node.children?.length > 0;
 
-    visiting.delete(id);
-    depthCache.set(id, depth);
-
-    return depth;
-  }
-
-  // Keep positions deterministic instead of using Math.random().
-  const rowsPerDepth = new Map<number, number>();
-
-  const nodes: AppNode[] = records.map(({ id, value }) => {
-    const depth = getDepth(id);
-    const row = rowsPerDepth.get(depth) ?? 0;
-
-    rowsPerDepth.set(depth, row + 1);
-
-    const hasParent = Boolean(value.parentId) && byId.has(value.parentId!);
-
-    const hasChildren = (childCount.get(id) ?? 0) > 0;
-
-    // Root nodes have source handles, leaves have target handles,
-    // and intermediate nodes can connect in both directions.
     const type: "input" | "default" | "output" = !hasParent
       ? "input"
       : !hasChildren
         ? "output"
         : "default";
 
-    const endpoint = value.requestSnapshot?.url ?? value.endpointId ?? id;
-
-    const label = [value.requestSnapshot?.method, endpoint]
+    const label = [
+      value.requestSnapshot?.method,
+      value.requestSnapshot?.url ?? value.endpointId ?? id,
+    ]
       .filter(Boolean)
       .join(" ");
 
@@ -104,27 +168,27 @@ export function constructGraph(storeNodes: StoredNodes): ConstructedGraph {
       data: { label },
       id,
       position: {
-        x: depth * 280,
-        y: row * 140,
+        x: node.x - minX + PADDING,
+        y: node.y - minY + PADDING,
       },
+      sourcePosition: Position.Bottom,
+      targetPosition: Position.Top,
       type,
     };
   });
 
-  // Every edge points from the parent to its child.
-  const edges: Edge[] = records.flatMap(({ id, value }) => {
-    const source = value.parentId;
+  // Each edge runs from the parent to its child.
+  const edges: Edge[] = records.flatMap(({ id }): Edge[] => {
+    const source = parentById.get(id);
 
-    // Ignore missing parents and self-referencing relationships.
-    if (!source || source === id || !byId.has(source)) {
-      return [];
-    }
+    if (!source) return [];
 
     return [
       {
         id: `${source}->${id}`,
         source,
         target: id,
+        type: "smoothstep",
       },
     ];
   });
