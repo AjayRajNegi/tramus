@@ -2,15 +2,7 @@ import { type Edge, type EdgeTypes, Position } from "@xyflow/react";
 import { hierarchy, tree } from "d3-hierarchy";
 import type { AppNode } from "../nodes";
 
-export const initialEdges = [
-  { animated: true, id: "a->c", source: "a", target: "c" },
-  { id: "b->d", source: "b", target: "d" },
-  { animated: true, id: "c->d", source: "c", target: "d" },
-] satisfies Edge[];
-
-export const edgeTypes = {
-  // Add your custom edge types here!
-} satisfies EdgeTypes;
+export const edgeTypes = {} satisfies EdgeTypes;
 
 type StoredNode = {
   id?: string;
@@ -58,7 +50,6 @@ export function constructGraph(storeNodes: StoreNodes): {
 
   const ids = new Set(records.map(({ id }) => id));
 
-  // Normalize parent references. Missing parents become roots.
   const parentById = new Map<string, string | undefined>();
 
   for (const { id, record } of records) {
@@ -70,7 +61,6 @@ export function constructGraph(storeNodes: StoreNodes): {
     );
   }
 
-  // Break parent cycles so the hierarchy algorithm cannot recurse forever.
   const visitState = new Map<string, number>();
 
   function breakCycles(id: string): void {
@@ -97,7 +87,6 @@ export function constructGraph(storeNodes: StoreNodes): {
     breakCycles(id);
   }
 
-  // Create a hierarchy-friendly representation of the store.
   const items = new Map<string, LayoutItem>();
 
   for (const { id, record } of records) {
@@ -121,7 +110,6 @@ export function constructGraph(storeNodes: StoreNodes): {
     }
   }
 
-  // A virtual root allows multiple independent roots.
   const hierarchyRoot = hierarchy<LayoutItem>(
     {
       children: roots,
@@ -131,25 +119,23 @@ export function constructGraph(storeNodes: StoreNodes): {
     (item) => item.children,
   );
 
-  // First nodeSize dimension controls horizontal spacing;
-  // second dimension controls vertical spacing.
-  tree<LayoutItem>()
+  const layoutRoot = tree<LayoutItem>()
     .nodeSize([NODE_WIDTH + HORIZONTAL_GAP, NODE_HEIGHT + VERTICAL_GAP])
     .separation((a, b) => (a.parent === b.parent ? 1 : 1.25))(hierarchyRoot);
 
-  const positionedNodes = hierarchyRoot
+  const positionedNodes = layoutRoot
     .descendants()
     .filter((node) => node.data.record !== null);
 
-  // Normalize coordinates so the graph starts near the top-left.
   const minX = Math.min(...positionedNodes.map((node) => node.x));
+
   const minY = Math.min(...positionedNodes.map((node) => node.y));
 
   const nodes: AppNode[] = positionedNodes.map((node) => {
     const { id, record } = node.data;
     const value = record!;
     const hasParent = Boolean(parentById.get(id));
-    const hasChildren = node.children?.length > 0;
+    const hasChildren = (node.children?.length ?? 0) > 0;
 
     const type: "input" | "default" | "output" = !hasParent
       ? "input"
@@ -177,7 +163,6 @@ export function constructGraph(storeNodes: StoreNodes): {
     };
   });
 
-  // Each edge runs from the parent to its child.
   const edges: Edge[] = records.flatMap(({ id }): Edge[] => {
     const source = parentById.get(id);
 

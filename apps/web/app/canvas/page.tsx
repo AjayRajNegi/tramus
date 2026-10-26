@@ -13,16 +13,8 @@ import {
 import { useCallback, useMemo } from "react";
 
 import "@xyflow/react/dist/style.css";
-import {
-  constructGraph,
-  edgeTypes,
-  initialEdges,
-} from "@/lib/helper/canvas/edges";
-import {
-  type AppNode,
-  initialNodes,
-  nodeTypes,
-} from "@/lib/helper/canvas/nodes";
+import { constructGraph, edgeTypes } from "@/lib/helper/canvas/edges";
+import { nodeTypes } from "@/lib/helper/canvas/nodes";
 import { useCanvasStore } from "@/lib/store/canvas.store";
 
 export default function App() {
@@ -56,22 +48,3 @@ export default function App() {
     </ReactFlow>
   );
 }
-
-// function constructNodes(nodes): AppNode[] {
-//   console.log(nodes);
-//   const updatedNodes = [];
-//   for (const key in nodes) {
-//     let obj = {};
-
-//     const data = { label: nodes[key].requestSnapshot.url };
-//     const id = key;
-//     const position = { x: Math.random() * 100, y: Math.random() * 100 };
-//     const type = "input";
-
-//     obj = { data, id, position, type };
-//     updatedNodes.push(obj);
-//   }
-//   console.log(updatedNodes);
-
-//   return updatedNodes;
-// }
