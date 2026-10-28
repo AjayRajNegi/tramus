@@ -18,6 +18,7 @@ import { nodeTypes } from "@/lib/helper/canvas/nodes";
 import { makeDraft, useCanvasStore } from "@/lib/store/canvas.store";
 import "@xyflow/react/dist/style.css";
 import { Button } from "@/components/ui/button";
+import { useEditorState } from "@/lib/store/editor.store";
 
 export default function App() {
   const storeNodes = useCanvasStore((s) => s.nodes);
@@ -51,11 +52,16 @@ export default function App() {
     });
   }
 
+  console.log(storeNodes);
+
+  const { drafts } = useEditorState();
+  Object.entries(drafts).map(([key, record]) => console.log(record));
+
   return (
     <main style={{ display: "flex", height: "100%", width: "100%" }}>
       <div
         className="m-4 rounded-2xl border"
-        style={{ height: "calc(100% - 32px)", width: "80%" }}
+        style={{ height: "calc(100% - 32px)", width: "60%" }}
       >
         <ReactFlow
           edges={edges}
@@ -73,7 +79,33 @@ export default function App() {
         </ReactFlow>
       </div>
 
-      <Button onClick={addNewNode}>Add new node</Button>
+      <div>
+        {Object.entries(drafts).map(([key, record]) => (
+          <div className="rounded-xl bg-blue-400 p-4 text-sm" key={key}>
+            <p>{record.draft.url}</p>
+            <Button
+              onClick={() =>
+                recordRequest({
+                  endpointId: `end${Date.now()}`,
+                  requestId: `req${Date.now()}`,
+                  snapshot: makeDraft(
+                    record.draft.method,
+                    record.draft.url,
+                    record.draft.body.json
+                      ? record.draft.body.json
+                      : `"name" : "Ajay"`,
+                  ),
+                  workspaceId: `work${Date.now()}`,
+                })
+              }
+            >
+              Add this node to canvas
+            </Button>
+          </div>
+        ))}
+
+        <Button onClick={addNewNode}>Add new node</Button>
+      </div>
     </main>
   );
 }

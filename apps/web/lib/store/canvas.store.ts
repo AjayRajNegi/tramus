@@ -8,7 +8,7 @@ import {
 import { immer } from "zustand/middleware/immer";
 import type { EndpointDraft } from "./tab.store.types";
 
-const SEED_DUMMY_DATA = true;
+const SEED_DUMMY_DATA = false;
 
 export const MAIN_SCENARIO_ID = "main";
 export const MAX_SCENARIOS = 20;
@@ -109,148 +109,148 @@ const initialData = (): CanvasData =>
   SEED_DUMMY_DATA ? createDummyData() : createEmptyData();
 
 export const useCanvasStore = create<CanvasState>()(
-  // persist(
-  immer((set, get) => ({
-    ...initialData(),
+  persist(
+    immer((set, get) => ({
+      ...initialData(),
 
-    archiveScenario: (id) =>
-      set((s) => {
-        if (id === MAIN_SCENARIO_ID || !s.scenarios[id]) return;
-        s.scenarios[id].archived = true;
-        if (s.activeScenarioId === id) {
-          s.activeScenarioId = MAIN_SCENARIO_ID;
-          s.selectedNodeId = s.scenarios[MAIN_SCENARIO_ID].headNodeId;
+      archiveScenario: (id) =>
+        set((s) => {
+          if (id === MAIN_SCENARIO_ID || !s.scenarios[id]) return;
+          s.scenarios[id].archived = true;
+          if (s.activeScenarioId === id) {
+            s.activeScenarioId = MAIN_SCENARIO_ID;
+            s.selectedNodeId = s.scenarios[MAIN_SCENARIO_ID].headNodeId;
+          }
+        }),
+      collapsed: {},
+
+      fork: (fromNodeId, name) => {
+        const { nodes, scenarios } = get();
+        if (!nodes[fromNodeId]) throw new Error(`Unknown node: ${fromNodeId}`);
+        if (Object.keys(scenarios).length >= MAX_SCENARIOS) {
+          throw new Error(`Scenario limit reached (${MAX_SCENARIOS})`);
         }
-      }),
-    collapsed: {},
-
-    fork: (fromNodeId, name) => {
-      const { nodes, scenarios } = get();
-      if (!nodes[fromNodeId]) throw new Error(`Unknown node: ${fromNodeId}`);
-      if (Object.keys(scenarios).length >= MAX_SCENARIOS) {
-        throw new Error(`Scenario limit reached (${MAX_SCENARIOS})`);
-      }
-      const trimmed = name.trim();
-      if (!trimmed) throw new Error("Scenario name is required");
-
-      const id = crypto.randomUUID();
-      set((s) => {
-        s.scenarios[id] = {
-          archived: false,
-          forkedFromNodeId: fromNodeId,
-          headNodeId: fromNodeId,
-          id,
-          name: trimmed,
-        };
-        s.activeScenarioId = id;
-        s.selectedNodeId = fromNodeId;
-      });
-      return id;
-    },
-
-    loadDummyData: () =>
-      set({
-        ...createDummyData(),
-        collapsed: {},
-        positionOverrides: {},
-        selectedNodeId: null,
-      }),
-    positionOverrides: {},
-
-    recordRequest: ({
-      endpointId,
-      workspaceId,
-      requestId,
-      snapshot,
-      replayOf,
-    }) => {
-      const { scenarios, activeScenarioId } = get();
-      const sc = scenarios[activeScenarioId];
-      if (!sc) throw new Error(`Unknown scenario: ${activeScenarioId}`);
-      if (sc.archived) {
-        throw new Error(`Scenario "${sc.name}" is archived and read-only`);
-      }
-
-      const id = crypto.randomUUID();
-      set((s) => {
-        const scenario = s.scenarios[s.activeScenarioId];
-        s.nodes[id] = {
-          createdAt: Date.now(),
-          endpointId,
-          id,
-          outcome: { state: "pending" },
-          parentId: scenario.headNodeId,
-          replayOf,
-          requestId,
-          requestSnapshot: snapshot,
-          scenarioId: scenario.id,
-          workspaceId,
-        };
-        scenario.headNodeId = id;
-        s.selectedNodeId = id;
-      });
-      return id;
-    },
-
-    renameScenario: (id, name) =>
-      set((s) => {
         const trimmed = name.trim();
-        if (s.scenarios[id] && trimmed) s.scenarios[id].name = trimmed;
+        if (!trimmed) throw new Error("Scenario name is required");
+
+        const id = crypto.randomUUID();
+        set((s) => {
+          s.scenarios[id] = {
+            archived: false,
+            forkedFromNodeId: fromNodeId,
+            headNodeId: fromNodeId,
+            id,
+            name: trimmed,
+          };
+          s.activeScenarioId = id;
+          s.selectedNodeId = fromNodeId;
+        });
+        return id;
+      },
+
+      loadDummyData: () =>
+        set({
+          ...createDummyData(),
+          collapsed: {},
+          positionOverrides: {},
+          selectedNodeId: null,
+        }),
+      positionOverrides: {},
+
+      recordRequest: ({
+        endpointId,
+        workspaceId,
+        requestId,
+        snapshot,
+        replayOf,
+      }) => {
+        const { scenarios, activeScenarioId } = get();
+        const sc = scenarios[activeScenarioId];
+        if (!sc) throw new Error(`Unknown scenario: ${activeScenarioId}`);
+        if (sc.archived) {
+          throw new Error(`Scenario "${sc.name}" is archived and read-only`);
+        }
+
+        const id = crypto.randomUUID();
+        set((s) => {
+          const scenario = s.scenarios[s.activeScenarioId];
+          s.nodes[id] = {
+            createdAt: Date.now(),
+            endpointId,
+            id,
+            outcome: { state: "pending" },
+            parentId: scenario.headNodeId,
+            replayOf,
+            requestId,
+            requestSnapshot: snapshot,
+            scenarioId: scenario.id,
+            workspaceId,
+          };
+          scenario.headNodeId = id;
+          s.selectedNodeId = id;
+        });
+        return id;
+      },
+
+      renameScenario: (id, name) =>
+        set((s) => {
+          const trimmed = name.trim();
+          if (s.scenarios[id] && trimmed) s.scenarios[id].name = trimmed;
+        }),
+
+      reset: () =>
+        set({
+          ...createEmptyData(),
+          collapsed: {},
+          positionOverrides: {},
+          selectedNodeId: null,
+        }),
+
+      resolveNode: (id, outcome) =>
+        set((s) => {
+          const node = s.nodes[id];
+          if (!node || node.outcome.state !== "pending") return;
+          node.outcome = outcome;
+        }),
+
+      selectedNodeId: null,
+
+      selectNode: (id) => set({ selectedNodeId: id }),
+
+      setNodePosition: (id, pos) =>
+        set((s) => {
+          if (pos) s.positionOverrides[id] = pos;
+          else delete s.positionOverrides[id];
+        }),
+
+      switchScenario: (id) =>
+        set((s) => {
+          const sc = s.scenarios[id];
+          if (!sc) return;
+          s.activeScenarioId = id;
+          s.selectedNodeId = sc.headNodeId;
+        }),
+
+      toggleCollapsed: (id) =>
+        set((s) => {
+          if (s.collapsed[id]) delete s.collapsed[id];
+          else s.collapsed[id] = true;
+        }),
+    })),
+    {
+      migrate: (persisted, _version) => persisted as CanvasData,
+      name: "tramus-canvas",
+      partialize: (s) => ({
+        activeScenarioId: s.activeScenarioId,
+        nodes: s.nodes,
+        scenarios: s.scenarios,
       }),
-
-    reset: () =>
-      set({
-        ...createEmptyData(),
-        collapsed: {},
-        positionOverrides: {},
-        selectedNodeId: null,
-      }),
-
-    resolveNode: (id, outcome) =>
-      set((s) => {
-        const node = s.nodes[id];
-        if (!node || node.outcome.state !== "pending") return;
-        node.outcome = outcome;
-      }),
-
-    selectedNodeId: null,
-
-    selectNode: (id) => set({ selectedNodeId: id }),
-
-    setNodePosition: (id, pos) =>
-      set((s) => {
-        if (pos) s.positionOverrides[id] = pos;
-        else delete s.positionOverrides[id];
-      }),
-
-    switchScenario: (id) =>
-      set((s) => {
-        const sc = s.scenarios[id];
-        if (!sc) return;
-        s.activeScenarioId = id;
-        s.selectedNodeId = sc.headNodeId;
-      }),
-
-    toggleCollapsed: (id) =>
-      set((s) => {
-        if (s.collapsed[id]) delete s.collapsed[id];
-        else s.collapsed[id] = true;
-      }),
-  })),
-  //   {
-  //     migrate: (persisted, _version) => persisted as CanvasData,
-  //     name: "tramus-canvas",
-  //     partialize: (s) => ({
-  //       activeScenarioId: s.activeScenarioId,
-  //       nodes: s.nodes,
-  //       scenarios: s.scenarios,
-  //     }),
-  //     storage: createJSONStorage(() =>
-  //       typeof indexedDB !== "undefined" ? idbStorage : memoryStorage,
-  //     ),
-  //     version: 1,
-  //   },
-  // ),
+      storage: createJSONStorage(() =>
+        typeof indexedDB !== "undefined" ? idbStorage : memoryStorage,
+      ),
+      version: 1,
+    },
+  ),
 );
 
 /* -------------------------------------------------------------------------- */
@@ -365,7 +365,8 @@ export function makeDraft(
     method,
     params: [],
     path,
-    url: `http://localhost:3000${path}`,
+    // url: `http://localhost:3000${path}`,
+    url: path,
   };
 }
 
