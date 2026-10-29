@@ -20,7 +20,7 @@ import "@xyflow/react/dist/style.css";
 import { Button } from "@/components/ui/button";
 import { useEditorState } from "@/lib/store/editor.store";
 
-export default function App() {
+export default function Canvas() {
   const storeNodes = useCanvasStore((s) => s.nodes);
   const recordRequest = useCanvasStore((s) => s.recordRequest);
 
@@ -52,10 +52,8 @@ export default function App() {
     });
   }
 
-  console.log(storeNodes);
-
   const { drafts } = useEditorState();
-  Object.entries(drafts).map(([key, record]) => console.log(record));
+  console.log(drafts);
 
   return (
     <main style={{ display: "flex", height: "100%", width: "100%" }}>
