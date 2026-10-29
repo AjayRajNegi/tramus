@@ -246,7 +246,7 @@ export const useCanvasStore = create<CanvasState>()(
       resolveNode: (id, outcome) =>
         set((s) => {
           const node = s.nodes[id];
-          if (!node || node.outcome.state !== "pending") return;
+          if (node?.outcome.state !== "pending") return;
           node.outcome = outcome;
         }),
 

@@ -1,4 +1,4 @@
-import { type Edge, type EdgeTypes, Position } from "@xyflow/react";
+import type { Edge, EdgeTypes } from "@xyflow/react";
 import { hierarchy, tree } from "d3-hierarchy";
 import type { AppNode } from "../nodes";
 
@@ -107,7 +107,7 @@ export function constructGraph(
     const parentId = parentById.get(id);
 
     if (parentId) {
-      items.get(parentId)!.children.push(item);
+      items.get(parentId)?.children.push(item);
     } else {
       roots.push(item);
     }
