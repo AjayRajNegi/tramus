@@ -21,7 +21,14 @@ import {
   useCanvasStore,
 } from "@/lib/store/canvas.store";
 import "@xyflow/react/dist/style.css";
+import { Network, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useEditorState } from "@/lib/store/editor.store";
 import type { EndpointDraft } from "@/lib/store/tab.store.types";
 import { nodeTypes } from "./demo/page";
@@ -97,43 +104,104 @@ export default function Canvas() {
     });
 
   return (
-    <main style={{ display: "flex", height: "100%", width: "100%" }}>
-      <div
-        className="m-4 rounded-2xl border"
-        style={{ height: "calc(100% - 32px)", width: "60%" }}
-      >
-        <ReactFlow
-          connectionMode={ConnectionMode.Loose}
-          edges={edges}
-          fitView
-          isValidConnection={isValidConnection}
-          nodes={nodes}
-          nodeTypes={nodeTypes}
-          onConnect={onConnect}
-          onEdgesChange={onEdgesChange}
-          onEdgesDelete={onEdgesDelete}
-          onNodeDragStop={(_, node) => setNodePosition(node.id, node.position)}
-          onNodesChange={onNodesChange}
-          onNodesDelete={onNodesDelete}
-        >
-          <Background />
-          <MiniMap />
-          <Controls />
-        </ReactFlow>
-      </div>
+    <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+      {/* Flow canvas */}
+      <section className="mt-12 h-[calc(100%-50px)] min-h-0 min-w-0 flex-1 p-4">
+        <div className="h-full w-full overflow-hidden rounded-xl border border-border bg-background">
+          <ReactFlow
+            connectionMode={ConnectionMode.Loose}
+            edges={edges}
+            fitView
+            isValidConnection={isValidConnection}
+            nodes={nodes}
+            nodeTypes={nodeTypes}
+            onConnect={onConnect}
+            onEdgesChange={onEdgesChange}
+            onEdgesDelete={onEdgesDelete}
+            onNodeDragStop={(_, node) =>
+              setNodePosition(node.id, node.position)
+            }
+            onNodesChange={onNodesChange}
+            onNodesDelete={onNodesDelete}
+          >
+            <Background />
+            <MiniMap />
+            <Controls />
+          </ReactFlow>
+        </div>
+      </section>
+      {/* Endpoints sidebar */}
+      <aside className="mt-[50px] flex h-[calc(100%-50px)] w-80 shrink-0 flex-col overflow-hidden border-border border-l bg-background">
+        <Card className="flex h-full flex-col gap-0 overflow-hidden rounded-none border-0 bg-transparent py-0 shadow-none">
+          <CardHeader className="gap-1 border-border border-b px-4 py-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-semibold text-sm tracking-tight">
+                Endpoints
+              </h2>
 
-      <div className="flex flex-col gap-2 p-4">
-        {Object.entries(drafts).map(([key, record]) => (
-          <div className="rounded-xl bg-blue-400 p-4 text-sm" key={key}>
-            <p>
-              {record.draft.method} {record.draft.url}
+              <span className="rounded-md bg-muted px-2 py-0.5 font-medium text-muted-foreground text-xs tabular-nums">
+                {Object.keys(drafts).length}
+              </span>
+            </div>
+
+            <p className="text-muted-foreground text-xs">
+              Add endpoints to your flow.
             </p>
-            <Button onClick={() => addEndpoint(key, record.draft)}>
-              Add this node to canvas
-            </Button>
-          </div>
-        ))}
-      </div>
-    </main>
+          </CardHeader>
+
+          <CardContent className="flex-1 space-y-2 overflow-y-auto p-3">
+            {Object.entries(drafts).map(([key, record]) => (
+              <div className="group flex flex-row-reverse" key={key}>
+                <div className="min-w-0 flex-1 space-y-2 rounded-lg border-[0.5px] border-border bg-card p-3 transition-colors hover:border-ring/40 hover:bg-accent/50">
+                  <span
+                    className={`inline-flex rounded-md px-2 py-1 font-semibold text-[10px] leading-none ${
+                      record.draft.method === "GET"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                        : record.draft.method === "POST"
+                          ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                          : record.draft.method === "DELETE"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-primary/10 text-primary"
+                    }`}
+                  >
+                    {record.draft.method}
+                  </span>
+
+                  <p className="break-all font-mono text-foreground text-xs leading-relaxed">
+                    {record.draft.url}
+                  </p>
+                </div>
+
+                <Tooltip>
+                  <TooltipTrigger
+                    delay={0}
+                    render={
+                      <Button
+                        aria-label="Add endpoint to canvas"
+                        className="border-[0.5px] border-border border-r-0 bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        onClick={() => addEndpoint(key, record.draft)}
+                        size="icon"
+                        variant="outline"
+                      >
+                        <Plus className="size-4" />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent side="left">
+                    <p>Add to canvas</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            ))}
+
+            {Object.keys(drafts).length === 0 && (
+              <p className="py-8 text-center text-muted-foreground text-xs">
+                No endpoints available.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </aside>
+    </div>
   );
 }
