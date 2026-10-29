@@ -1,11 +1,12 @@
 "use client";
 
 import {
-  addEdge,
   Background,
+  type Connection,
+  ConnectionMode,
   Controls,
+  type Edge,
   MiniMap,
-  type OnConnect,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -13,47 +14,87 @@ import {
 import { useCallback, useEffect, useMemo } from "react";
 
 import "@xyflow/react/dist/style.css";
-import { constructGraph, edgeTypes } from "@/lib/helper/canvas/edges";
-import { nodeTypes } from "@/lib/helper/canvas/nodes";
-import { makeDraft, useCanvasStore } from "@/lib/store/canvas.store";
+import { constructGraph } from "@/lib/helper/canvas/edges";
+import {
+  getAncestry,
+  stripFileContents,
+  useCanvasStore,
+} from "@/lib/store/canvas.store";
 import "@xyflow/react/dist/style.css";
 import { Button } from "@/components/ui/button";
 import { useEditorState } from "@/lib/store/editor.store";
+import type { EndpointDraft } from "@/lib/store/tab.store.types";
+import { nodeTypes } from "./demo/page";
+
+const WORKSPACE_ID = "default";
+
+function resolveLink(c: Connection) {
+  const { source, target, sourceHandle, targetHandle } = c;
+  if (source === target) return null;
+  if (sourceHandle === "bottom" && targetHandle === "top")
+    return { childId: target, parentId: source };
+  if (sourceHandle === "top" && targetHandle === "bottom")
+    return { childId: source, parentId: target };
+  return null;
+}
 
 export default function Canvas() {
   const storeNodes = useCanvasStore((s) => s.nodes);
-  const recordRequest = useCanvasStore((s) => s.recordRequest);
-
-  const { nodes: newNodes, edges: newEdges } = useMemo(
-    () => constructGraph(storeNodes),
-    [storeNodes],
-  );
-
-  const [nodes, setNodes, onNodesChange] = useNodesState(newNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(newEdges);
-
-  const onConnect: OnConnect = useCallback(
-    (connection) => setEdges((edges) => addEdge(connection, edges)),
-    [setEdges],
-  );
-
-  useEffect(() => {
-    setNodes(newNodes);
-    setEdges(newEdges);
-  }, [newNodes, newEdges, setNodes, setEdges]);
-
-  function addNewNode() {
-    const draft = makeDraft("POST", "www.google.com", `"name" : "Ajay"`);
-    recordRequest({
-      endpointId: `end${Date.now()}`,
-      requestId: `req${Date.now()}`,
-      snapshot: draft,
-      workspaceId: `work${Date.now()}`,
-    });
-  }
+  const positionOverrides = useCanvasStore((s) => s.positionOverrides);
+  const addNode = useCanvasStore((s) => s.addNode);
+  const setParent = useCanvasStore((s) => s.setParent);
+  const removeNode = useCanvasStore((s) => s.removeNode);
+  const setNodePosition = useCanvasStore((s) => s.setNodePosition);
 
   const { drafts } = useEditorState();
-  console.log(drafts);
+
+  const graph = useMemo(
+    () => constructGraph(storeNodes, positionOverrides),
+    [storeNodes, positionOverrides],
+  );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(graph.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(graph.edges);
+
+  useEffect(() => {
+    setNodes(graph.nodes);
+    setEdges(graph.edges);
+  }, [graph, setNodes, setEdges]);
+
+  const isValidConnection = useCallback((c: Connection | Edge) => {
+    const link = resolveLink(c as Connection);
+    if (!link) return false;
+    const { nodes } = useCanvasStore.getState();
+    return !getAncestry(nodes, link.parentId).includes(link.childId); // no cycles
+  }, []);
+
+  const onConnect = useCallback(
+    (c: Connection) => {
+      const link = resolveLink(c);
+      if (link) setParent(link.childId, link.parentId);
+    },
+    [setParent],
+  );
+
+  const onEdgesDelete = useCallback(
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: Suppress
+    (deleted: Edge[]) => deleted.forEach((e) => setParent(e.target, null)),
+    [setParent],
+  );
+
+  const onNodesDelete = useCallback(
+    // biome-ignore lint/suspicious/useIterableCallbackReturn: Suppress
+    (deleted: { id: string }[]) => deleted.forEach((n) => removeNode(n.id)),
+    [removeNode],
+  );
+
+  const addEndpoint = (endpointId: string, draft: EndpointDraft) =>
+    addNode({
+      endpointId,
+      requestId: crypto.randomUUID(),
+      snapshot: stripFileContents(draft),
+      workspaceId: WORKSPACE_ID,
+    });
 
   return (
     <main style={{ display: "flex", height: "100%", width: "100%" }}>
@@ -62,14 +103,18 @@ export default function Canvas() {
         style={{ height: "calc(100% - 32px)", width: "60%" }}
       >
         <ReactFlow
+          connectionMode={ConnectionMode.Loose}
           edges={edges}
-          edgeTypes={edgeTypes}
           fitView
+          isValidConnection={isValidConnection}
           nodes={nodes}
           nodeTypes={nodeTypes}
           onConnect={onConnect}
           onEdgesChange={onEdgesChange}
+          onEdgesDelete={onEdgesDelete}
+          onNodeDragStop={(_, node) => setNodePosition(node.id, node.position)}
           onNodesChange={onNodesChange}
+          onNodesDelete={onNodesDelete}
         >
           <Background />
           <MiniMap />
@@ -77,32 +122,17 @@ export default function Canvas() {
         </ReactFlow>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-2 p-4">
         {Object.entries(drafts).map(([key, record]) => (
           <div className="rounded-xl bg-blue-400 p-4 text-sm" key={key}>
-            <p>{record.draft.url}</p>
-            <Button
-              onClick={() =>
-                recordRequest({
-                  endpointId: `end${Date.now()}`,
-                  requestId: `req${Date.now()}`,
-                  snapshot: makeDraft(
-                    record.draft.method,
-                    record.draft.url,
-                    record.draft.body.json
-                      ? record.draft.body.json
-                      : `"name" : "Ajay"`,
-                  ),
-                  workspaceId: `work${Date.now()}`,
-                })
-              }
-            >
+            <p>
+              {record.draft.method} {record.draft.url}
+            </p>
+            <Button onClick={() => addEndpoint(key, record.draft)}>
               Add this node to canvas
             </Button>
           </div>
         ))}
-
-        <Button onClick={addNewNode}>Add new node</Button>
       </div>
     </main>
   );

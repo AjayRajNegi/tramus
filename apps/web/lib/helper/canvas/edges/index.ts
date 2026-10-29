@@ -33,7 +33,10 @@ const HORIZONTAL_GAP = 100;
 const VERTICAL_GAP = 80;
 const PADDING = 40;
 
-export function constructGraph(storeNodes: StoreNodes): {
+export function constructGraph(
+  storeNodes: StoreNodes,
+  positionOverrides: Record<string, { x: number; y: number }> = {},
+): {
   nodes: AppNode[];
   edges: Edge[];
 } {
@@ -134,14 +137,6 @@ export function constructGraph(storeNodes: StoreNodes): {
   const nodes: AppNode[] = positionedNodes.map((node) => {
     const { id, record } = node.data;
     const value = record!;
-    const hasParent = Boolean(parentById.get(id));
-    const hasChildren = (node.children?.length ?? 0) > 0;
-
-    const type: "input" | "default" | "output" = !hasParent
-      ? "input"
-      : !hasChildren
-        ? "output"
-        : "default";
 
     const label = [
       value.requestSnapshot?.method,
@@ -153,26 +148,24 @@ export function constructGraph(storeNodes: StoreNodes): {
     return {
       data: { label },
       id,
-      position: {
+      position: positionOverrides[id] ?? {
         x: node.x - minX + PADDING,
         y: node.y - minY + PADDING,
       },
-      sourcePosition: Position.Bottom,
-      targetPosition: Position.Top,
-      type,
+      type: "api",
     };
   });
 
   const edges: Edge[] = records.flatMap(({ id }): Edge[] => {
     const source = parentById.get(id);
-
     if (!source) return [];
-
     return [
       {
         id: `${source}->${id}`,
-        source,
-        target: id,
+        source, // parent
+        sourceHandle: "bottom", // parent's bottom
+        target: id, // child
+        targetHandle: "top", // child's top
         type: "smoothstep",
       },
     ];

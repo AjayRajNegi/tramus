@@ -17,27 +17,26 @@ import {
   useNodesState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useEditorState } from "@/lib/store/editor.store";
 
-type ApiNodeData = {
-  label: string;
-  parentId: string | null;
-};
-type ApiNode = Node<ApiNodeData, "api">;
+export type ApiNodeData = { label: string };
+export type ApiNode = Node<ApiNodeData, "api">;
 
-function ApiNodeComponent({ data }: NodeProps<ApiNode>) {
+export function ApiNodeComponent({ data }: NodeProps<ApiNode>) {
   return (
     <div className="rounded border bg-white px-4 py-2 text-sm">
+      {/* top = connects to my PARENT */}
       <Handle id="top" position={Position.Top} type="source" />
       {data.label}
+      {/* bottom = connects to a CHILD (sets the child's parentId) */}
       <Handle id="bottom" position={Position.Bottom} type="source" />
     </div>
   );
 }
 
-const nodeTypes = { api: ApiNodeComponent };
+export const nodeTypes = { api: ApiNodeComponent };
 
 const initialNodes: ApiNode[] = [
   {
@@ -80,10 +79,6 @@ export default function Demo() {
     },
     [setNodes, setEdges],
   );
-
-  useEffect(() => {
-    console.log(nodes, edges);
-  }, [nodes, edges]);
 
   const addNewNode = useCallback(
     (label: string) => {

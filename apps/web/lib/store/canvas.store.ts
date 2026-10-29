@@ -79,13 +79,15 @@ type CanvasActions = {
 
   loadDummyData: () => void;
   reset: () => void;
+
+  addNode: (input: RecordRequestInput) => NodeId;
+  setParent: (childId: NodeId, parentId: NodeId | null) => boolean;
+  removeNode: (id: NodeId) => void;
 };
 
 export type CanvasState = CanvasData & CanvasUiState & CanvasActions;
 
-/* -------------------------------------------------------------------------- */
-/*  Persistence (IndexedDB, with a memory fallback for SSR / tests)            */
-/* -------------------------------------------------------------------------- */
+// Persisted Memory
 
 const memory = new Map<string, string>();
 
@@ -101,10 +103,7 @@ const idbStorage: StateStorage = {
   setItem: async (name, value) => idbSet(name, value),
 };
 
-/* -------------------------------------------------------------------------- */
-/*  Store                                                                     */
-/* -------------------------------------------------------------------------- */
-
+// Store
 const initialData = (): CanvasData =>
   SEED_DUMMY_DATA ? createDummyData() : createEmptyData();
 
@@ -112,6 +111,26 @@ export const useCanvasStore = create<CanvasState>()(
   persist(
     immer((set, get) => ({
       ...initialData(),
+
+      addNode: ({ endpointId, workspaceId, requestId, snapshot, replayOf }) => {
+        const id = crypto.randomUUID();
+        set((s) => {
+          s.nodes[id] = {
+            createdAt: Date.now(),
+            endpointId,
+            id,
+            outcome: { state: "pending" },
+            parentId: null, // always unattached; user connects it manually
+            replayOf,
+            requestId,
+            requestSnapshot: snapshot,
+            scenarioId: s.activeScenarioId,
+            workspaceId,
+          };
+          s.selectedNodeId = id;
+        });
+        return id;
+      },
 
       archiveScenario: (id) =>
         set((s) => {
@@ -192,6 +211,24 @@ export const useCanvasStore = create<CanvasState>()(
         return id;
       },
 
+      removeNode: (id) =>
+        set((s) => {
+          const removed = s.nodes[id];
+          if (!removed) return;
+          const fallback = removed.parentId;
+          delete s.nodes[id];
+          for (const n of Object.values(s.nodes)) {
+            if (n.parentId === id) n.parentId = null; // orphan the children
+          }
+          for (const sc of Object.values(s.scenarios)) {
+            if (sc.headNodeId === id) sc.headNodeId = fallback;
+            if (sc.forkedFromNodeId === id) sc.forkedFromNodeId = fallback;
+          }
+          delete s.positionOverrides[id];
+          delete s.collapsed[id];
+          if (s.selectedNodeId === id) s.selectedNodeId = null;
+        }),
+
       renameScenario: (id, name) =>
         set((s) => {
           const trimmed = name.trim();
@@ -223,6 +260,20 @@ export const useCanvasStore = create<CanvasState>()(
           else delete s.positionOverrides[id];
         }),
 
+      setParent: (childId, parentId) => {
+        const { nodes } = get();
+        if (!nodes[childId]) return false;
+        if (parentId !== null) {
+          if (parentId === childId || !nodes[parentId]) return false;
+          // reject cycles: child must not be an ancestor of the new parent
+          if (getAncestry(nodes, parentId).includes(childId)) return false;
+        }
+        set((s) => {
+          s.nodes[childId].parentId = parentId;
+        });
+        return true;
+      },
+
       switchScenario: (id) =>
         set((s) => {
           const sc = s.scenarios[id];
@@ -243,6 +294,7 @@ export const useCanvasStore = create<CanvasState>()(
       partialize: (s) => ({
         activeScenarioId: s.activeScenarioId,
         nodes: s.nodes,
+        positionOverrides: s.positionOverrides,
         scenarios: s.scenarios,
       }),
       storage: createJSONStorage(() =>
@@ -253,9 +305,7 @@ export const useCanvasStore = create<CanvasState>()(
   ),
 );
 
-/* -------------------------------------------------------------------------- */
-/*  Helpers                                                                   */
-/* -------------------------------------------------------------------------- */
+// Helpers
 
 export function outcomeFromStatus(
   status: number,
@@ -505,10 +555,6 @@ export function createDummyData(): CanvasData {
 
   return data;
 }
-
-/* -------------------------------------------------------------------------- */
-/*  Hooks                                                                     */
-/* -------------------------------------------------------------------------- */
 
 export const useChildrenIndex = () =>
   useCanvasStore((s) => getChildrenIndex(s.nodes));
