@@ -30,6 +30,19 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Field, FieldGroup } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
@@ -128,7 +141,7 @@ export default function Canvas() {
       workspaceId: WORKSPACE_ID,
     });
 
-  const forkNode = (nodeId: string) => fork(nodeId, "forked");
+  const forkNode = (nodeId: string, name: string) => fork(nodeId, name);
 
   const switchScenario = useCanvasStore((s) => s.switchScenario);
   const scenarios = useCanvasStore((s) => s.scenarios);
@@ -248,15 +261,75 @@ export default function Canvas() {
                               <TooltipTrigger
                                 delay={0}
                                 render={
-                                  <Button
-                                    aria-label="Fork scenario from this node"
-                                    className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
-                                    onClick={() => forkNode(node.id)}
-                                    size="icon"
-                                    variant="ghost"
-                                  >
-                                    <GitBranch className="size-3.5" />
-                                  </Button>
+                                  <Dialog>
+                                    <form>
+                                      <DialogTrigger
+                                        render={
+                                          <Button
+                                            className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                                            variant="ghost"
+                                          >
+                                            <GitBranch className="size-3.5" />
+                                          </Button>
+                                        }
+                                      />
+                                      <DialogContent className="sm:max-w-sm">
+                                        <DialogHeader>
+                                          <DialogTitle>Fork Node</DialogTitle>
+                                          <DialogDescription>
+                                            A new scenario would be created from
+                                            this node.
+                                          </DialogDescription>
+                                        </DialogHeader>
+
+                                        <form
+                                          onSubmit={(e) => {
+                                            e.preventDefault();
+
+                                            const formData = new FormData(
+                                              e.currentTarget,
+                                            );
+                                            const name = String(
+                                              formData.get("name") ?? "",
+                                            ).trim();
+
+                                            if (!name) {
+                                              console.log("Name is required");
+                                              return;
+                                            }
+
+                                            forkNode(node.id, name);
+                                          }}
+                                        >
+                                          <FieldGroup className="mb-2">
+                                            <Field>
+                                              <Label htmlFor="name-1">
+                                                Name
+                                              </Label>
+                                              <Input
+                                                defaultValue="Product Catalog"
+                                                id="name-1"
+                                                name="name"
+                                              />
+                                            </Field>
+                                          </FieldGroup>
+
+                                          <DialogFooter>
+                                            <DialogClose
+                                              render={
+                                                <Button variant="outline">
+                                                  Cancel
+                                                </Button>
+                                              }
+                                            />
+                                            <Button type="submit">
+                                              Save changes
+                                            </Button>
+                                          </DialogFooter>
+                                        </form>
+                                      </DialogContent>
+                                    </form>
+                                  </Dialog>
                                 }
                               />
                               <TooltipContent side="top">
