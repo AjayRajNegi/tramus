@@ -13,46 +13,55 @@ export default function EndpointBar() {
   );
 
   return (
-    <div className="flex items-center bg-secondary">
-      {Object.entries(drafts).map(([id, _draft]) => (
-        <Button
-          className={cn(
-            "group border-0 p-2 py-4 text-xs",
-            id === activeId
-              ? "bg-background hover:bg-background"
-              : "bg-secondary hover:bg-secondary",
-          )}
-          key={id}
-          onClick={() => setActiveId(id)}
-        >
-          {id}
-          <span
-            aria-label={`Close ${id}`}
+    <div className="flex items-center bg-muted">
+      {Object.entries(drafts).map(([id, _draft]) => {
+        const isActive = id === activeId;
+
+        return (
+          <Button
             className={cn(
-              "ml-4 cursor-pointer transition-colors group-hover:text-foreground",
-              id === activeId ? "text-background" : "text-secondary",
+              "group rounded-none border-0 p-2 py-4 text-xs shadow-none",
+              isActive
+                ? "bg-background text-foreground hover:bg-background hover:text-foreground dark:hover:bg-background"
+                : "bg-transparent text-muted-foreground hover:bg-background/60 hover:text-foreground dark:hover:bg-background/60",
             )}
-            onClick={(e) => {
-              e.stopPropagation();
-              closeTab(id);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
+            key={id}
+            onClick={() => setActiveId(id)}
+            variant="ghost"
+          >
+            {id}
+            <span
+              aria-label={`Close ${id}`}
+              className={cn(
+                "ml-4 cursor-pointer rounded-sm text-muted-foreground transition-colors",
+                "hover:bg-accent hover:text-accent-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                isActive
+                  ? "opacity-100"
+                  : "opacity-0 focus-visible:opacity-100 group-hover:opacity-100",
+              )}
+              onClick={(e) => {
                 e.stopPropagation();
                 closeTab(id);
-              }
-            }}
-            role="button"
-            tabIndex={0}
-          >
-            <XIcon className="size-3.5" />
-          </span>
-        </Button>
-      ))}
-      {/* <p className="ml-2 cursor-pointer bg-secondary">+</p> */}
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  closeTab(id);
+                }
+              }}
+              role="button"
+              tabIndex={0}
+            >
+              <XIcon className="size-3.5" />
+            </span>
+          </Button>
+        );
+      })}
       <Button
         aria-label="New request"
+        className="text-muted-foreground hover:text-foreground"
         onClick={() =>
           addDraftTab({
             scenarioId: activeTab?.scenarioId ?? "",

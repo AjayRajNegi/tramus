@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Download, File, Image } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useEditorState } from "@/lib/store/editor.store";
 
 function formatBytes(bytes: number): string {
@@ -46,7 +47,7 @@ export default function ResponsePane() {
             {formatBytes(size.total)}
           </span>
           {body.truncated && (
-            <span className="flex items-center gap-1 text-amber-500 text-xs">
+            <span className="flex items-center gap-1 text-amber-600 text-xs dark:text-amber-500">
               <AlertTriangle className="size-3" />
               Response truncated (20 MB limit)
             </span>
@@ -64,7 +65,7 @@ export default function ResponsePane() {
               </div>
               <img
                 alt=""
-                className="max-h-[400px] max-w-full rounded border"
+                className="max-h-[400px] max-w-full rounded border border-border"
                 src={body.objectUrl}
               />
             </div>
@@ -81,15 +82,17 @@ export default function ResponsePane() {
                     {mimeType || "unknown"}) - {formatBytes(body.size)}
                   </div>
                 </div>
-                <button
-                  className="flex cursor-pointer items-center gap-1 rounded border px-3 py-1.5 text-sm hover:bg-accent"
+                <Button
                   onClick={() =>
                     body.objectUrl && downloadBlob(body.objectUrl, filename)
                   }
+                  size="sm"
+                  type="button"
+                  variant="outline"
                 >
                   <Download className="size-4" />
                   Download
-                </button>
+                </Button>
               </div>
             )}
 
@@ -97,7 +100,7 @@ export default function ResponsePane() {
             body.kind === "xml" ||
             body.kind === "html" ||
             body.kind === "text") && (
-            <pre className="max-h-[400px] overflow-auto whitespace-pre-wrap rounded bg-muted p-3 font-mono text-sm">
+            <pre className="max-h-[400px] overflow-auto whitespace-pre-wrap rounded border border-border bg-muted p-3 font-mono text-foreground text-sm">
               {body.parseError ? (
                 <span className="text-destructive">
                   Parse error: {body.parseError}
