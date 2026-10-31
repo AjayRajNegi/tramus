@@ -26,11 +26,9 @@ export type ApiNode = Node<ApiNodeData, "api">;
 
 export function ApiNodeComponent({ data }: NodeProps<ApiNode>) {
   return (
-    <div className="rounded border bg-white px-4 py-2 text-sm">
-      {/* top = connects to my PARENT */}
+    <div className="rounded border bg-background px-4 py-2 text-sm">
       <Handle id="top" position={Position.Top} type="source" />
       {data.label}
-      {/* bottom = connects to a CHILD (sets the child's parentId) */}
       <Handle id="bottom" position={Position.Bottom} type="source" />
     </div>
   );

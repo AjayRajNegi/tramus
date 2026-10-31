@@ -144,7 +144,7 @@ export const useCanvasStore = create<CanvasState>()(
       collapsed: {},
 
       fork: (fromNodeId, name) => {
-        const { nodes, scenarios } = get();
+        const { nodes, scenarios, positionOverrides } = get();
         if (!nodes[fromNodeId]) throw new Error(`Unknown node: ${fromNodeId}`);
         if (Object.keys(scenarios).length >= MAX_SCENARIOS) {
           throw new Error(`Scenario limit reached (${MAX_SCENARIOS})`);
@@ -152,19 +152,42 @@ export const useCanvasStore = create<CanvasState>()(
         const trimmed = name.trim();
         if (!trimmed) throw new Error("Scenario name is required");
 
-        const id = crypto.randomUUID();
+        const chain: TimelineNode[] = [];
+        const seen = new Set<string>();
+        let cur: TimelineNode | undefined = nodes[fromNodeId];
+        while (cur && !seen.has(cur.id)) {
+          seen.add(cur.id);
+          chain.unshift(cur);
+          cur = cur.parentId ? nodes[cur.parentId] : undefined;
+        }
+
+        const scenarioId = crypto.randomUUID();
+        const idMap = new Map<string, string>();
+        for (const n of chain) idMap.set(n.id, crypto.randomUUID());
+
         set((s) => {
-          s.scenarios[id] = {
+          for (const old of chain) {
+            const newId = idMap.get(old.id)!;
+            s.nodes[newId] = {
+              ...old,
+              id: newId,
+              parentId: old.parentId ? (idMap.get(old.parentId) ?? null) : null,
+              scenarioId,
+            };
+            const pos = positionOverrides[old.id];
+            if (pos) s.positionOverrides[newId] = { ...pos };
+          }
+          s.scenarios[scenarioId] = {
             archived: false,
             forkedFromNodeId: fromNodeId,
-            headNodeId: fromNodeId,
-            id,
+            headNodeId: idMap.get(fromNodeId)!,
+            id: scenarioId,
             name: trimmed,
           };
-          s.activeScenarioId = id;
-          s.selectedNodeId = fromNodeId;
+          s.activeScenarioId = scenarioId;
+          s.selectedNodeId = idMap.get(fromNodeId)!;
         });
-        return id;
+        return scenarioId;
       },
 
       loadDummyData: () =>
