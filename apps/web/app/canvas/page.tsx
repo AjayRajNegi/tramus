@@ -21,7 +21,7 @@ import {
   useCanvasStore,
 } from "@/lib/store/canvas.store";
 import "@xyflow/react/dist/style.css";
-import { FolderOpen, Plus } from "lucide-react";
+import { ChevronRight, FolderOpen, GitBranch, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,7 +38,7 @@ import { useEditorState } from "@/lib/store/editor.store";
 import type { EndpointDraft } from "@/lib/store/tab.store.types";
 import { nodeTypes } from "./demo/page";
 
-const WORKSPACE_ID = "default";
+const WORKSPACE_ID = "default-workspace";
 
 function resolveLink(c: Connection) {
   const { source, target, sourceHandle, targetHandle } = c;
@@ -49,6 +49,14 @@ function resolveLink(c: Connection) {
     return { childId: source, parentId: target };
   return null;
 }
+
+const METHOD_STYLE: Record<string, string> = {
+  DELETE: "text-destructive",
+  GET: "text-emerald-600 dark:text-emerald-400",
+  PATCH: "text-violet-700 dark:text-violet-400",
+  POST: "text-amber-700 dark:text-amber-400",
+  PUT: "text-sky-700 dark:text-sky-400",
+};
 
 export default function Canvas() {
   const storeNodes = useCanvasStore((s) => s.nodes);
@@ -159,119 +167,178 @@ export default function Canvas() {
           <CardHeader className="gap-1 border-border border-b px-4 py-4">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-sm tracking-tight">
-                Endpoints
+                Workspaces
               </h2>
               <span className="rounded-md bg-muted px-2 py-0.5 font-medium text-muted-foreground text-xs tabular-nums">
+                {Object.keys(scenarios).length}
+              </span>
+            </div>
+            <p className="text-muted-foreground text-xs">Choose a workspace.</p>
+          </CardHeader>
+
+          {/* Tree: workspace → scenarios → nodes of the active scenario */}
+          <CardContent className="min-h-0 flex-1 overflow-y-auto p-2">
+            {/* Level 1: Workspace */}
+            <div className="flex h-9 items-center gap-2.5 px-2">
+              <FolderOpen className="size-4 shrink-0 text-muted-foreground" />
+              <span className="truncate font-medium text-foreground text-sm">
+                {WORKSPACE_ID}
+              </span>
+            </div>
+
+            {/* Level 2: Scenarios */}
+            <div className="ml-[15px] space-y-0.5 border-border/60 border-l">
+              {Object.values(scenarios).map((scenario) => {
+                const isActive = scenario.id === activeScenarioId;
+
+                return (
+                  <div key={scenario.id}>
+                    <button
+                      aria-current={isActive ? "true" : undefined}
+                      className={`group relative flex h-8 w-full items-center gap-1 rounded-md pr-2 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
+                        isActive ? "bg-accent/40" : ""
+                      } ${scenario.archived ? "opacity-60" : ""}`}
+                      onClick={() => switchScenario(scenario.id)}
+                      type="button"
+                    >
+                      {isActive && (
+                        <span className="absolute left-0 h-full w-0.5 rounded-full bg-primary" />
+                      )}
+                      <ChevronRight
+                        className={`ml-2 size-3.5 shrink-0 text-muted-foreground transition-transform duration-150 motion-reduce:transition-none ${
+                          isActive ? "rotate-90" : ""
+                        }`}
+                      />
+                      <span
+                        className={`min-w-0 flex-1 truncate text-sm ${
+                          isActive
+                            ? "font-medium text-foreground"
+                            : "text-muted-foreground group-hover:text-foreground"
+                        }`}
+                      >
+                        {scenario.name}
+                      </span>
+                      {scenario.archived && (
+                        <span className="text-muted-foreground text-xs">
+                          Archived
+                        </span>
+                      )}
+                      {isActive && !scenario.archived && (
+                        <span className="text-muted-foreground text-xs tabular-nums">
+                          {nodes.length}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Level 3: Nodes on this scenario's canvas */}
+                    {isActive && (
+                      <div className="mt-0.5 mb-1 ml-4 space-y-0.5 border-border/60 border-l">
+                        {nodes.map((node) => (
+                          <div
+                            className="group flex h-8 items-center gap-1 rounded-md pr-1 pl-2 transition-colors hover:bg-accent/50"
+                            key={node.id}
+                          >
+                            <span
+                              className="min-w-0 flex-1 truncate text-muted-foreground text-xs group-hover:text-foreground"
+                              title={String(node.data.label)}
+                            >
+                              {node.data.label}
+                            </span>
+                            <Tooltip>
+                              <TooltipTrigger
+                                delay={0}
+                                render={
+                                  <Button
+                                    aria-label="Fork scenario from this node"
+                                    className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                                    onClick={() => forkNode(node.id)}
+                                    size="icon"
+                                    variant="ghost"
+                                  >
+                                    <GitBranch className="size-3.5" />
+                                  </Button>
+                                }
+                              />
+                              <TooltipContent side="top">
+                                <p>Fork from here</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        ))}
+
+                        {nodes.length === 0 && (
+                          <p className="px-2 py-2 text-muted-foreground text-xs">
+                            Nothing on the canvas yet. Add an endpoint below.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+
+          {/* Endpoint library: pinned, scrolls on its own */}
+          <CardFooter className="max-h-[45%] min-h-0 flex-col items-stretch gap-0 border-border border-t p-2">
+            <div className="flex h-8 shrink-0 items-center justify-between px-2">
+              <span className="font-medium text-foreground text-xs">
+                Available endpoints
+              </span>
+              <span className="text-muted-foreground text-xs tabular-nums">
                 {Object.keys(drafts).length}
               </span>
             </div>
-            <p className="text-muted-foreground text-xs">
-              Add endpoints to your flow.
-            </p>
-            {Object.entries(scenarios).map(([key, scenario]) => (
-              <div
-                className="flex items-center justify-between rounded-[2px] border p-1 pl-2"
-                key={scenario.id}
-              >
-                <h3>{scenario.name}</h3>
-                <Button
-                  className=""
-                  onClick={() => switchScenario(scenario.id)}
-                  variant="outline"
+
+            <div className="min-h-0 flex-1 space-y-0.5 overflow-y-auto">
+              {Object.entries(drafts).map(([key, record]) => (
+                <div
+                  className="group flex h-8 items-center gap-1 rounded-md pr-1 pl-2 transition-colors hover:bg-accent/50"
+                  key={key}
                 >
-                  Switch
-                </Button>
-
-                {/* <p>ID: {scenario.id}</p>
-                <p>Key: {key}</p>
-                <p>Forked From: {scenario.forkedFromNodeId ?? "None"}</p>
-                <p>Head Node: {scenario.headNodeId ?? "None"}</p>
-                <p>Archived: {scenario.archived ? "Yes" : "No"}</p> */}
-              </div>
-            ))}
-          </CardHeader>
-
-          <CardContent className="flex-1 overflow-y-auto p-2">
-            {Object.keys(drafts).length > 0 && (
-              <div>
-                {/* Level 1: Workspace */}
-                <div className="flex items-center gap-3 px-2 py-2">
-                  <FolderOpen className="size-4 shrink-0 text-muted-foreground" />
-                  <span className="truncate font-medium text-foreground text-sm">
-                    {WORKSPACE_ID}
+                  <span
+                    className={`w-11 shrink-0 font-semibold text-[11px] leading-none ${
+                      METHOD_STYLE[record.draft.method] ?? "text-primary"
+                    }`}
+                  >
+                    {record.draft.method}
                   </span>
+
+                  <span
+                    className="min-w-0 flex-1 truncate text-muted-foreground text-xs group-hover:text-foreground"
+                    title={record.draft.url}
+                  >
+                    {record.draft.url}
+                  </span>
+
+                  <Tooltip>
+                    <TooltipTrigger
+                      delay={0}
+                      render={
+                        <Button
+                          aria-label="Add endpoint to canvas"
+                          className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
+                          onClick={() => addEndpoint(key, record.draft)}
+                          size="icon"
+                          variant="ghost"
+                        >
+                          <Plus className="size-3.5" />
+                        </Button>
+                      }
+                    />
+                    <TooltipContent side="top">
+                      <p>Add to canvas</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
+              ))}
 
-                {/* Level 2: Endpoints (indented with a guide line) */}
-                <div className="ml-4 space-y-0.5 border-border border-l pl-2">
-                  {Object.entries(drafts).map(([key, record]) => (
-                    <div
-                      className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-accent/50"
-                      key={key}
-                    >
-                      <span
-                        className={`shrink-0 font-semibold text-xs leading-none ${
-                          record.draft.method === "GET"
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : record.draft.method === "POST"
-                              ? "text-amber-700 dark:text-amber-400"
-                              : record.draft.method === "DELETE"
-                                ? "text-destructive"
-                                : "text-primary"
-                        }`}
-                      >
-                        {record.draft.method}
-                      </span>
-
-                      <span
-                        className="min-w-0 flex-1 truncate text-muted-foreground text-sm group-hover:text-foreground"
-                        title={record.draft.url}
-                      >
-                        {record.draft.url}
-                      </span>
-
-                      <Tooltip>
-                        <TooltipTrigger
-                          delay={0}
-                          render={
-                            <Button
-                              aria-label="Add endpoint to canvas"
-                              className="h-6 w-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
-                              onClick={() => addEndpoint(key, record.draft)}
-                              size="icon"
-                              variant="ghost"
-                            >
-                              <Plus className="size-3.5" />
-                            </Button>
-                          }
-                        />
-                        <TooltipContent side="left">
-                          <p>Add to canvas</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {Object.keys(drafts).length === 0 && (
-              <p className="py-8 text-center text-muted-foreground text-xs">
-                No endpoints available.
-              </p>
-            )}
-          </CardContent>
-          <CardFooter className="flex flex-col p-0">
-            {nodes.map((node) => (
-              <div className="flex w-full text-left" key={node.id}>
-                <Button onClick={() => forkNode(node.id)}>
-                  <Plus className="size-3.5" />
-                </Button>
-                <Button className="w-full" variant="secondary">
-                  {node.data.label}
-                </Button>
-              </div>
-            ))}
+              {Object.keys(drafts).length === 0 && (
+                <p className="px-2 py-4 text-center text-muted-foreground text-xs">
+                  No endpoints available.
+                </p>
+              )}
+            </div>
           </CardFooter>
         </Card>
       </aside>
