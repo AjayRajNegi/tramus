@@ -5,7 +5,7 @@ import { cn } from "cn";
 import { AlertCircle, ArrowRight, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ForkScenarioButton } from "@/components/layout/bar/forkscenariobutton";
+import { ForkScenarioButton } from "@/components/layout/bar/fork-scenario-button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
