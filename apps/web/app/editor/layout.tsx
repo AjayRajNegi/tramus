@@ -9,13 +9,13 @@ export default function EditorLayout({
 }) {
   return (
     <div>
-      <SidebarProvider>
-        <EndpointLeftbar />
-        <main className="h-svh w-full border-border border-l-1">
-          {children}
-        </main>
-        <Footer />
-      </SidebarProvider>
+      {/* <SidebarProvider>
+        <EndpointLeftbar /> */}
+      {/* <main className="h-svh w-full border-accent/40 border-l-1"> */}
+      {children}
+      {/* </main> */}
+      {/* <Footer />
+      </SidebarProvider> */}
     </div>
   );
 }
