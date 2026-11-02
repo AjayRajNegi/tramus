@@ -29,6 +29,7 @@ const METHOD_STYLES: Record<string, string> = {
   PUT: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
 };
 
+const isLoggedIn = false;
 export function EndpointLeftbar() {
   //   const { workspaceId, scenarioId, endpointId } = useParams<{
   //     workspaceId: string;
@@ -53,6 +54,11 @@ export function EndpointLeftbar() {
   //     (s) => s.id === scenarioId,
   //   )?.endpoints;
 
+  const isActive = true;
+
+  const activeScenario = "default-scenario";
+  const activeWorkspace = "default-workspace";
+
   return (
     <Sidebar className="h-[calc(100svh-40px)] border-none" collapsible="icon">
       <SidebarContent>
@@ -60,44 +66,30 @@ export function EndpointLeftbar() {
 
         <SidebarGroup>
           <SidebarGroupLabel className="font-semibold text-[10px] text-sidebar-foreground/70 uppercase">
-            Scenarios
+            Workspaces
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-1">
-              {/* {scenarios.data?.map((s) => {
-                const isActive = s.id === activeScenario;
-
-                return (
-                  <SidebarMenuItem key={s.id}>
-                    <div
-                      className={cn(
-                        "flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1.5 text-sidebar-foreground",
-                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
-                        isActive &&
-                          "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
-                      )}
-                    >
-                      <Link
-                        className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center"
-                        href={`/w/${workspaceId}/${s.id}`}
-                      >
-                        <span className="hidden size-4 shrink-0 items-center justify-center font-semibold text-[10px] uppercase group-data-[collapsible=icon]:flex">
-                          {s.name.charAt(0)}
-                        </span>
-                        <span className="truncate text-xs group-data-[collapsible=icon]:hidden">
-                          {s.name}
-                        </span>
-                        <SidebarMenuBadge className="text-muted-foreground group-data-[collapsible=icon]:hidden">
-                          <p className="text-muted-foreground group-data-[collapsible=icon]:hidden">
-                            {s._count.endpoints}
-                          </p>
-                        </SidebarMenuBadge>
-                      </Link>
-                    </div>
-                  </SidebarMenuItem>
-                );
-              })} */}
+              <SidebarMenuItem>
+                <div
+                  className={cn(
+                    "flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1.5 text-sidebar-foreground",
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
+                    isActive &&
+                      "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
+                  )}
+                >
+                  <div className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center">
+                    <span className="hidden size-4 shrink-0 items-center justify-center font-semibold text-[10px] uppercase group-data-[collapsible=icon]:flex">
+                      {activeWorkspace.charAt(0)}
+                    </span>
+                    <span className="truncate text-xs group-data-[collapsible=icon]:hidden">
+                      {activeWorkspace}
+                    </span>
+                  </div>
+                </div>
+              </SidebarMenuItem>
 
               <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
@@ -120,60 +112,37 @@ export function EndpointLeftbar() {
         {/* Endpoints */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-semibold text-[10px] text-sidebar-foreground/70 uppercase">
-            Endpoints
+            Scenarios
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            {/* {!scenarioId && (
-              <p className="px-2 text-muted-foreground text-xs group-data-[collapsible=icon]:hidden">
-                Select a scenario
-              </p>
-            )} */}
             <SidebarMenu className="gap-1">
-              {/* {activeScenarioEndpoints?.map((e) => {
-                const isActive = e.id === activeEndpoint;
+              <SidebarMenuItem>
+                <div
+                  className={cn(
+                    "flex w-full items-center gap-2 rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
+                    "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0",
 
-                return (
-                  <SidebarMenuItem key={e.id}>
-                    <div
+                    isActive &&
+                      "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
+                  )}
+                >
+                  <div className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center">
+                    <span
                       className={cn(
-                        "flex w-full items-center gap-2 rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
-                        "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0",
-
-                        isActive &&
-                          "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
+                        "hidden size-8 shrink-0 items-center justify-center rounded bg-green-950 font-semibold text-[9px] text-green-600 uppercase group-data-[collapsible=icon]:flex",
+                        isActive && "border-white border-l-2",
                       )}
                     >
-                      <Link
-                        className="flex items-center gap-2 group-data-[collapsible=icon]:size-full group-data-[collapsible=icon]:justify-center"
-                        href={`/w/${workspaceId}/${scenarioId}/${e.id}`}
-                      >
-                        <span
-                          className={cn(
-                            "flex h-fit w-9 shrink-0 items-center justify-center rounded-[2px] py-1 font-semibold text-[8px] uppercase group-data-[collapsible=icon]:hidden",
-                            METHOD_STYLES[e.method],
-                          )}
-                        >
-                          {e.method}
-                        </span>
+                      {activeScenario.charAt(0)}
+                    </span>
 
-                        <span
-                          className={cn(
-                            "hidden size-8 shrink-0 items-center justify-center rounded bg-green-950 font-semibold text-[9px] text-green-600 uppercase group-data-[collapsible=icon]:flex",
-                            isActive && "border-white border-l-2",
-                          )}
-                        >
-                          {e.method.charAt(0)}
-                        </span>
-
-                        <span className="truncate text-xs group-data-[collapsible=icon]:hidden">
-                          {e.path}
-                        </span>
-                      </Link>
-                    </div>
-                  </SidebarMenuItem>
-                );
-              })} */}
+                    <span className="truncate text-xs group-data-[collapsible=icon]:hidden">
+                      {activeScenario}
+                    </span>
+                  </div>
+                </div>
+              </SidebarMenuItem>
 
               <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
