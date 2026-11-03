@@ -52,7 +52,6 @@ export type ResponseBody =
     })
   | (ResponseBodyBase & {
       kind: "image" | "pdf" | "binary";
-      /** URL.createObjectURL(blob). Must be revoked when the response is cleared. */
       objectUrl: string;
     });
 
@@ -61,7 +60,6 @@ export type ResponseCookie = {
   value: string;
   domain?: string;
   path?: string;
-  /** ISO date string or undefined for session cookies. */
   expires?: string;
   maxAge?: number;
   httpOnly: boolean;
