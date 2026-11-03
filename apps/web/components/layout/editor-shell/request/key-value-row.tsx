@@ -7,9 +7,7 @@ import type { KeyValue } from "./key-value-editor";
 
 const GRID = "grid grid-cols-[2.5rem_1fr_1fr_2.5rem] divide-x divide-accent/30";
 const cellInput =
-  "h-9 rounded-none border-accent/30 border-r bg-transparent px-3 font-mono text-[10px] shadow-none " +
-  "focus-visible:ring-0 focus-visible:ring-inset focus-visible:ring-ring " +
-  "dark:bg-transparent";
+  "h-full rounded-none border-0 bg-transparent px-3 py-1.5 shadow-none dark:bg-transparent focus-visible:ring-0 focus-visible:bg-muted/50";
 
 type KeyValueRowProps = {
   row: KeyValue;

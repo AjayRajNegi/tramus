@@ -65,7 +65,6 @@ const editorTheme = EditorView.theme({
   },
   "&": { backgroundColor: "transparent", fontSize: "13px" },
   "&.cm-focused": { outline: "none" },
-  // The blue box around matching brackets, as in the reference screenshot
   "&.cm-focused .cm-matchingBracket, .cm-matchingBracket": {
     backgroundColor: "rgba(99,102,241,0.2)",
     borderRadius: "2px",
@@ -89,7 +88,11 @@ const baseExtensions = [
   EditorView.lineWrapping,
 ];
 
-const jsonExtensions = [...baseExtensions, json(), linter(jsonParseLinter())];
+const jsonExtensions = [
+  ...baseExtensions,
+  json(),
+  linter(jsonParseLinter() as unknown as Parameters<typeof linter>[0]),
+];
 
 export function BodyEditor({
   value,

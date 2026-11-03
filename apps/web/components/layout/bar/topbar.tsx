@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getEndpoints, getScenarios, getWorkspaces } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";
-import { ExtensionStatusIndicator } from "./extension-stauts";
+import { ExtensionStatusIndicator } from "./extension-status";
 
 export function TopBar() {
   const params = useParams<{

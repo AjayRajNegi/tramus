@@ -1,5 +1,12 @@
+import { del as idbDel, get as idbGet, set as idbSet } from "idb-keyval";
 import type { Draft } from "immer";
 import { create } from "zustand";
+import {
+  createJSONStorage,
+  persist,
+  type StateStorage,
+} from "zustand/middleware";
+
 import { immer } from "zustand/middleware/immer";
 import { shallow } from "zustand/shallow";
 import type {
@@ -47,218 +54,252 @@ type EditorState = {
   abortRequest: (id: string) => void;
 };
 
+const memory = new Map<string, string>();
+
+const memoryStorage: StateStorage = {
+  getItem: (name) => memory.get(name) ?? null,
+  removeItem: (name) => void memory.delete(name),
+  setItem: (name, value) => void memory.set(name, value),
+};
+
+const idbStorage: StateStorage = {
+  getItem: async (name) => (await idbGet<string>(name)) ?? null,
+  removeItem: async (name) => idbDel(name),
+  setItem: async (name, value) => idbSet(name, value),
+};
+
 export const useEditorState = create<EditorState>()(
-  immer((set) => ({
-    abortRequest: (id) => {
-      set((state) => {
-        const response = state.responses[id];
-        if (response?.phase === "loading") {
-          state.responses[id] = {
-            failure: {
-              code: "aborted",
-              duration: Date.now() - response.startedAt,
-              id,
-              message: "Request aborted",
-              occurredAt: Date.now(),
-            },
-            phase: "error",
+  persist(
+    immer((set) => ({
+      abortRequest: (id) => {
+        set((state) => {
+          const response = state.responses[id];
+          if (response?.phase === "loading") {
+            state.responses[id] = {
+              failure: {
+                code: "aborted",
+                duration: Date.now() - response.startedAt,
+                id,
+                message: "Request aborted",
+                occurredAt: Date.now(),
+              },
+              phase: "error",
+            };
+          }
+        });
+      },
+      activeId: DEMO_TABS[0]?.id ?? null,
+
+      clearResponse: (id) => {
+        set((state) => {
+          revokeBodyUrl(state.responses[id]);
+          delete state.responses[id];
+        });
+      },
+
+      closeTab: (id) => {
+        set((state) => {
+          const index = state.tabs.findIndex((tab) => tab.id === id);
+          const tabsLength = state.tabs.length;
+
+          if (index === -1) {
+            return;
+          }
+          if (tabsLength <= 1) {
+            return;
+          }
+
+          state.tabs.splice(index, 1);
+
+          delete state.drafts[id];
+
+          if (state.activeId === id) {
+            const nextTab = state.tabs[index] ?? state.tabs[index - 1];
+
+            state.activeId = nextTab?.id ?? null;
+          }
+        });
+      },
+
+      discardDraft: (id) => {
+        set((state) => {
+          delete state.drafts[id];
+        });
+      },
+
+      drafts: DEMO_DRAFT,
+
+      // Draft lifecycle
+      ensureDraft: (id, base) => {
+        set((state) => {
+          if (state.drafts[id]) {
+            return;
+          }
+
+          const normalized = {
+            ...base,
+            url: buildUrl(base.url, base.params),
           };
-        }
-      });
-    },
-    activeId: DEMO_TABS[0]?.id ?? null,
 
-    clearResponse: (id) => {
-      set((state) => {
-        revokeBodyUrl(state.responses[id]);
-        delete state.responses[id];
-      });
-    },
+          state.drafts[id] = {
+            baseline: structuredClone(normalized),
+            draft: structuredClone(normalized),
+            status: "idle",
+          };
+        });
+      },
 
-    closeTab: (id) => {
-      set((state) => {
-        const index = state.tabs.findIndex((tab) => tab.id === id);
-        const tabsLength = state.tabs.length;
+      markSaved: (id, saved) => {
+        set((state) => {
+          const entry = state.drafts[id];
 
-        if (index === -1) {
-          return;
-        }
-        if (tabsLength <= 1) {
-          return;
-        }
+          if (!entry) {
+            return;
+          }
 
-        state.tabs.splice(index, 1);
+          entry.draft = structuredClone(saved);
+          entry.baseline = structuredClone(saved);
 
-        delete state.drafts[id];
+          entry.status = "saved";
+          entry.error = undefined;
+        });
+      },
 
-        if (state.activeId === id) {
-          const nextTab = state.tabs[index] ?? state.tabs[index - 1];
+      // Tabs
+      openTab: (tab) => {
+        set((state) => {
+          const alreadyOpen = state.tabs.some(
+            (existingTab) => existingTab.id === tab.id,
+          );
 
-          state.activeId = nextTab?.id ?? null;
-        }
-      });
-    },
+          if (!alreadyOpen) {
+            state.tabs.push(tab);
+          }
 
-    discardDraft: (id) => {
-      set((state) => {
-        delete state.drafts[id];
-      });
-    },
+          state.activeId = tab.id;
+        });
+      },
 
-    drafts: DEMO_DRAFT,
+      resetDraft: (id, base) => {
+        set((state) => {
+          const entry = state.drafts[id];
 
-    // Draft lifecycle
-    ensureDraft: (id, base) => {
-      set((state) => {
-        if (state.drafts[id]) {
-          return;
-        }
+          if (!entry) {
+            return;
+          }
 
-        const normalized = {
-          ...base,
-          url: buildUrl(base.url, base.params),
-        };
+          const resetTo = base ?? entry.baseline;
+          entry.draft = structuredClone(resetTo);
 
-        state.drafts[id] = {
-          baseline: structuredClone(normalized),
-          draft: structuredClone(normalized),
-          status: "idle",
-        };
-      });
-    },
+          if (base) {
+            entry.baseline = structuredClone(base);
+          }
 
-    markSaved: (id, saved) => {
-      set((state) => {
-        const entry = state.drafts[id];
-
-        if (!entry) {
-          return;
-        }
-
-        entry.draft = structuredClone(saved);
-        entry.baseline = structuredClone(saved);
-
-        entry.status = "saved";
-        entry.error = undefined;
-      });
-    },
-
-    // Tabs
-    openTab: (tab) => {
-      set((state) => {
-        const alreadyOpen = state.tabs.some(
-          (existingTab) => existingTab.id === tab.id,
-        );
-
-        if (!alreadyOpen) {
-          state.tabs.push(tab);
-        }
-
-        state.activeId = tab.id;
-      });
-    },
-
-    resetDraft: (id, base) => {
-      set((state) => {
-        const entry = state.drafts[id];
-
-        if (!entry) {
-          return;
-        }
-
-        const resetTo = base ?? entry.baseline;
-        entry.draft = structuredClone(resetTo);
-
-        if (base) {
-          entry.baseline = structuredClone(base);
-        }
-
-        entry.status = "idle";
-        entry.error = undefined;
-      });
-    },
-
-    // Responses
-    responses: {},
-
-    setActiveId: (id) =>
-      set((state) => {
-        if (id !== null && !state.tabs.some((t) => t.id === id)) return;
-        state.activeId = id;
-      }),
-
-    setFailure: (id, failure) => {
-      set((state) => {
-        const current = state.responses[id];
-
-        if (current?.phase !== "loading" || current.requestId !== failure.id) {
-          return;
-        }
-
-        state.responses[id] = { failure, phase: "error" };
-      });
-    },
-
-    setResponse: (id, response) => {
-      set((state) => {
-        const current = state.responses[id];
-
-        if (current?.phase !== "loading" || current.requestId !== response.id) {
-          return;
-        }
-
-        state.responses[id] = { phase: "success", response };
-      });
-    },
-
-    // Save status
-    setStatus: (id, status, error) => {
-      set((state) => {
-        const entry = state.drafts[id];
-
-        if (!entry) {
-          return;
-        }
-
-        entry.status = status;
-        entry.error = error;
-      });
-    },
-
-    startRequest: (id, requestId) => {
-      set((state) => {
-        revokeBodyUrl(state.responses[id]);
-
-        state.responses[id] = {
-          phase: "loading",
-          requestId,
-          startedAt: Date.now(),
-        };
-      });
-    },
-
-    tabs: DEMO_TABS,
-
-    updateDraft: (id, recipe) => {
-      set((state) => {
-        const entry = state.drafts[id];
-
-        if (!entry) {
-          return;
-        }
-
-        recipe(entry.draft);
-
-        entry.draft.url = buildUrl(entry.draft.url, entry.draft.params);
-
-        entry.error = undefined;
-
-        if (entry.status === "saved") {
           entry.status = "idle";
-        }
-      });
+          entry.error = undefined;
+        });
+      },
+
+      // Responses
+      responses: {},
+
+      setActiveId: (id) =>
+        set((state) => {
+          if (id !== null && !state.tabs.some((t) => t.id === id)) return;
+          state.activeId = id;
+        }),
+
+      setFailure: (id, failure) => {
+        set((state) => {
+          const current = state.responses[id];
+
+          if (
+            current?.phase !== "loading" ||
+            current.requestId !== failure.id
+          ) {
+            return;
+          }
+
+          state.responses[id] = { failure, phase: "error" };
+        });
+      },
+
+      setResponse: (id, response) => {
+        set((state) => {
+          const current = state.responses[id];
+
+          if (
+            current?.phase !== "loading" ||
+            current.requestId !== response.id
+          ) {
+            return;
+          }
+
+          state.responses[id] = { phase: "success", response };
+        });
+      },
+
+      // Save status
+      setStatus: (id, status, error) => {
+        set((state) => {
+          const entry = state.drafts[id];
+
+          if (!entry) {
+            return;
+          }
+
+          entry.status = status;
+          entry.error = error;
+        });
+      },
+
+      startRequest: (id, requestId) => {
+        set((state) => {
+          revokeBodyUrl(state.responses[id]);
+
+          state.responses[id] = {
+            phase: "loading",
+            requestId,
+            startedAt: Date.now(),
+          };
+        });
+      },
+
+      tabs: DEMO_TABS,
+
+      updateDraft: (id, recipe) => {
+        set((state) => {
+          const entry = state.drafts[id];
+
+          if (!entry) {
+            return;
+          }
+
+          recipe(entry.draft);
+
+          entry.draft.url = buildUrl(entry.draft.url, entry.draft.params);
+
+          entry.error = undefined;
+
+          if (entry.status === "saved") {
+            entry.status = "idle";
+          }
+        });
+      },
+    })),
+    {
+      migrate: (persisted, _version) => persisted as EditorState,
+      name: "tramus-editor",
+      partialize: (s) => ({
+        activeId: s.activeId,
+        drafts: s.drafts,
+        tabs: s.tabs,
+      }),
+      storage: createJSONStorage(() =>
+        typeof indexedDB !== "undefined" ? idbStorage : memoryStorage,
+      ),
     },
-  })),
+  ),
 );
 
 /* -------------------------------------------------------------------------- */

@@ -3,6 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useEditorState } from "@/lib/store/editor.store";
+import { cn } from "@/lib/utils";
 import { AuthorizationEditor, createAuthorization } from "./auth-editor";
 import { BodyEditor, createBody } from "./body-editor";
 import { type KeyValue, KeyValueEditor } from "./key-value-editor";
@@ -35,8 +36,6 @@ export function RequestPane() {
   const EMPTY_BODY = createBody();
   const EMPTY_AUTH = createAuthorization();
 
-  // console.log(draft);
-
   return (
     <div className="flex h-full min-h-0 flex-col">
       <UrlBar />
@@ -44,19 +43,23 @@ export function RequestPane() {
         className="mt-3 flex min-h-0 flex-1 flex-col gap-0"
         defaultValue="params"
       >
-        <TabsList className="mx-5 w-fit gap-5 bg-background pb-1">
-          <TabsTrigger className="p-0" value="params">
-            Params
-          </TabsTrigger>
-          <TabsTrigger className="p-0" value="headers">
-            Headers
-          </TabsTrigger>
-          <TabsTrigger className="p-0" value="body">
-            Body
-          </TabsTrigger>
-          <TabsTrigger className="p-0" value="auth">
-            Auth
-          </TabsTrigger>
+        <TabsList className="mx-5 h-auto w-fit gap-5 rounded-none bg-transparent p-0">
+          {["params", "headers", "body", "auth"].map((value) => (
+            <TabsTrigger
+              className={cn(
+                "flex-none rounded-none border-0 border-transparent border-b-2 bg-transparent px-0 pb-1 text-muted-foreground shadow-none",
+                "hover:text-foreground",
+                "data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-foreground data-[state=active]:shadow-none",
+                "dark:data-[state=active]:border-primary dark:data-[state=active]:bg-transparent",
+              )}
+              key={value}
+              value={value}
+            >
+              {value === "auth"
+                ? "Auth"
+                : value[0].toUpperCase() + value.slice(1)}
+            </TabsTrigger>
+          ))}
         </TabsList>
         <ScrollArea className="min-h-0 flex-1">
           <TabsContent value="params">
