@@ -167,6 +167,7 @@ export const useCanvasStore = create<CanvasState>()(
 
         set((s) => {
           for (const old of chain) {
+            // biome-ignore lint/style/noNonNullAssertion: suppress
             const newId = idMap.get(old.id)!;
             s.nodes[newId] = {
               ...old,
@@ -180,11 +181,13 @@ export const useCanvasStore = create<CanvasState>()(
           s.scenarios[scenarioId] = {
             archived: false,
             forkedFromNodeId: fromNodeId,
+            // biome-ignore lint/style/noNonNullAssertion: suppress
             headNodeId: idMap.get(fromNodeId)!,
             id: scenarioId,
             name: trimmed,
           };
           s.activeScenarioId = scenarioId;
+          // biome-ignore lint/style/noNonNullAssertion: suppress
           s.selectedNodeId = idMap.get(fromNodeId)!;
         });
         return scenarioId;
@@ -361,6 +364,7 @@ export function getChildrenIndex(
 
   const index: Record<string, NodeId[]> = {};
   for (const n of Object.values(nodes)) {
+    // biome-ignore lint/suspicious/noAssignInExpressions: suppress
     (index[n.parentId ?? ROOT_KEY] ??= []).push(n.id);
   }
   for (const key of Object.keys(index)) {
@@ -410,6 +414,7 @@ export function getVisibleNodeIds(
   const out: NodeId[] = [];
   const stack = [...(index[ROOT_KEY] ?? [])].reverse();
   while (stack.length) {
+    // biome-ignore lint/style/noNonNullAssertion: suppress
     const id = stack.pop()!;
     out.push(id);
     if (collapsed[id]) continue;
@@ -490,6 +495,7 @@ export function createDummyData(): CanvasData {
   ) => {
     const sc = scenarios[scenarioId];
     nodes[id] = {
+      // biome-ignore lint/suspicious/noAssignInExpressions: suppress
       createdAt: (clock += 1500),
       endpointId,
       id,

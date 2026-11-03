@@ -1,7 +1,6 @@
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/layout/bar/app-sidebar";
 import { TopBar } from "@/components/layout/bar/topbar";
-import { Footer } from "@/components/layout/footer";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getScenarios } from "@/lib/actions/dal";
 import { queryKeys } from "@/lib/constants";

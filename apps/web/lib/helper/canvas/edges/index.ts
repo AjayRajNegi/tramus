@@ -103,6 +103,7 @@ export function constructGraph(
   const roots: LayoutItem[] = [];
 
   for (const { id } of records) {
+    // biome-ignore lint/style/noNonNullAssertion: suppress
     const item = items.get(id)!;
     const parentId = parentById.get(id);
 
@@ -136,6 +137,7 @@ export function constructGraph(
 
   const nodes: AppNode[] = positionedNodes.map((node) => {
     const { id, record } = node.data;
+    // biome-ignore lint/style/noNonNullAssertion: suppress
     const value = record!;
 
     const label = [
