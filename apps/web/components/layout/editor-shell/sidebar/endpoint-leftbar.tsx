@@ -1,11 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { cn } from "cn";
 import { PlusIcon } from "lucide-react";
-import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import {
   Sidebar,
   SidebarContent,
@@ -13,15 +9,12 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarMenu,
-  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { getScenarios } from "@/lib/actions/dal";
-import { queryKeys } from "@/lib/constants";
 
-const METHOD_STYLES: Record<string, string> = {
+const _METHOD_STYLES: Record<string, string> = {
   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
   GET: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
   PATCH: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
@@ -29,7 +22,7 @@ const METHOD_STYLES: Record<string, string> = {
   PUT: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
 };
 
-const isLoggedIn = false;
+const _isLoggedIn = false;
 export function EndpointLeftbar() {
   //   const { workspaceId, scenarioId, endpointId } = useParams<{
   //     workspaceId: string;

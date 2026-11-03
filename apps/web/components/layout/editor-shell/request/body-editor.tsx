@@ -88,7 +88,11 @@ const baseExtensions = [
   EditorView.lineWrapping,
 ];
 
-const jsonExtensions = [...baseExtensions, json(), linter(jsonParseLinter())];
+const jsonExtensions = [
+  ...baseExtensions,
+  json(),
+  linter(jsonParseLinter() as unknown as Parameters<typeof linter>[0]),
+];
 
 export function BodyEditor({
   value,

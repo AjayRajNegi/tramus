@@ -4,24 +4,19 @@ import {
   Background,
   type Connection,
   ConnectionMode,
-  Controls,
   type Edge,
-  MiniMap,
+  Handle,
+  type Node,
+  type NodeProps,
+  Position,
   ReactFlow,
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
-import { useCallback, useEffect, useMemo } from "react";
+import "@xyflow/react/dist/style.css";
 
-import "@xyflow/react/dist/style.css";
-import { constructGraph } from "@/lib/helper/canvas/edges";
-import {
-  getAncestry,
-  stripFileContents,
-  useCanvasStore,
-} from "@/lib/store/canvas.store";
-import "@xyflow/react/dist/style.css";
 import { ChevronRight, FolderOpen, GitBranch, Plus } from "lucide-react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -47,9 +42,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { constructGraph } from "@/lib/helper/canvas/edges";
+import {
+  getAncestry,
+  stripFileContents,
+  useCanvasStore,
+} from "@/lib/store/canvas.store";
 import { useEditorState } from "@/lib/store/editor.store";
 import type { EndpointDraft } from "@/lib/store/tab.store.types";
-import { nodeTypes } from "./demo/page";
 
 const WORKSPACE_ID = "default-workspace";
 
@@ -70,6 +70,21 @@ const METHOD_STYLE: Record<string, string> = {
   POST: "text-amber-700 dark:text-amber-400",
   PUT: "text-sky-700 dark:text-sky-400",
 };
+
+type ApiNodeData = { label: string };
+type ApiNode = Node<ApiNodeData, "api">;
+
+function ApiNodeComponent({ data }: NodeProps<ApiNode>) {
+  return (
+    <div className="rounded border bg-background px-4 py-2 text-sm">
+      <Handle id="top" position={Position.Top} type="source" />
+      {data.label}
+      <Handle id="bottom" position={Position.Bottom} type="source" />
+    </div>
+  );
+}
+
+export const nodeTypes = { api: ApiNodeComponent };
 
 export default function Canvas() {
   const storeNodes = useCanvasStore((s) => s.nodes);

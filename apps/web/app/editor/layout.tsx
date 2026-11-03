@@ -1,7 +1,3 @@
-import { EndpointLeftbar } from "@/components/layout/editor-shell/sidebar/endpoint-leftbar";
-import { Footer } from "@/components/layout/footer";
-import { SidebarProvider } from "@/components/ui/sidebar";
-
 export default function EditorLayout({
   children,
 }: {
