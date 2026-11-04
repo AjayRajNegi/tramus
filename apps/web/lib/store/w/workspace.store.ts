@@ -12,14 +12,6 @@ import type { PersistedState, WorkspaceStore } from "./types";
 
 export { MAIN_SCENARIO_ID, MAX_SCENARIOS } from "./ops";
 
-/**
- * One store, five slices. Every cross-cutting operation (fork, send, close
- * tab, delete workspace...) happens inside a single `set`, so canvas and
- * editor can't drift apart.
- *
- * Persisted: workspaces + activeWorkspaceId.
- * Not persisted: responses, selectedNodeId, collapsed.
- */
 export const useWorkspaceStore = create<WorkspaceStore>()(
   persist(
     immer((...a) => ({

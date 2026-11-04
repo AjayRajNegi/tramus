@@ -14,7 +14,6 @@ import type {
 
 const clean = (name: string, fallback: string) => name.trim() || fallback;
 
-/** Drops ephemeral state (responses, collapsed flags) that belongs to `w`. */
 function clearRuntime(s: WorkspaceStore, w: Workspace) {
   for (const tab of w.tabs) {
     revokeResponseUrl(s.responses[tab.id]);
@@ -26,7 +25,6 @@ function clearRuntime(s: WorkspaceStore, w: Workspace) {
 export const createRegistrySlice: SliceCreator<RegistrySlice> = (set, get) => {
   const first = createWorkspaceData(crypto.randomUUID(), "My workspace");
 
-  /** Replaces a workspace's contents (keeps id, name, createdAt). */
   const replaceContents = (id: string, build: (w: Workspace) => Workspace) => {
     const existing = get().workspaces[id];
     if (!existing) return;
@@ -44,7 +42,6 @@ export const createRegistrySlice: SliceCreator<RegistrySlice> = (set, get) => {
   return {
     activeWorkspaceId: first.id,
 
-    // Endpoints
     createEndpoint: (wsId, { name, definition }) => {
       const id = crypto.randomUUID();
       set((s) => {

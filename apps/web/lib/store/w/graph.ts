@@ -6,10 +6,6 @@ export const ROOT_KEY = "__root__";
 
 const childrenCache = new WeakMap<Nodes, Record<string, NodeId[]>>();
 
-/**
- * parentId -> children (oldest first). Cached per `nodes` identity, so call it
- * on store snapshots, never on immer drafts.
- */
 export function getChildrenIndex(nodes: Nodes): Record<string, NodeId[]> {
   const cached = childrenCache.get(nodes);
   if (cached) return cached;
@@ -33,7 +29,6 @@ export function getChildrenIndex(nodes: Nodes): Record<string, NodeId[]> {
 export const getRootIds = (nodes: Nodes): NodeId[] =>
   getChildrenIndex(nodes)[ROOT_KEY] ?? [];
 
-/** Root -> id. Safe against cycles and dangling parents. */
 export function getAncestry(nodes: Nodes, id: NodeId): NodeId[] {
   const path: NodeId[] = [];
   const seen = new Set<NodeId>();

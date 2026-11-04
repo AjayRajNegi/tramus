@@ -65,7 +65,6 @@ export const createScenarioSlice: SliceCreator<ScenarioSlice> = (set) => ({
         seed = { draft: node.requestSnapshot };
       }
 
-      // No node copying: the scenario simply points at the existing node.
       w.scenarios[scenarioId] = {
         archived: false,
         createdAt: Date.now(),
@@ -114,7 +113,6 @@ export const createScenarioSlice: SliceCreator<ScenarioSlice> = (set) => ({
       w.activeScenarioId = id;
       if (s.activeWorkspaceId === wsId) s.selectedNodeId = sc.headNodeId;
 
-      // keep the editor in step with the canvas when possible
       const active = w.tabs.find((t) => t.id === w.activeTabId);
       if (active?.scenarioId !== id) {
         const candidate = w.tabs.find((t) => t.scenarioId === id);

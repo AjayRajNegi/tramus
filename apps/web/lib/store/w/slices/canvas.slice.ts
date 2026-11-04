@@ -7,7 +7,6 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
     const id = { value: "" };
     set((s) => {
       const w = requireWs(s, wsId);
-      // always detached: the user connects it manually
       id.value = createNode(w, w.activeScenarioId, null, input);
       if (s.activeWorkspaceId === wsId) s.selectedNodeId = id.value;
     });
@@ -44,7 +43,6 @@ export const createCanvasSlice: SliceCreator<CanvasSlice> = (set, get) => ({
 
     if (parentId !== null) {
       if (parentId === childId || !nodes[parentId]) return false;
-      // reject cycles: the child must not be an ancestor of the new parent
       if (getAncestry(nodes, parentId).includes(childId)) return false;
     }
 

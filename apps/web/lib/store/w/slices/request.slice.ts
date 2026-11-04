@@ -8,10 +8,6 @@ import type {
   WorkspaceId,
 } from "../types";
 
-/**
- * Runtime-only bookkeeping (AbortControllers can't live in the store).
- * Source of truth for "is this request still current?".
- */
 type InFlight = {
   requestId: string;
   nodeId: NodeId;
@@ -21,7 +17,6 @@ type InFlight = {
 
 const inFlight = new Map<TabId, InFlight>();
 
-/** Removes and returns the entry only if it matches `requestId`. */
 function takeFlight(tabId: TabId, requestId: string): InFlight | undefined {
   const flight = inFlight.get(tabId);
   if (!flight || flight.requestId !== requestId) return undefined;
@@ -104,7 +99,6 @@ export const createRequestSlice: SliceCreator<RequestSlice> = (set) => ({
       };
     });
 
-    // only after the update succeeded, so a throw leaves the old request alone
     previous?.controller.abort();
     inFlight.set(tabId, {
       controller,
@@ -125,7 +119,7 @@ export const createRequestSlice: SliceCreator<RequestSlice> = (set) => ({
   completeRequest: (tabId, response) => {
     const flight = takeFlight(tabId, response.id);
     if (!flight) {
-      revokeBody(response.body); // stale: nobody will ever render it
+      revokeBody(response.body);
       return;
     }
     set((s) => {

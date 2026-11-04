@@ -159,9 +159,9 @@ export default function Canvas() {
   if (!ws) return null;
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+    <div className="flex h-full min-h-0 min-w-0 flex-1 overflow-hidden">
       {/* Flow canvas */}
-      <section className="mt-12 h-[calc(100%-50px)] min-h-0 min-w-0 flex-1 p-4">
+      <section className="min-w-0 flex-1 p-4">
         <div className="h-full w-full overflow-hidden rounded-xl border border-border bg-background">
           <ReactFlow
             connectionMode={ConnectionMode.Loose}
@@ -187,7 +187,7 @@ export default function Canvas() {
         </div>
       </section>
       {/* Endpoints sidebar */}
-      <aside className="mt-[50px] flex h-[calc(100%-50px)] w-80 shrink-0 flex-col overflow-hidden border-border border-l bg-background">
+      <aside className="flex w-80 shrink-0 flex-col overflow-hidden border-border border-l bg-background">
         <Card className="flex h-full flex-col gap-0 overflow-hidden rounded-none border-0 bg-transparent py-0 shadow-none">
           <CardHeader className="gap-1 border-border border-b px-4 py-4">
             <div className="flex items-center justify-between">
@@ -257,7 +257,7 @@ export default function Canvas() {
 
                     {/* Level 3: Nodes on this scenario's canvas */}
                     {isActive && (
-                      <div className="mt-0.5 mb-1 ml-4 space-y-0.5 border-border/60 border-l">
+                      <div className="mt-1 mb-1 ml-4 space-y-0.5 border-border/60 border-l">
                         {nodes.map((node) => (
                           <div
                             className="group flex h-8 items-center gap-1 rounded-md pr-1 pl-2 transition-colors hover:bg-accent/50"
@@ -269,85 +269,77 @@ export default function Canvas() {
                             >
                               {node.data.label}
                             </span>
-                            <Tooltip>
-                              <TooltipTrigger
-                                delay={0}
-                                render={
-                                  <Dialog>
-                                    <form>
-                                      <DialogTrigger
-                                        render={
-                                          <Button
-                                            className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
-                                            variant="ghost"
-                                          >
-                                            <GitBranch className="size-3.5" />
-                                          </Button>
-                                        }
+                            <Dialog>
+                              <Tooltip>
+                                <TooltipTrigger
+                                  delay={0}
+                                  render={
+                                    <DialogTrigger
+                                      render={
+                                        <Button size="icon" variant="ghost">
+                                          <GitBranch className="size-3.5" />
+                                        </Button>
+                                      }
+                                    />
+                                  }
+                                />
+                                <TooltipContent side="left">
+                                  Fork from here
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Fork Node</DialogTitle>
+                                  <DialogDescription>
+                                    A new scenario would be created from this
+                                    node.
+                                  </DialogDescription>
+                                </DialogHeader>
+
+                                <form
+                                  onSubmit={(e) => {
+                                    e.preventDefault();
+
+                                    const formData = new FormData(
+                                      e.currentTarget,
+                                    );
+                                    const name = String(
+                                      formData.get("name") ?? "",
+                                    ).trim();
+
+                                    if (!name) {
+                                      console.log("Name is required");
+                                      return;
+                                    }
+
+                                    forkNode(node.id, name);
+                                  }}
+                                >
+                                  <FieldGroup className="mb-2">
+                                    <Field>
+                                      <Label htmlFor="name-1">Name</Label>
+                                      <Input
+                                        defaultValue="Product Catalog"
+                                        id="name-1"
+                                        name="name"
                                       />
-                                      <DialogContent className="sm:max-w-sm">
-                                        <DialogHeader>
-                                          <DialogTitle>Fork Node</DialogTitle>
-                                          <DialogDescription>
-                                            A new scenario would be created from
-                                            this node.
-                                          </DialogDescription>
-                                        </DialogHeader>
+                                    </Field>
+                                  </FieldGroup>
 
-                                        <form
-                                          onSubmit={(e) => {
-                                            e.preventDefault();
-
-                                            const formData = new FormData(
-                                              e.currentTarget,
-                                            );
-                                            const name = String(
-                                              formData.get("name") ?? "",
-                                            ).trim();
-
-                                            if (!name) {
-                                              console.log("Name is required");
-                                              return;
-                                            }
-
-                                            forkNode(node.id, name);
-                                          }}
-                                        >
-                                          <FieldGroup className="mb-2">
-                                            <Field>
-                                              <Label htmlFor="name-1">
-                                                Name
-                                              </Label>
-                                              <Input
-                                                defaultValue="Product Catalog"
-                                                id="name-1"
-                                                name="name"
-                                              />
-                                            </Field>
-                                          </FieldGroup>
-
-                                          <DialogFooter>
-                                            <DialogClose
-                                              render={
-                                                <Button variant="outline">
-                                                  Cancel
-                                                </Button>
-                                              }
-                                            />
-                                            <Button type="submit">
-                                              Save changes
-                                            </Button>
-                                          </DialogFooter>
-                                        </form>
-                                      </DialogContent>
-                                    </form>
-                                  </Dialog>
-                                }
-                              />
-                              <TooltipContent side="top">
-                                <p>Fork from here</p>
-                              </TooltipContent>
-                            </Tooltip>
+                                  <DialogFooter>
+                                    <DialogClose
+                                      render={
+                                        <Button variant="outline">
+                                          Cancel
+                                        </Button>
+                                      }
+                                    />
+                                    <Button type="submit">Save changes</Button>
+                                  </DialogFooter>
+                                </form>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         ))}
 
@@ -411,7 +403,7 @@ export default function Canvas() {
                         </Button>
                       }
                     />
-                    <TooltipContent side="top">
+                    <TooltipContent side="left">
                       <p>Add to canvas</p>
                     </TooltipContent>
                   </Tooltip>

@@ -54,10 +54,7 @@ export function AppSidebar() {
   )?.endpoints;
 
   return (
-    <Sidebar
-      className="top-[50px] h-[calc(100svh-90px)] border-none"
-      collapsible="icon"
-    >
+    <Sidebar className="h-[calc(100svh-90px)] border-none" collapsible="icon">
       <SidebarContent>
         {/* Scenarios */}
 

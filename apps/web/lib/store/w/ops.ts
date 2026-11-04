@@ -1,8 +1,3 @@
-/**
- * Pure mutators for a Workspace. They are written to run on an immer draft
- * (inside `set`) or on a plain object (demo data), so slices can compose them
- * into a single atomic update.
- */
 import {
   normalizeDraft,
   revokeResponseUrl,
@@ -60,8 +55,6 @@ export function requireWs(s: WorkspaceStore, id: WorkspaceId): Workspace {
   return w;
 }
 
-/* --------------------------------- nodes ---------------------------------- */
-
 export function createNode(
   w: Workspace,
   scenarioId: ScenarioId,
@@ -93,10 +86,6 @@ export function resolveNodeIn(
   node.outcome = outcome;
 }
 
-/**
- * Splices the node out: children move up to its parent, so histories of every
- * scenario that passed through it stay connected.
- */
 export function removeNodeIn(w: Workspace, id: NodeId): void {
   const removed = w.nodes[id];
   if (!removed) return;
@@ -117,7 +106,6 @@ export function removeNodeIn(w: Workspace, id: NodeId): void {
   delete w.positionOverrides[id];
 }
 
-/** Pending nodes can't survive a reload (the request died with the page). */
 export function failPendingNodes(w: Workspace): void {
   for (const n of Object.values(w.nodes)) {
     if (n.outcome.state === "pending") {
@@ -129,9 +117,6 @@ export function failPendingNodes(w: Workspace): void {
   }
 }
 
-/* --------------------------------- tabs ----------------------------------- */
-
-/** Opens (or re-activates) the tab for endpoint + scenario. Returns its id. */
 export function openTabIn(
   w: Workspace,
   endpointId: EndpointId,
@@ -164,7 +149,6 @@ export function openTabIn(
   return id;
 }
 
-/** Removes a tab, its draft and its response; activates a neighbour. */
 export function dropTab(s: WorkspaceStore, w: Workspace, tabId: TabId): void {
   const index = w.tabs.findIndex((t) => t.id === tabId);
   if (index === -1) return;
@@ -181,7 +165,6 @@ export function dropTab(s: WorkspaceStore, w: Workspace, tabId: TabId): void {
   }
 }
 
-/** The node a fork "from this tab" should branch off. */
 export function tabHeadNodeId(w: Workspace, tab: Tab): NodeId | null {
   if (tab.lastNodeId && w.nodes[tab.lastNodeId]) return tab.lastNodeId;
   return w.scenarios[tab.scenarioId]?.headNodeId ?? null;
