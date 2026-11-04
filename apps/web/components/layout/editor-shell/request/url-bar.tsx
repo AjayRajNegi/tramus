@@ -18,7 +18,7 @@ import { abortViaExtension } from "@/lib/extension/client";
 import { httpResponseBuilder } from "@/lib/helper/http-response-builder";
 import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
 import { useEditorState } from "@/lib/store/editor.store";
-import type { RequestErrorCode } from "@/lib/store/response.store.types";
+import type { RequestErrorCode } from "@/lib/store/w/response.store.types";
 
 const METHOD_STYLES: Record<string, string> = {
   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",

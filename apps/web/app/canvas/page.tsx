@@ -49,7 +49,7 @@ import {
   useCanvasStore,
 } from "@/lib/store/canvas.store";
 import { useEditorState } from "@/lib/store/editor.store";
-import type { EndpointDraft } from "@/lib/store/tab.store.types";
+import type { EndpointDraft } from "@/lib/store/w/tab.store.types";
 
 const WORKSPACE_ID = "default-workspace";
 

@@ -1,5 +1,5 @@
 import { useEditorState } from "@/lib/store/editor.store";
-import type { EndpointDraft } from "@/lib/store/tab.store.types";
+import type { EndpointDraft } from "@/lib/store/w/tab.store.types";
 
 const createEmptyDraft = (): EndpointDraft => ({
   authorization: { password: "", token: "", type: "none", username: "" },
