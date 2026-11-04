@@ -12,7 +12,6 @@ import type {
 } from "./types";
 import { useWorkspaceStore } from "./workspace.store";
 
-// Stable fallbacks: selectors must never return a fresh object per call.
 const IDLE: ResponseState = { phase: "idle" };
 const NO_TABS: Tab[] = [];
 const NO_NODES: Record<string, TimelineNode> = {};
@@ -20,22 +19,19 @@ const NO_SCENARIOS: Record<string, Scenario> = {};
 
 type S = WorkspaceStore;
 
-/* ------------------------------- registry --------------------------------- */
-
 export const selectWorkspaces = (s: S) => s.workspaces;
 export const selectActiveWorkspaceId = (s: S) => s.activeWorkspaceId;
-export const selectActiveWorkspace = (s: S): Workspace | undefined =>
+
+//  TODO selectActiveWorkspace should be Workspace but defined as Workspace | undefined check if only Workspace works
+export const selectActiveWorkspace = (s: S): Workspace =>
   s.workspaces[s.activeWorkspaceId];
 export const selectWorkspace = (id: WorkspaceId) => (s: S) => s.workspaces[id];
 
-/** Pure helper: oldest first. Memoize in the component (useMemo). */
 export const listWorkspaces = (workspaces: Record<WorkspaceId, Workspace>) =>
   Object.values(workspaces).sort((a, b) => a.createdAt - b.createdAt);
 
 export const selectEndpoints = (wsId: WorkspaceId) => (s: S) =>
   s.workspaces[wsId]?.endpoints;
-
-/* ------------------------------- scenarios -------------------------------- */
 
 export const selectScenarios = (wsId: WorkspaceId) => (s: S) =>
   s.workspaces[wsId]?.scenarios ?? NO_SCENARIOS;
@@ -47,8 +43,6 @@ export const selectActiveScenario = (wsId: WorkspaceId) => (s: S) => {
 
 export const selectNodes = (wsId: WorkspaceId) => (s: S) =>
   s.workspaces[wsId]?.nodes ?? NO_NODES;
-
-/* --------------------------------- editor --------------------------------- */
 
 export const selectTabs = (wsId: WorkspaceId) => (s: S) =>
   s.workspaces[wsId]?.tabs ?? NO_TABS;
@@ -69,15 +63,11 @@ export const selectIsDirty = (wsId: WorkspaceId, tabId: TabId) => (s: S) => {
   return entry ? !deepEqual(entry.draft, entry.baseline) : false;
 };
 
-/* -------------------------------- requests -------------------------------- */
-
 export const selectResponseState = (tabId: TabId) => (s: S) =>
   s.responses[tabId] ?? IDLE;
 
 export const selectIsSending = (tabId: TabId) => (s: S) =>
   s.responses[tabId]?.phase === "loading";
-
-/* ---------------------------------- hooks --------------------------------- */
 
 export const useChildrenIndex = (wsId: WorkspaceId) =>
   useWorkspaceStore((s) =>
