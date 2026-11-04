@@ -4,9 +4,13 @@ import type { EditorSlice, SliceCreator, TabId } from "../types";
 
 export const createEditorSlice: SliceCreator<EditorSlice> = (set, get) => ({
   closeTab: (wsId, tabId) => {
-    get().abortRequest(tabId);
     set((s) => {
       const w = s.workspaces[wsId];
+
+      if (w.tabs.length <= 1) {
+        return;
+      }
+      get().abortRequest(tabId);
       if (w) dropTab(s, w, tabId);
     });
   },

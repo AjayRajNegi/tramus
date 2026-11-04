@@ -17,8 +17,9 @@ import {
 import { abortViaExtension } from "@/lib/extension/client";
 import { httpResponseBuilder } from "@/lib/helper/http-response-builder";
 import { sendRequest, toTramusRequest } from "@/lib/request/send-request";
-import { useEditorState } from "@/lib/store/editor.store";
 import type { RequestErrorCode } from "@/lib/store/w/response.store.types";
+import { selectActiveWorkspace } from "@/lib/store/w/selectors";
+import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 
 const METHOD_STYLES: Record<string, string> = {
   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
@@ -39,32 +40,37 @@ type UrlBarProps = {
 };
 
 export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
-  const activeId = useEditorState((s) => s.activeId);
-  const entry = useEditorState((s) =>
-    s.activeId ? s.drafts[s.activeId] : undefined,
-  );
+  const ws = useWorkspaceStore(selectActiveWorkspace);
+  const updateDraft = useWorkspaceStore((s) => s.updateDraft);
+  const beginRequest = useWorkspaceStore((s) => s.beginRequest);
+  const completeRequest = useWorkspaceStore((s) => s.completeRequest);
+  const failRequest = useWorkspaceStore((s) => s.failRequest);
+  const abortRequest = useWorkspaceStore((s) => s.abortRequest);
+  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
 
-  const method = entry?.draft.method ?? "GET";
-  const path = entry?.draft.url ?? "http://localhost:3000";
+  if (!ws) return null;
 
-  const setPath = (p: string) =>
-    activeId &&
-    updateDraft(activeId, (d) => {
+  const workspaceId = ws.id;
+  const tabId = ws.activeTabId;
+  const drafts = ws.drafts;
+  const draft = tabId ? drafts[tabId]?.draft : undefined;
+
+  const method = draft?.method ?? "GET";
+  const path = draft?.url ?? "http://localhost:3000";
+
+  const setPath = (p: string) => {
+    if (!tabId) return;
+    updateDraft(workspaceId, tabId, (d) => {
       d.url = p;
     });
-  const updateDraft = useEditorState((s) => s.updateDraft);
-  const setResponse = useEditorState((s) => s.setResponse);
-  const startRequest = useEditorState((s) => s.startRequest);
-  const setFailure = useEditorState((s) => s.setFailure);
-  const abortRequest = useEditorState((s) => s.abortRequest);
+  };
 
-  const setMethod = (m: Method) =>
-    activeId &&
-    updateDraft(activeId, (d) => {
+  const setMethod = (m: Method) => {
+    if (!tabId) return;
+    updateDraft(workspaceId, tabId, (d) => {
       d.method = m;
     });
-
-  const [currentRequestId, setCurrentRequestId] = useState<string | null>(null);
+  };
 
   function mapErrorCode(code: string): RequestErrorCode {
     switch (code) {
@@ -82,12 +88,10 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   }
 
   async function send() {
-    if (!path.trim() || !activeId) return;
+    if (!path.trim() || !tabId) return;
 
-    const draft = useEditorState.getState().drafts[activeId]?.draft;
-    if (!draft) return;
-
-    const id = activeId;
+    const currentDraft = drafts[tabId]?.draft;
+    if (!currentDraft) return;
 
     const fail = (
       code: RequestErrorCode,
@@ -95,10 +99,10 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
       startedAt: number,
     ) => {
       const now = Date.now();
-      setFailure(id, {
+      failRequest(tabId, {
         code,
         duration: now - startedAt,
-        id,
+        id: currentRequestId ?? "",
         message,
         occurredAt: now,
       });
@@ -106,12 +110,24 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     };
 
     const startedAt = Date.now();
-    startRequest(id, id);
+
+    let handle: { requestId: string; nodeId: string } | undefined;
+    try {
+      handle = beginRequest(workspaceId, tabId);
+    } catch (e) {
+      fail(
+        "unknown",
+        e instanceof Error ? e.message : "Failed to start request",
+        startedAt,
+      );
+      return;
+    }
+    setCurrentRequestId(handle.requestId);
 
     let request: TramusRequest;
     try {
-      console.log(draft);
-      request = toTramusRequest(draft);
+      console.log(currentDraft);
+      request = toTramusRequest(currentDraft);
       console.log(request);
     } catch {
       fail("invalid_url", "Invalid URL", startedAt);
@@ -121,7 +137,7 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     let result: TramusResult & { requestId: string };
     try {
       result = await sendRequest(request);
-      setCurrentRequestId(result.requestId);
+      setCurrentRequestId(handle?.requestId);
     } catch (e) {
       fail(
         "unknown",
@@ -138,10 +154,10 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
     }
 
     try {
-      setResponse(
-        id,
+      completeRequest(
+        tabId,
         httpResponseBuilder(
-          id,
+          handle?.requestId,
           request,
           result.response,
           startedAt,
@@ -160,8 +176,8 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
   }
 
   function abort() {
-    if (!activeId || !currentRequestId) return;
-    abortRequest(activeId);
+    if (!tabId || !currentRequestId) return;
+    abortRequest(tabId);
     abortViaExtension(currentRequestId);
     setCurrentRequestId(null);
   }
@@ -198,8 +214,7 @@ export function UrlBar({ isDirty = true, onSave }: UrlBarProps) {
           </SelectContent>
         </Select>
 
-        {/* <Separator orientation="vertical" /> */}
-
+        {/* <Separator orientation="vertical" */}
         <Input
           className="min-w-0 border-0 font-mono shadow-none focus-visible:ring-0"
           onChange={(e) => setPath(e.target.value)}

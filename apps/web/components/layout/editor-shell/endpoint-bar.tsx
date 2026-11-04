@@ -1,21 +1,55 @@
 import { cn } from "cn";
 import { PlusIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useAddDraftTab } from "@/hooks/use-add-draft-tab";
-import { useEditorState } from "@/lib/store/editor.store";
+import { selectActiveWorkspace, selectTabs } from "@/lib/store/w/selectors";
+import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 
 export default function EndpointBar() {
-  const { drafts, setActiveId, activeId, closeTab } = useEditorState();
+  const ws = useWorkspaceStore(selectActiveWorkspace);
+  const tabs = useWorkspaceStore((s) => selectTabs(s.activeWorkspaceId)(s));
 
-  const addDraftTab = useAddDraftTab();
-  const activeTab = useEditorState((s) =>
-    s.tabs.find((t) => t.id === s.activeId),
-  );
+  const openTab = useWorkspaceStore((s) => s.openTab);
+  const closeTab = useWorkspaceStore((s) => s.closeTab);
+  const setActiveTab = useWorkspaceStore((s) => s.setActiveTab);
+  const createEndpoint = useWorkspaceStore((s) => s.createEndpoint);
+
+  if (!ws) return null;
+
+  const addDraftTab = () => {
+    const endpointId = createEndpoint(ws.id, {
+      definition: {
+        authorization: {
+          password: "",
+          token: "",
+          type: "none",
+          username: "",
+        },
+        body: {
+          file: null,
+          form: [],
+          formData: [],
+          json: "",
+          raw: "",
+          type: "none",
+        },
+        headers: [],
+        method: "GET",
+        params: [],
+        path: "http://localhost:3000",
+        url: "http://localhost:3000",
+      },
+    });
+    openTab(ws.id, {
+      endpointId,
+      scenarioId: ws.activeScenarioId,
+    });
+  };
 
   return (
     <div className="flex items-center bg-muted">
-      {Object.entries(drafts).map(([id, _draft]) => {
-        const isActive = id === activeId;
+      {tabs.map((tab) => {
+        const isActive = tab.id === ws.activeTabId;
+        const endpoint = ws.endpoints[tab.endpointId];
 
         return (
           <Button
@@ -25,13 +59,13 @@ export default function EndpointBar() {
                 ? "bg-background text-foreground hover:bg-background hover:text-foreground dark:hover:bg-background"
                 : "bg-transparent text-muted-foreground hover:bg-background/60 hover:text-foreground dark:hover:bg-background/60",
             )}
-            key={id}
-            onClick={() => setActiveId(id)}
+            key={tab.id}
+            onClick={() => setActiveTab(ws.id, tab.id)}
             variant="ghost"
           >
-            {id}
+            {endpoint?.name ?? tab.id}
             <span
-              aria-label={`Close ${id}`}
+              aria-label={`Close ${tab.id}`}
               className={cn(
                 "ml-4 cursor-pointer rounded-sm text-muted-foreground transition-colors",
                 "hover:bg-accent hover:text-accent-foreground",
@@ -42,13 +76,13 @@ export default function EndpointBar() {
               )}
               onClick={(e) => {
                 e.stopPropagation();
-                closeTab(id);
+                closeTab(ws.id, tab.id);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   e.preventDefault();
                   e.stopPropagation();
-                  closeTab(id);
+                  closeTab(ws.id, tab.id);
                 }
               }}
               role="button"
@@ -62,12 +96,7 @@ export default function EndpointBar() {
       <Button
         aria-label="New request"
         className="text-muted-foreground hover:text-foreground"
-        onClick={() =>
-          addDraftTab({
-            scenarioId: activeTab?.scenarioId ?? "",
-            workspaceId: activeTab?.workspaceId ?? "",
-          })
-        }
+        onClick={addDraftTab}
         size="icon"
         variant="ghost"
       >

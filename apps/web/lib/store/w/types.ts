@@ -6,11 +6,6 @@ import type {
   ResponseState,
 } from "./response.store.types";
 import type { DraftEntry, EndpointDraft } from "./tab.store.types";
-// Your existing request/response types stay where they are. Adjust these paths.
-
-/* -------------------------------------------------------------------------- */
-/* IDs                                                                        */
-/* -------------------------------------------------------------------------- */
 
 export type WorkspaceId = string;
 export type EndpointId = string;
@@ -20,14 +15,9 @@ export type TabId = string;
 
 export type Point = { x: number; y: number };
 
-/* -------------------------------------------------------------------------- */
-/* Domain                                                                     */
-/* -------------------------------------------------------------------------- */
-
 export type Endpoint = {
   id: EndpointId;
   name: string;
-  /** Last saved definition. New tabs start from it and diff against it. */
   definition: EndpointDraft;
   createdAt: number;
 };
@@ -40,18 +30,11 @@ export type NodeOutcome =
 
 export type TimelineNode = {
   id: NodeId;
-  /** `null` = root (or detached until the user connects it). */
   parentId: NodeId | null;
-  /**
-   * The scenario that *created* this node. Forks share nodes instead of
-   * copying them, so this is provenance, not membership. A scenario's history
-   * is the ancestry of its `headNodeId`.
-   */
   scenarioId: ScenarioId;
   endpointId: EndpointId;
   requestId: string;
   createdAt: number;
-  /** Draft at send time, with file contents stripped. */
   requestSnapshot: EndpointDraft;
   outcome: NodeOutcome;
   replayOf?: NodeId;
@@ -69,9 +52,7 @@ export type Scenario = {
 export type Tab = {
   id: TabId;
   endpointId: EndpointId;
-  /** Requests sent from this tab are recorded in this scenario. */
   scenarioId: ScenarioId;
-  /** Most recent node sent from this tab. Used as the fork point. */
   lastNodeId: NodeId | null;
 };
 
@@ -81,15 +62,11 @@ export type Workspace = {
   createdAt: number;
 
   endpoints: Record<EndpointId, Endpoint>;
-
-  // canvas / history
   scenarios: Record<ScenarioId, Scenario>;
   nodes: Record<NodeId, TimelineNode>;
-  /** Scenario the canvas is focused on. Follows the active tab. */
   activeScenarioId: ScenarioId;
   positionOverrides: Record<NodeId, Point>;
 
-  // editor
   tabs: Tab[];
   activeTabId: TabId | null;
   drafts: Record<TabId, DraftEntry>;
@@ -107,17 +84,12 @@ export type DraftSeed = { draft: EndpointDraft; baseline?: EndpointDraft };
 export type ForkSource = { nodeId: NodeId } | { tabId: TabId };
 export type ForkResult = { scenarioId: ScenarioId; tabId: TabId | null };
 
-/* -------------------------------------------------------------------------- */
-/* Slices                                                                     */
-/* -------------------------------------------------------------------------- */
-
 export type RegistrySlice = {
   workspaces: Record<WorkspaceId, Workspace>;
   activeWorkspaceId: WorkspaceId;
 
   createWorkspace: (name: string) => WorkspaceId;
   renameWorkspace: (id: WorkspaceId, name: string) => void;
-  /** Returns false if it is unknown or the last remaining workspace. */
   deleteWorkspace: (id: WorkspaceId) => boolean;
   setActiveWorkspace: (id: WorkspaceId) => void;
   resetWorkspace: (id: WorkspaceId) => void;
@@ -128,16 +100,10 @@ export type RegistrySlice = {
     input: { name?: string; definition: EndpointDraft },
   ) => EndpointId;
   renameEndpoint: (wsId: WorkspaceId, id: EndpointId, name: string) => void;
-  /** Closes the endpoint's tabs. Timeline nodes keep their snapshots. */
   deleteEndpoint: (wsId: WorkspaceId, id: EndpointId) => void;
 };
 
 export type ScenarioSlice = {
-  /**
-   * Fork from a node or a tab. No nodes are copied: the new scenario points at
-   * the existing node and grows from there. By default a tab is opened in the
-   * new scenario (seeded from the tab's draft, or the node's request snapshot).
-   */
   fork: (
     wsId: WorkspaceId,
     from: ForkSource,
@@ -151,13 +117,10 @@ export type ScenarioSlice = {
 };
 
 export type CanvasSlice = {
-  // ephemeral UI (not persisted)
   selectedNodeId: NodeId | null;
   collapsed: Record<NodeId, boolean>;
 
-  /** Adds a detached node (no parent, scenario head untouched). */
   addNode: (wsId: WorkspaceId, input: RecordRequestInput) => NodeId;
-  /** Removes a node; its children are re-attached to its parent. */
   removeNode: (wsId: WorkspaceId, id: NodeId) => void;
   setParent: (
     wsId: WorkspaceId,
@@ -172,7 +135,6 @@ export type CanvasSlice = {
 };
 
 export type EditorSlice = {
-  /** Reuses the existing tab for the same endpoint + scenario. */
   openTab: (
     wsId: WorkspaceId,
     input: { endpointId: EndpointId; scenarioId?: ScenarioId },
@@ -185,7 +147,6 @@ export type EditorSlice = {
     tabId: TabId,
     recipe: (draft: Draft<EndpointDraft>) => void,
   ) => void;
-  /** Discards changes (back to baseline), or re-bases on `base`. */
   resetDraft: (wsId: WorkspaceId, tabId: TabId, base?: EndpointDraft) => void;
   setStatus: (
     wsId: WorkspaceId,
@@ -193,7 +154,6 @@ export type EditorSlice = {
     status: DraftEntry["status"],
     error?: string,
   ) => void;
-  /** Sets baseline + endpoint definition to `saved` (defaults to the draft). */
   markSaved: (wsId: WorkspaceId, tabId: TabId, saved?: EndpointDraft) => void;
 };
 
@@ -204,14 +164,8 @@ export type RequestHandle = {
 };
 
 export type RequestSlice = {
-  // ephemeral (not persisted), keyed by tab
   responses: Record<TabId, ResponseState>;
 
-  /**
-   * One atomic step: records a pending node in the tab's scenario, advances
-   * the scenario head, and flips the tab to "loading". Pass `signal` to fetch
-   * and set `response.id` / `failure.id` to `requestId`.
-   */
   beginRequest: (
     wsId: WorkspaceId,
     tabId: TabId,
