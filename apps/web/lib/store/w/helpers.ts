@@ -3,7 +3,6 @@ import type { ResponseBody, ResponseState } from "./response.store.types";
 import type { EndpointDraft, KeyValue } from "./tab.store.types";
 import type { NodeOutcome } from "./types";
 
-/** structuredClone that also works on immer drafts (proxies can't be cloned). */
 export const clone = <T>(value: T): T =>
   structuredClone(isDraft(value) ? (current(value as never) as T) : value);
 
@@ -19,8 +18,6 @@ export function deepEqual(a: unknown, b: unknown): boolean {
   }
   return true;
 }
-
-/* ------------------------------- drafts ----------------------------------- */
 
 export const buildUrl = (url: string, params: KeyValue[]): string => {
   const [withoutHash = "", hash = ""] = url.split("#");
@@ -77,8 +74,6 @@ export function makeDraft(
     url: path,
   };
 }
-
-/* ------------------------------ responses --------------------------------- */
 
 export const revokeBody = (body: ResponseBody) => {
   if ("objectUrl" in body) URL.revokeObjectURL(body.objectUrl);
