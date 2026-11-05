@@ -34,16 +34,6 @@ import {
 } from "@/lib/store/w/selectors";
 import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 
-// const _METHOD_STYLES: Record<string, string> = {
-//   DELETE: "bg-red-500/10 text-red-600 dark:text-red-400",
-//   GET: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-//   PATCH: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-//   POST: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-//   PUT: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-// };
-
-// const _isLoggedIn = false;
-
 export function EndpointLeftbar() {
   const workspaces = useWorkspaceStore(selectWorkspaces);
   const activeWorkspace = useWorkspaceStore(selectActiveWorkspace);
@@ -82,11 +72,11 @@ export function EndpointLeftbar() {
                 return (
                   <SidebarMenuItem
                     key={workspace.id}
-                    // onClick={() => setActiveWorkspace(workspace.id)}
+                    onClick={() => setActiveWorkspace(workspace.id)}
                   >
                     <div
                       className={cn(
-                        "flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1.5 text-sidebar-foreground",
+                        "flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
                         "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                         "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
                         isActive &&
@@ -103,17 +93,17 @@ export function EndpointLeftbar() {
                       </div>
 
                       {/* Workspace actions (rename / reset / delete) */}
-                      <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                      <div className="flex items-center opacity-0 transition-opacity group-hover:opacity-100">
                         <Dialog>
                           <DialogTrigger
                             render={
                               <Button
                                 aria-label={`Rename ${workspace.name}`}
-                                className="size-7 p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                                className="h-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
                                 size="icon"
                                 variant="ghost"
                               >
-                                <PencilIcon className="size-3.5" />
+                                <PencilIcon className="size-3" />
                               </Button>
                             }
                           />
@@ -169,11 +159,11 @@ export function EndpointLeftbar() {
                             render={
                               <Button
                                 aria-label={`Reset ${workspace.name}`}
-                                className="size-7 p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                                className="h-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
                                 size="icon"
                                 variant="ghost"
                               >
-                                <RotateCcwIcon className="size-3.5" />
+                                <RotateCcwIcon className="size-3" />
                               </Button>
                             }
                           />
@@ -208,7 +198,7 @@ export function EndpointLeftbar() {
                             render={
                               <Button
                                 aria-label={`Delete ${workspace.name}`}
-                                className="size-7 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                className="h-0 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                                 disabled={
                                   Object.keys(workspaces).length <= 1 &&
                                   isActive
@@ -216,7 +206,7 @@ export function EndpointLeftbar() {
                                 size="icon"
                                 variant="ghost"
                               >
-                                <Trash2Icon className="size-3.5" />
+                                <Trash2Icon className="size-3" />
                               </Button>
                             }
                           />

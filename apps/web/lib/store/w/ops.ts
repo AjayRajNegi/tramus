@@ -27,9 +27,53 @@ export function createWorkspaceData(
 ): Workspace {
   return {
     activeScenarioId: MAIN_SCENARIO_ID,
-    activeTabId: null,
+    activeTabId: "tab1",
     createdAt,
-    drafts: {},
+    drafts: {
+      tab1: {
+        baseline: {
+          authorization: {
+            password: "",
+            token: "",
+            type: "none",
+            username: "",
+          },
+          body: {
+            form: [],
+            formData: [],
+            json: `{"key" :  "value"}`,
+            raw: "Hello",
+            type: "json",
+          },
+          headers: [],
+          method: "GET",
+          params: [],
+          path: "",
+          url: "http://localhost:8080",
+        },
+        draft: {
+          authorization: {
+            password: "",
+            token: "",
+            type: "none",
+            username: "",
+          },
+          body: {
+            form: [],
+            formData: [],
+            json: `{"key" :  "value"}`,
+            raw: "Hello",
+            type: "json",
+          },
+          headers: [],
+          method: "GET",
+          params: [],
+          path: "",
+          url: "http://localhost:8080",
+        },
+        status: "saved",
+      },
+    },
     endpoints: {},
     id,
     name,
@@ -45,7 +89,14 @@ export function createWorkspaceData(
         name: "main",
       },
     },
-    tabs: [],
+    tabs: [
+      {
+        endpointId: "endpoint1",
+        id: "tab1",
+        lastNodeId: null,
+        scenarioId: "main",
+      },
+    ],
   };
 }
 
