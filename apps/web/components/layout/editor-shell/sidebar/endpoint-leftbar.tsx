@@ -125,7 +125,6 @@ export function EndpointLeftbar() {
                                 ).trim();
 
                                 if (!name) {
-                                  console.log("Name is required");
                                   return;
                                 }
 

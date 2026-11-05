@@ -32,6 +32,8 @@ export default function ResponsePane() {
     tabId ? selectResponseState(tabId)(s) : undefined,
   );
 
+  // const responses = useWorkspaceStore((s) => s.responses);
+
   if (!ws) return null;
 
   if (response?.phase === "success") {
