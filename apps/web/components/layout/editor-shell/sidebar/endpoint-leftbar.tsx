@@ -76,7 +76,7 @@ export function EndpointLeftbar() {
                   >
                     <div
                       className={cn(
-                        "flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
+                        "group/workspace flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
                         "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                         "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:bg-sidebar-accent group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
                         isActive &&
@@ -92,14 +92,14 @@ export function EndpointLeftbar() {
                         </span>
                       </div>
 
-                      {/* Workspace actions (rename / reset / delete) */}
-                      <div className="flex items-center opacity-0 transition-opacity group-hover:opacity-100">
+                      {/* Workspace actions */}
+                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/workspace:opacity-100">
                         <Dialog>
                           <DialogTrigger
                             render={
                               <Button
                                 aria-label={`Rename ${workspace.name}`}
-                                className="h-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
                                 size="icon"
                                 variant="ghost"
                               >
@@ -159,7 +159,7 @@ export function EndpointLeftbar() {
                             render={
                               <Button
                                 aria-label={`Reset ${workspace.name}`}
-                                className="h-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
                                 size="icon"
                                 variant="ghost"
                               >
@@ -198,7 +198,7 @@ export function EndpointLeftbar() {
                             render={
                               <Button
                                 aria-label={`Delete ${workspace.name}`}
-                                className="h-0 p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
                                 disabled={
                                   Object.keys(workspaces).length <= 1 &&
                                   isActive
