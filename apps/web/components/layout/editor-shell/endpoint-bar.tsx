@@ -63,7 +63,7 @@ export default function EndpointBar() {
             onClick={() => setActiveTab(ws.id, tab.id)}
             variant="ghost"
           >
-            {endpoint?.name ?? tab.id}
+            {endpoint?.name.split(" ")[1] ?? tab.id}
             <span
               aria-label={`Close ${tab.id}`}
               className={cn(
