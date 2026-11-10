@@ -2,6 +2,7 @@
 
 import { cn } from "cn";
 import { PencilIcon, PlusIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -47,6 +48,11 @@ export function EndpointLeftbar() {
     selectScenarios(s.activeWorkspaceId)(s),
   );
   const switchScenario = useWorkspaceStore((s) => s.switchScenario);
+
+  const [renamingWorkspaceId, setRenamingWorkspaceId] = useState<string | null>(
+    null,
+  );
+  const [creatingWorkspace, setCreatingWorkspace] = useState(false);
 
   const sortedWorkspaces = Object.values(workspaces).sort(
     (a, b) => a.createdAt - b.createdAt,
@@ -94,7 +100,12 @@ export function EndpointLeftbar() {
 
                       {/* Workspace actions */}
                       <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/workspace:opacity-100">
-                        <Dialog>
+                        <Dialog
+                          onOpenChange={(open) =>
+                            setRenamingWorkspaceId(open ? workspace.id : null)
+                          }
+                          open={renamingWorkspaceId === workspace.id}
+                        >
                           <DialogTrigger
                             render={
                               <Button
@@ -129,6 +140,7 @@ export function EndpointLeftbar() {
                                 }
 
                                 renameWorkspace(workspace.id, name);
+                                setRenamingWorkspaceId(null);
                               }}
                             >
                               <FieldGroup className="mb-2">
@@ -243,7 +255,10 @@ export function EndpointLeftbar() {
                 );
               })}
               <SidebarMenuItem className="mt-2">
-                <Dialog>
+                <Dialog
+                  onOpenChange={setCreatingWorkspace}
+                  open={creatingWorkspace}
+                >
                   <DialogTrigger
                     render={
                       <SidebarMenuButton
@@ -282,6 +297,7 @@ export function EndpointLeftbar() {
                         }
 
                         createWorkspace(name);
+                        setCreatingWorkspace(false);
                       }}
                     >
                       <FieldGroup className="mb-2">
