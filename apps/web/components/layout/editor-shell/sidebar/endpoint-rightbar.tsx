@@ -1,7 +1,13 @@
 "use client";
 
 import { cn } from "cn";
-import { PencilIcon, PlusIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import {
+  GitBranchIcon,
+  PencilIcon,
+  PlusIcon,
+  RotateCcwIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,9 +47,13 @@ export function EndpointRightbar() {
   const deleteEndpoint = useWorkspaceStore((s) => s.deleteEndpoint);
   const renameEndpoint = useWorkspaceStore((s) => s.renameEndpoint);
   const resetDraft = useWorkspaceStore((s) => s.resetDraft);
+  const fork = useWorkspaceStore((s) => s.fork);
   const openTab = useWorkspaceStore((s) => s.openTab);
 
   const [renamingEndpointId, setRenamingEndpointId] = useState<string | null>(
+    null,
+  );
+  const [forkingEndpointId, setForkingEndpointId] = useState<string | null>(
     null,
   );
   const [creatingEndpoint, setCreatingEndpoint] = useState(false);
@@ -275,6 +285,84 @@ export function EndpointRightbar() {
                                 <Button type="submit" variant="destructive">
                                   Delete
                                 </Button>
+                              </DialogFooter>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
+                        <Dialog
+                          onOpenChange={(open) =>
+                            setForkingEndpointId(open ? endpoint.id : null)
+                          }
+                          open={forkingEndpointId === endpoint.id}
+                        >
+                          <DialogTrigger
+                            render={
+                              <Button
+                                aria-label={`Fork ${endpoint.name}`}
+                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                                size="icon"
+                                variant="ghost"
+                              >
+                                <GitBranchIcon className="size-3" />
+                              </Button>
+                            }
+                          />
+                          <DialogContent className="sm:max-w-[320px]">
+                            <DialogHeader>
+                              <DialogTitle>Fork from endpoint</DialogTitle>
+                              <DialogDescription>
+                                Create a new scenario from “{endpoint.name}”.
+                              </DialogDescription>
+                            </DialogHeader>
+
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault();
+
+                                const formData = new FormData(e.currentTarget);
+                                const name = String(
+                                  formData.get("name") ?? "",
+                                ).trim();
+
+                                if (!name) {
+                                  return;
+                                }
+
+                                const tab = tabs.find(
+                                  (t) => t.endpointId === endpoint.id,
+                                );
+                                if (tab) {
+                                  fork(
+                                    activeWorkspaceId,
+                                    {
+                                      tabId: tab.id,
+                                    },
+                                    name,
+                                  );
+                                }
+                                setForkingEndpointId(null);
+                              }}
+                            >
+                              <FieldGroup className="mb-2">
+                                <Field>
+                                  <Label htmlFor="fork-endpoint">
+                                    Scenario name
+                                  </Label>
+                                  <Input
+                                    defaultValue={`Fork of ${endpoint.name}`}
+                                    id="fork-endpoint"
+                                    name="name"
+                                  />
+                                </Field>
+                              </FieldGroup>
+
+                              <DialogFooter>
+                                <DialogClose
+                                  render={
+                                    <Button variant="outline">Cancel</Button>
+                                  }
+                                />
+                                <Button type="submit">Save</Button>
                               </DialogFooter>
                             </form>
                           </DialogContent>
