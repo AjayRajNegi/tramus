@@ -44,12 +44,16 @@ export function EndpointLeftbar() {
   const deleteWorkspace = useWorkspaceStore((s) => s.deleteWorkspace);
   const renameWorkspace = useWorkspaceStore((s) => s.renameWorkspace);
   const resetWorkspace = useWorkspaceStore((s) => s.resetWorkspace);
+  const renameScenario = useWorkspaceStore((s) => s.renameScenario);
   const scenarios = useWorkspaceStore((s) =>
     selectScenarios(s.activeWorkspaceId)(s),
   );
   const switchScenario = useWorkspaceStore((s) => s.switchScenario);
 
   const [renamingWorkspaceId, setRenamingWorkspaceId] = useState<string | null>(
+    null,
+  );
+  const [renamingScenarioId, setRenamingScenarioId] = useState<string | null>(
     null,
   );
   const [creatingWorkspace, setCreatingWorkspace] = useState(false);
@@ -345,10 +349,9 @@ export function EndpointLeftbar() {
                   >
                     <div
                       className={cn(
-                        "flex w-full items-center gap-2 rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
+                        "group/scenario flex w-full items-center justify-between rounded border-transparent border-l-2 px-2 py-1 text-sidebar-foreground",
                         "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0",
-
+                        "group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:border-l-0 group-data-[collapsible=icon]:p-0 group-data-[collapsible=icon]:text-sidebar-accent-foreground",
                         isActive &&
                           "border-sidebar-primary/40 bg-sidebar-accent text-sidebar-accent-foreground",
                       )}
@@ -366,11 +369,84 @@ export function EndpointLeftbar() {
                           {scenario.name}
                         </span>
                       </div>
+
+                      {/* Scenario actions */}
+                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/scenario:opacity-100">
+                        <Dialog
+                          onOpenChange={(open) =>
+                            setRenamingScenarioId(open ? scenario.id : null)
+                          }
+                          open={renamingScenarioId === scenario.id}
+                        >
+                          <DialogTrigger
+                            render={
+                              <Button
+                                aria-label={`Rename ${scenario.name}`}
+                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                                size="icon"
+                                variant="ghost"
+                              >
+                                <PencilIcon className="size-3" />
+                              </Button>
+                            }
+                          />
+                          <DialogContent className="sm:max-w-[320px]">
+                            <DialogHeader>
+                              <DialogTitle>Rename scenario</DialogTitle>
+                              <DialogDescription>
+                                Rename “{scenario.name}”.
+                              </DialogDescription>
+                            </DialogHeader>
+
+                            <form
+                              onSubmit={(e) => {
+                                e.preventDefault();
+
+                                const formData = new FormData(e.currentTarget);
+                                const name = String(
+                                  formData.get("name") ?? "",
+                                ).trim();
+
+                                if (!name) {
+                                  return;
+                                }
+
+                                renameScenario(
+                                  activeWorkspace.id,
+                                  scenario.id,
+                                  name,
+                                );
+                                setRenamingScenarioId(null);
+                              }}
+                            >
+                              <FieldGroup className="mb-2">
+                                <Field>
+                                  <Label htmlFor="rename-scenario">Name</Label>
+                                  <Input
+                                    defaultValue={scenario.name}
+                                    id="rename-scenario"
+                                    name="name"
+                                  />
+                                </Field>
+                              </FieldGroup>
+
+                              <DialogFooter>
+                                <DialogClose
+                                  render={
+                                    <Button variant="outline">Cancel</Button>
+                                  }
+                                />
+                                <Button type="submit">Save</Button>
+                              </DialogFooter>
+                            </form>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
                   </SidebarMenuItem>
                 );
               })}
-              <SidebarMenuItem className="mt-2">
+              {/* <SidebarMenuItem className="mt-2">
                 <SidebarMenuButton
                   className={cn(
                     "border border-sidebar-accent/40 border-dashed text-muted-foreground text-xs",
@@ -383,7 +459,7 @@ export function EndpointLeftbar() {
                     Add Endpoint
                   </span>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
+              </SidebarMenuItem> */}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

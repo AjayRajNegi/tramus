@@ -24,7 +24,7 @@ export default function EndpointEditor() {
         onOpenChange={setRightOpen}
         open={rightOpen}
       >
-        <main className="h-[calc(100svh-40px)] min-w-0 flex-1 border-border border-l">
+        <main className="h-[calc(100svh-40px)] min-w-0 flex-1 border-border border-r border-l">
           <EditorShell />
         </main>
         <EndpointRightbar />
