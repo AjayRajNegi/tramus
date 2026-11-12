@@ -20,6 +20,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -110,14 +118,6 @@ export function EndpointRightbar() {
                       )}
                     >
                       <div className="flex items-center gap-2">
-                        {/* <span
-                          className={cn(
-                            "size-8 shrink-0 items-center justify-center rounded bg-green-950 font-semibold text-[9px] text-green-600",
-                            isActive && "border-white border-l-2",
-                          )}
-                        >
-                          {endpoint.name.charAt(0)}
-                        </span> */}
                         <span
                           className="truncate text-xs group-data-[collapsible=offcanvas]:hidden"
                           title={endpoint.definition.url}
@@ -127,101 +127,32 @@ export function EndpointRightbar() {
                       </div>
 
                       {/* Endpoint actions */}
-                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/endpoint:opacity-100">
-                        <Dialog
-                          onOpenChange={(open) =>
-                            setRenamingEndpointId(open ? endpoint.id : null)
-                          }
-                          open={renamingEndpointId === endpoint.id}
-                        >
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Rename ${endpoint.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <PencilIcon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Rename endpoint</DialogTitle>
-                              <DialogDescription>
-                                Rename “{endpoint.name}”.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-
-                                const formData = new FormData(e.currentTarget);
-                                const name = String(
-                                  formData.get("name") ?? "",
-                                ).trim();
-
-                                if (!name) {
-                                  return;
-                                }
-
-                                renameEndpoint(
-                                  activeWorkspaceId,
-                                  endpoint.id,
-                                  name,
-                                );
-                                setRenamingEndpointId(null);
+                      <DropdownMenu>
+                        <DropdownMenuTrigger>
+                          <Button
+                            aria-label={`Endpoint actions for ${endpoint.name}`}
+                            className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                            size="icon"
+                            variant="ghost"
+                          >
+                            <PencilIcon className="size-3" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel inset>
+                              Endpoint
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setRenamingEndpointId(endpoint.id);
                               }}
                             >
-                              <FieldGroup className="mb-2">
-                                <Field>
-                                  <Label htmlFor="rename-endpoint">Name</Label>
-                                  <Input
-                                    defaultValue={endpoint.name}
-                                    id="rename-endpoint"
-                                    name="name"
-                                  />
-                                </Field>
-                              </FieldGroup>
-
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit">Save</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog>
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Reset draft for ${endpoint.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <RotateCcwIcon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Reset draft</DialogTitle>
-                              <DialogDescription>
-                                Reset “{endpoint.name}” draft to its baseline.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-
+                              <PencilIcon className="size-3" />
+                              Rename endpoint
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
                                 const tab = tabs.find(
                                   (t) => t.endpointId === endpoint.id,
                                 );
@@ -230,43 +161,20 @@ export function EndpointRightbar() {
                                 }
                               }}
                             >
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit">Reset</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog>
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Delete ${endpoint.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <Trash2Icon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Delete endpoint</DialogTitle>
-                              <DialogDescription>
-                                Delete “{endpoint.name}” and close its tab. This
-                                cannot be undone.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-
+                              <RotateCcwIcon className="size-3" />
+                              Reset draft
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setForkingEndpointId(endpoint.id);
+                              }}
+                            >
+                              <GitBranchIcon className="size-3" />
+                              Fork from endpoint
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => {
                                 const tab = tabs.find(
                                   (t) => t.endpointId === endpoint.id,
                                 );
@@ -276,98 +184,12 @@ export function EndpointRightbar() {
                                 deleteEndpoint(activeWorkspaceId, endpoint.id);
                               }}
                             >
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit" variant="destructive">
-                                  Delete
-                                </Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog
-                          onOpenChange={(open) =>
-                            setForkingEndpointId(open ? endpoint.id : null)
-                          }
-                          open={forkingEndpointId === endpoint.id}
-                        >
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Fork ${endpoint.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <GitBranchIcon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Fork from endpoint</DialogTitle>
-                              <DialogDescription>
-                                Create a new scenario from “{endpoint.name}”.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-
-                                const formData = new FormData(e.currentTarget);
-                                const name = String(
-                                  formData.get("name") ?? "",
-                                ).trim();
-
-                                if (!name) {
-                                  return;
-                                }
-
-                                const tab = tabs.find(
-                                  (t) => t.endpointId === endpoint.id,
-                                );
-                                if (tab) {
-                                  fork(
-                                    activeWorkspaceId,
-                                    {
-                                      tabId: tab.id,
-                                    },
-                                    name,
-                                  );
-                                }
-                                setForkingEndpointId(null);
-                              }}
-                            >
-                              <FieldGroup className="mb-2">
-                                <Field>
-                                  <Label htmlFor="fork-endpoint">
-                                    Scenario name
-                                  </Label>
-                                  <Input
-                                    defaultValue={`Fork of ${endpoint.name}`}
-                                    id="fork-endpoint"
-                                    name="name"
-                                  />
-                                </Field>
-                              </FieldGroup>
-
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit">Save</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
+                              <Trash2Icon className="size-3" />
+                              Delete endpoint
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </SidebarMenuItem>
                 );
@@ -471,6 +293,134 @@ export function EndpointRightbar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Rename endpoint dialog */}
+        {renamingEndpointId !== null && (
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) setRenamingEndpointId(null);
+            }}
+            open={renamingEndpointId !== null}
+          >
+            <DialogTrigger>
+              <Button />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[320px]">
+              <DialogHeader>
+                <DialogTitle>Rename endpoint</DialogTitle>
+                <DialogDescription>
+                  Rename "{ws.endpoints[renamingEndpointId]?.name ?? ""}".
+                </DialogDescription>
+              </DialogHeader>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+
+                  const formData = new FormData(e.currentTarget);
+                  const name = String(formData.get("name") ?? "").trim();
+
+                  if (!name) {
+                    return;
+                  }
+
+                  renameEndpoint(activeWorkspaceId, renamingEndpointId, name);
+                  setRenamingEndpointId(null);
+                }}
+              >
+                <FieldGroup className="mb-2">
+                  <Field>
+                    <Label htmlFor="rename-endpoint">Name</Label>
+                    <Input
+                      defaultValue={
+                        ws.endpoints[renamingEndpointId]?.name ?? ""
+                      }
+                      id="rename-endpoint"
+                      name="name"
+                    />
+                  </Field>
+                </FieldGroup>
+
+                <DialogFooter>
+                  <DialogClose
+                    render={<Button variant="outline">Cancel</Button>}
+                  />
+                  <Button type="submit">Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Fork from endpoint dialog */}
+        {forkingEndpointId !== null && (
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) setForkingEndpointId(null);
+            }}
+            open={forkingEndpointId !== null}
+          >
+            <DialogTrigger>
+              <Button />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[320px]">
+              <DialogHeader>
+                <DialogTitle>Fork from endpoint</DialogTitle>
+                <DialogDescription>
+                  Create a new scenario from "
+                  {ws.endpoints[forkingEndpointId]?.name ?? ""}".
+                </DialogDescription>
+              </DialogHeader>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+
+                  const formData = new FormData(e.currentTarget);
+                  const name = String(formData.get("name") ?? "").trim();
+
+                  if (!name) {
+                    return;
+                  }
+
+                  const tab = tabs.find(
+                    (t) => t.endpointId === forkingEndpointId,
+                  );
+                  if (tab) {
+                    fork(
+                      activeWorkspaceId,
+                      {
+                        tabId: tab.id,
+                      },
+                      name,
+                    );
+                  }
+                  setForkingEndpointId(null);
+                }}
+              >
+                <FieldGroup className="mb-2">
+                  <Field>
+                    <Label htmlFor="fork-endpoint">Scenario name</Label>
+                    <Input
+                      defaultValue={`Fork of ${
+                        ws.endpoints[forkingEndpointId]?.name ?? ""
+                      }`}
+                      id="fork-endpoint"
+                      name="name"
+                    />
+                  </Field>
+                </FieldGroup>
+
+                <DialogFooter>
+                  <DialogClose
+                    render={<Button variant="outline">Cancel</Button>}
+                  />
+                  <Button type="submit">Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

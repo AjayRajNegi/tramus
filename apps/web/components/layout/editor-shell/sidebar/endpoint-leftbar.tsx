@@ -1,7 +1,13 @@
 "use client";
 
 import { cn } from "cn";
-import { PencilIcon, PlusIcon, RotateCcwIcon, Trash2Icon } from "lucide-react";
+import {
+  EllipsisVerticalIcon,
+  PencilIcon,
+  PlusIcon,
+  RotateCcwIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +20,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,157 +117,59 @@ export function EndpointLeftbar() {
                       </div>
 
                       {/* Workspace actions */}
-                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/workspace:opacity-100">
-                        <Dialog
-                          onOpenChange={(open) =>
-                            setRenamingWorkspaceId(open ? workspace.id : null)
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          className="opacity-0 transition-opacity group-hover/workspace:opacity-100"
+                          onClick={(e) => e.stopPropagation()}
+                          render={
+                            <Button
+                              aria-label={`Workspace actions for ${workspace.name}`}
+                              className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <EllipsisVerticalIcon className="size-3" />
+                            </Button>
                           }
-                          open={renamingWorkspaceId === workspace.id}
-                        >
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Rename ${workspace.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <PencilIcon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Rename workspace</DialogTitle>
-                              <DialogDescription>
-                                Rename “{workspace.name}”.
-                              </DialogDescription>
-                            </DialogHeader>
+                        />
 
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
+                        <DropdownMenuContent align="start">
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel className="text-[10px]">
+                              Workspace
+                            </DropdownMenuLabel>
 
-                                const formData = new FormData(e.currentTarget);
-                                const name = String(
-                                  formData.get("name") ?? "",
-                                ).trim();
-
-                                if (!name) {
-                                  return;
-                                }
-
-                                renameWorkspace(workspace.id, name);
-                                setRenamingWorkspaceId(null);
-                              }}
+                            <DropdownMenuItem
+                              className="text-xs"
+                              onClick={() =>
+                                setRenamingWorkspaceId(workspace.id)
+                              }
                             >
-                              <FieldGroup className="mb-2">
-                                <Field>
-                                  <Label htmlFor="rename-workspace">Name</Label>
-                                  <Input
-                                    defaultValue={workspace.name}
-                                    id="rename-workspace"
-                                    name="name"
-                                  />
-                                </Field>
-                              </FieldGroup>
+                              <PencilIcon className="size-3" />
+                              Rename
+                            </DropdownMenuItem>
 
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit">Save</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog>
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Reset ${workspace.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <RotateCcwIcon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Reset workspace</DialogTitle>
-                              <DialogDescription>
-                                Reset “{workspace.name}” to its initial state.
-                                All tabs, scenarios, and nodes will be cleared.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-                                resetWorkspace(workspace.id);
-                              }}
+                            <DropdownMenuItem
+                              className="text-xs"
+                              onClick={() => resetWorkspace(workspace.id)}
                             >
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit">Reset</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                        <Dialog>
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Delete ${workspace.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                disabled={
-                                  Object.keys(workspaces).length <= 1 &&
-                                  isActive
-                                }
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <Trash2Icon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Delete workspace</DialogTitle>
-                              <DialogDescription>
-                                Delete “{workspace.name}” and all its tabs and
-                                scenarios. This cannot be undone.
-                              </DialogDescription>
-                            </DialogHeader>
+                              <RotateCcwIcon className="size-3" />
+                              Reset
+                            </DropdownMenuItem>
 
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-                                deleteWorkspace(workspace.id);
-                              }}
+                            <DropdownMenuItem
+                              className="text-destructive text-xs"
+                              disabled={
+                                Object.keys(workspaces).length <= 1 && isActive
+                              }
+                              onClick={() => deleteWorkspace(workspace.id)}
                             >
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit" variant="destructive">
-                                  Delete
-                                </Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
+                              <Trash2Icon className="size-3" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </SidebarMenuItem>
                 );
@@ -329,6 +245,62 @@ export function EndpointLeftbar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Rename workspace dialog */}
+        {renamingWorkspaceId !== null && (
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) setRenamingWorkspaceId(null);
+            }}
+            open={renamingWorkspaceId !== null}
+          >
+            <DialogTrigger>
+              <Button />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[320px]">
+              <DialogHeader>
+                <DialogTitle>Rename workspace</DialogTitle>
+                <DialogDescription>
+                  Rename "{workspaces[renamingWorkspaceId]?.name ?? ""}".
+                </DialogDescription>
+              </DialogHeader>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+
+                  const formData = new FormData(e.currentTarget);
+                  const name = String(formData.get("name") ?? "").trim();
+
+                  if (!name) {
+                    return;
+                  }
+
+                  renameWorkspace(renamingWorkspaceId, name);
+                  setRenamingWorkspaceId(null);
+                }}
+              >
+                <FieldGroup className="mb-2">
+                  <Field>
+                    <Label htmlFor="rename-workspace">Name</Label>
+                    <Input
+                      defaultValue={workspaces[renamingWorkspaceId]?.name ?? ""}
+                      id="rename-workspace"
+                      name="name"
+                    />
+                  </Field>
+                </FieldGroup>
+
+                <DialogFooter>
+                  <DialogClose
+                    render={<Button variant="outline">Cancel</Button>}
+                  />
+                  <Button type="submit">Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
+
         {/* Endpoints */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-semibold text-[10px] text-sidebar-foreground/70 uppercase">
@@ -371,77 +343,37 @@ export function EndpointLeftbar() {
                       </div>
 
                       {/* Scenario actions */}
-                      <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover/scenario:opacity-100">
-                        <Dialog
-                          onOpenChange={(open) =>
-                            setRenamingScenarioId(open ? scenario.id : null)
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          className="opacity-0 transition-opacity group-hover/scenario:opacity-100"
+                          render={
+                            <Button
+                              aria-label={`Scenario actions for ${scenario.name}`}
+                              className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <EllipsisVerticalIcon className="size-3" />
+                            </Button>
                           }
-                          open={renamingScenarioId === scenario.id}
-                        >
-                          <DialogTrigger
-                            render={
-                              <Button
-                                aria-label={`Rename ${scenario.name}`}
-                                className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                size="icon"
-                                variant="ghost"
-                              >
-                                <PencilIcon className="size-3" />
-                              </Button>
-                            }
-                          />
-                          <DialogContent className="sm:max-w-[320px]">
-                            <DialogHeader>
-                              <DialogTitle>Rename scenario</DialogTitle>
-                              <DialogDescription>
-                                Rename “{scenario.name}”.
-                              </DialogDescription>
-                            </DialogHeader>
-
-                            <form
-                              onSubmit={(e) => {
-                                e.preventDefault();
-
-                                const formData = new FormData(e.currentTarget);
-                                const name = String(
-                                  formData.get("name") ?? "",
-                                ).trim();
-
-                                if (!name) {
-                                  return;
-                                }
-
-                                renameScenario(
-                                  activeWorkspace.id,
-                                  scenario.id,
-                                  name,
-                                );
-                                setRenamingScenarioId(null);
+                        />
+                        <DropdownMenuContent>
+                          <DropdownMenuGroup>
+                            <DropdownMenuLabel className="text-[10px]">
+                              Scenario
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem
+                              className="text-xs"
+                              onClick={() => {
+                                setRenamingScenarioId(scenario.id);
                               }}
                             >
-                              <FieldGroup className="mb-2">
-                                <Field>
-                                  <Label htmlFor="rename-scenario">Name</Label>
-                                  <Input
-                                    defaultValue={scenario.name}
-                                    id="rename-scenario"
-                                    name="name"
-                                  />
-                                </Field>
-                              </FieldGroup>
-
-                              <DialogFooter>
-                                <DialogClose
-                                  render={
-                                    <Button variant="outline">Cancel</Button>
-                                  }
-                                />
-                                <Button type="submit">Save</Button>
-                              </DialogFooter>
-                            </form>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
+                              <PencilIcon className="size-3" />
+                              Rename
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </SidebarMenuItem>
                 );
@@ -463,6 +395,62 @@ export function EndpointLeftbar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Rename scenario dialog */}
+        {renamingScenarioId !== null && (
+          <Dialog
+            onOpenChange={(open) => {
+              if (!open) setRenamingScenarioId(null);
+            }}
+            open={renamingScenarioId !== null}
+          >
+            <DialogTrigger>
+              <Button />
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[320px]">
+              <DialogHeader>
+                <DialogTitle>Rename scenario</DialogTitle>
+                <DialogDescription>
+                  Rename "{scenarios[renamingScenarioId]?.name ?? ""}".
+                </DialogDescription>
+              </DialogHeader>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+
+                  const formData = new FormData(e.currentTarget);
+                  const name = String(formData.get("name") ?? "").trim();
+
+                  if (!name) {
+                    return;
+                  }
+
+                  renameScenario(activeWorkspaceId, renamingScenarioId, name);
+                  setRenamingScenarioId(null);
+                }}
+              >
+                <FieldGroup className="mb-2">
+                  <Field>
+                    <Label htmlFor="rename-scenario">Name</Label>
+                    <Input
+                      defaultValue={scenarios[renamingScenarioId]?.name ?? ""}
+                      id="rename-scenario"
+                      name="name"
+                    />
+                  </Field>
+                </FieldGroup>
+
+                <DialogFooter>
+                  <DialogClose
+                    render={<Button variant="outline">Cancel</Button>}
+                  />
+                  <Button type="submit">Save</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
