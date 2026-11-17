@@ -3,6 +3,7 @@
 import { cn } from "cn";
 import {
   EllipsisVerticalIcon,
+  EyeOffIcon,
   PencilIcon,
   PlusIcon,
   RotateCcwIcon,
@@ -59,6 +60,8 @@ export function EndpointLeftbar() {
   const renameWorkspace = useWorkspaceStore((s) => s.renameWorkspace);
   const resetWorkspace = useWorkspaceStore((s) => s.resetWorkspace);
   const renameScenario = useWorkspaceStore((s) => s.renameScenario);
+  const archiveScenario = useWorkspaceStore((s) => s.archiveScenario);
+  const restoreScenario = useWorkspaceStore((s) => s.restoreScenario);
   const scenarios = useWorkspaceStore((s) =>
     selectScenarios(s.activeWorkspaceId)(s),
   );
@@ -370,6 +373,32 @@ export function EndpointLeftbar() {
                             >
                               <PencilIcon className="size-3" />
                               Rename
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-xs"
+                              disabled={scenario.archived}
+                              onClick={() => {
+                                archiveScenario(
+                                  activeWorkspace.id,
+                                  scenario.id,
+                                );
+                              }}
+                            >
+                              <EyeOffIcon className="size-3" />
+                              Archive
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-xs"
+                              disabled={!scenario.archived}
+                              onClick={() => {
+                                restoreScenario(
+                                  activeWorkspace.id,
+                                  scenario.id,
+                                );
+                              }}
+                            >
+                              <RotateCcwIcon className="size-3" />
+                              Restore
                             </DropdownMenuItem>
                           </DropdownMenuGroup>
                         </DropdownMenuContent>

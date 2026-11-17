@@ -52,6 +52,7 @@ export const createRegistrySlice: SliceCreator<RegistrySlice> = (set, get) => {
           id,
           name: name?.trim() || defaultEndpointName(definition),
         };
+        console.log(w.tabs.length);
       });
       return id;
     },
@@ -79,6 +80,11 @@ export const createRegistrySlice: SliceCreator<RegistrySlice> = (set, get) => {
       set((s) => {
         const target = s.workspaces[wsId];
         if (!target) return;
+
+        if (Object.keys(target.endpoints).length <= 1) {
+          return;
+        }
+
         for (const tabId of tabIds) dropTab(s, target, tabId);
         delete target.endpoints[id];
       });

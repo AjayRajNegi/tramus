@@ -2,6 +2,7 @@
 
 import { cn } from "cn";
 import {
+  EllipsisVerticalIcon,
   GitBranchIcon,
   PencilIcon,
   PlusIcon,
@@ -74,6 +75,8 @@ export function EndpointRightbar() {
     (a, b) => a.createdAt - b.createdAt,
   );
 
+  console.log("Initial render", ws.tabs.length);
+
   return (
     <Sidebar
       className="h-[calc(100svh-40px)] border-none"
@@ -128,30 +131,35 @@ export function EndpointRightbar() {
 
                       {/* Endpoint actions */}
                       <DropdownMenu>
-                        <DropdownMenuTrigger>
-                          <Button
-                            aria-label={`Endpoint actions for ${endpoint.name}`}
-                            className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <PencilIcon className="size-3" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
+                        <DropdownMenuTrigger
+                          className="opacity-0 transition-opacity group-hover/endpoint:opacity-100"
+                          render={
+                            <Button
+                              aria-label={`Endpoint actions for ${endpoint.name}`}
+                              className="h-fit w-fit p-0 text-muted-foreground hover:bg-accent hover:text-foreground"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <EllipsisVerticalIcon className="size-3" />
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent align="start">
                           <DropdownMenuGroup>
-                            <DropdownMenuLabel inset>
+                            <DropdownMenuLabel className="text-[10px]">
                               Endpoint
                             </DropdownMenuLabel>
                             <DropdownMenuItem
+                              className="text-xs"
                               onClick={() => {
                                 setRenamingEndpointId(endpoint.id);
                               }}
                             >
                               <PencilIcon className="size-3" />
-                              Rename endpoint
+                              Rename
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              className="text-xs"
                               onClick={() => {
                                 const tab = tabs.find(
                                   (t) => t.endpointId === endpoint.id,
@@ -162,30 +170,29 @@ export function EndpointRightbar() {
                               }}
                             >
                               <RotateCcwIcon className="size-3" />
-                              Reset draft
+                              Reset
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                              className="text-xs"
                               onClick={() => {
                                 setForkingEndpointId(endpoint.id);
                               }}
                             >
                               <GitBranchIcon className="size-3" />
-                              Fork from endpoint
+                              Fork
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              className="text-destructive"
+                              className="text-destructive text-xs"
                               onClick={() => {
-                                const tab = tabs.find(
-                                  (t) => t.endpointId === endpoint.id,
-                                );
-                                if (tab) {
-                                  closeTab(activeWorkspaceId, tab.id);
-                                }
                                 deleteEndpoint(activeWorkspaceId, endpoint.id);
+                                setActiveTab(
+                                  activeWorkspaceId,
+                                  ws.tabs[ws.tabs.length - 1].id,
+                                );
                               }}
                             >
                               <Trash2Icon className="size-3" />
-                              Delete endpoint
+                              Delete
                             </DropdownMenuItem>
                           </DropdownMenuGroup>
                         </DropdownMenuContent>
