@@ -95,7 +95,7 @@ export const createScenarioSlice: SliceCreator<ScenarioSlice> = (set) => ({
     set((s) => {
       const w = s.workspaces[wsId];
       const sc = w?.scenarios[id];
-      if (!w || !sc || !sc.archived) return;
+      if (!w || !sc?.archived) return;
 
       const live = Object.values(w.scenarios).filter((x) => !x.archived);
       if (live.length >= MAX_SCENARIOS) {
