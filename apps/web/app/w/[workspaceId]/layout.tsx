@@ -26,11 +26,13 @@ export default async function WorkspaceLayout({
     <HydrationBoundary state={dehydrate(queryClient)}>
       <SidebarProvider>
         <AppSidebar />
-        <TopBar />
+        <div className="flex h-dvh w-full flex-col overflow-hidden border-l-1">
+          <TopBar />
 
-        <main className="mt-[50px] h-[calc(100svh-90px)] min-w-0 flex-1 border-border border-l bg-background text-foreground">
-          {children}
-        </main>
+          <main className="h-[calc(100svh-90px)] min-w-0 flex-1 bg-background text-foreground">
+            {children}
+          </main>
+        </div>
         {/* <Footer /> */}
       </SidebarProvider>
     </HydrationBoundary>

@@ -1,4 +1,4 @@
-import type { FileValue, FormDataRow } from "@/lib/store/tab.store.types";
+import type { FileValue, FormDataRow } from "@/lib/store/w/tab.store.types";
 import { cn } from "@/lib/utils";
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024;

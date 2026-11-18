@@ -2,7 +2,11 @@
 
 import { AlertTriangle, Download, File, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEditorState } from "@/lib/store/editor.store";
+import {
+  selectActiveWorkspace,
+  selectResponseState,
+} from "@/lib/store/w/selectors";
+import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 
 function formatBytes(bytes: number): string {
   if (bytes === 0) return "0 B";
@@ -22,9 +26,15 @@ function downloadBlob(objectUrl: string, filename: string) {
 }
 
 export default function ResponsePane() {
-  const response = useEditorState((s) =>
-    s.activeId ? s.responses[s.activeId] : undefined,
+  const ws = useWorkspaceStore(selectActiveWorkspace);
+  const tabId = ws?.activeTabId ?? null;
+  const response = useWorkspaceStore((s) =>
+    tabId ? selectResponseState(tabId)(s) : undefined,
   );
+
+  // const responses = useWorkspaceStore((s) => s.responses);
+
+  if (!ws) return null;
 
   if (response?.phase === "success") {
     const { body, status, statusText, timing, size, url } = response.response;

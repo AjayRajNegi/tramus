@@ -43,25 +43,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { constructGraph } from "@/lib/helper/canvas/edges";
-import {
-  getAncestry,
-  stripFileContents,
-  useCanvasStore,
-} from "@/lib/store/canvas.store";
-import { useEditorState } from "@/lib/store/editor.store";
-import type { EndpointDraft } from "@/lib/store/tab.store.types";
-
-const WORKSPACE_ID = "default-workspace";
-
-function resolveLink(c: Connection) {
-  const { source, target, sourceHandle, targetHandle } = c;
-  if (source === target) return null;
-  if (sourceHandle === "bottom" && targetHandle === "top")
-    return { childId: target, parentId: source };
-  if (sourceHandle === "top" && targetHandle === "bottom")
-    return { childId: source, parentId: target };
-  return null;
-}
+import { getAncestry } from "@/lib/store/w/graph";
+import { stripFileContents } from "@/lib/store/w/helpers";
+import { selectActiveWorkspace } from "@/lib/store/w/selectors";
+import type { EndpointDraft } from "@/lib/store/w/tab.store.types";
+import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 
 const METHOD_STYLE: Record<string, string> = {
   DELETE: "text-destructive",
@@ -87,16 +73,20 @@ function ApiNodeComponent({ data }: NodeProps<ApiNode>) {
 export const nodeTypes = { api: ApiNodeComponent };
 
 export default function Canvas() {
-  const storeNodes = useCanvasStore((s) => s.nodes);
-  const activeScenarioId = useCanvasStore((s) => s.activeScenarioId);
-  const positionOverrides = useCanvasStore((s) => s.positionOverrides);
-  const addNode = useCanvasStore((s) => s.addNode);
-  const setParent = useCanvasStore((s) => s.setParent);
-  const removeNode = useCanvasStore((s) => s.removeNode);
-  const setNodePosition = useCanvasStore((s) => s.setNodePosition);
-  const fork = useCanvasStore((s) => s.fork);
+  const ws = useWorkspaceStore(selectActiveWorkspace);
+  const addNode = useWorkspaceStore((s) => s.addNode);
+  const setParent = useWorkspaceStore((s) => s.setParent);
+  const removeNode = useWorkspaceStore((s) => s.removeNode);
+  const setNodePosition = useWorkspaceStore((s) => s.setNodePosition);
+  const fork = useWorkspaceStore((s) => s.fork);
+  const switchScenario = useWorkspaceStore((s) => s.switchScenario);
 
-  const { drafts } = useEditorState();
+  const workspaceId = ws?.id;
+  const storeNodes = ws?.nodes ?? {};
+  const activeScenarioId = ws?.activeScenarioId;
+  const positionOverrides = ws?.positionOverrides ?? {};
+  const scenarios = ws?.scenarios ?? {};
+  const drafts = ws?.drafts ?? {};
 
   const scenarioNodes = useMemo(
     () =>
@@ -124,47 +114,54 @@ export default function Canvas() {
   const isValidConnection = useCallback((c: Connection | Edge) => {
     const link = resolveLink(c as Connection);
     if (!link) return false;
-    const { nodes } = useCanvasStore.getState();
+    const state = useWorkspaceStore.getState();
+    const activeWs = state.workspaces[state.activeWorkspaceId];
+    const nodes = activeWs?.nodes ?? {};
     return !getAncestry(nodes, link.parentId).includes(link.childId); // no cycles
   }, []);
 
   const onConnect = useCallback(
     (c: Connection) => {
       const link = resolveLink(c);
-      if (link) setParent(link.childId, link.parentId);
+      if (link && workspaceId)
+        setParent(workspaceId, link.childId, link.parentId);
     },
-    [setParent],
+    [workspaceId, setParent],
   );
 
   const onEdgesDelete = useCallback(
-    // biome-ignore lint/suspicious/useIterableCallbackReturn: Suppress
-    (deleted: Edge[]) => deleted.forEach((e) => setParent(e.target, null)),
-    [setParent],
+    (deleted: Edge[]) =>
+      deleted.forEach((e) => {
+        workspaceId && setParent(workspaceId, e.target, null);
+      }),
+    [workspaceId, setParent],
   );
 
   const onNodesDelete = useCallback(
-    // biome-ignore lint/suspicious/useIterableCallbackReturn: Suppress
-    (deleted: { id: string }[]) => deleted.forEach((n) => removeNode(n.id)),
-    [removeNode],
+    (deleted: { id: string }[]) =>
+      deleted.forEach((n) => {
+        workspaceId && removeNode(workspaceId, n.id);
+      }),
+    [workspaceId, removeNode],
   );
 
   const addEndpoint = (endpointId: string, draft: EndpointDraft) =>
-    addNode({
+    workspaceId &&
+    addNode(workspaceId, {
       endpointId,
       requestId: crypto.randomUUID(),
       snapshot: stripFileContents(draft),
-      workspaceId: WORKSPACE_ID,
     });
 
-  const forkNode = (nodeId: string, name: string) => fork(nodeId, name);
+  const forkNode = (nodeId: string, name: string) =>
+    workspaceId && fork(workspaceId, { nodeId }, name);
 
-  const switchScenario = useCanvasStore((s) => s.switchScenario);
-  const scenarios = useCanvasStore((s) => s.scenarios);
+  if (!ws) return null;
 
   return (
-    <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+    <div className="flex h-full min-h-0 min-w-0 flex-1 overflow-hidden">
       {/* Flow canvas */}
-      <section className="mt-12 h-[calc(100%-50px)] min-h-0 min-w-0 flex-1 p-4">
+      <section className="min-w-0 flex-1 p-4">
         <div className="h-full w-full overflow-hidden rounded-xl border border-border bg-background">
           <ReactFlow
             connectionMode={ConnectionMode.Loose}
@@ -178,7 +175,7 @@ export default function Canvas() {
             onEdgesChange={onEdgesChange}
             onEdgesDelete={onEdgesDelete}
             onNodeDragStop={(_, node) =>
-              setNodePosition(node.id, node.position)
+              setNodePosition(ws.id, node.id, node.position)
             }
             onNodesChange={onNodesChange}
             onNodesDelete={onNodesDelete}
@@ -190,7 +187,7 @@ export default function Canvas() {
         </div>
       </section>
       {/* Endpoints sidebar */}
-      <aside className="mt-[50px] flex h-[calc(100%-50px)] w-80 shrink-0 flex-col overflow-hidden border-border border-l bg-background">
+      <aside className="flex w-80 shrink-0 flex-col overflow-hidden border-border border-l bg-background">
         <Card className="flex h-full flex-col gap-0 overflow-hidden rounded-none border-0 bg-transparent py-0 shadow-none">
           <CardHeader className="gap-1 border-border border-b px-4 py-4">
             <div className="flex items-center justify-between">
@@ -210,7 +207,7 @@ export default function Canvas() {
             <div className="flex h-9 items-center gap-2.5 px-2">
               <FolderOpen className="size-4 shrink-0 text-muted-foreground" />
               <span className="truncate font-medium text-foreground text-sm">
-                {WORKSPACE_ID}
+                {ws.name}
               </span>
             </div>
 
@@ -226,7 +223,7 @@ export default function Canvas() {
                       className={`group relative flex h-8 w-full items-center gap-1 rounded-md pr-2 text-left transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
                         isActive ? "bg-accent/40" : ""
                       } ${scenario.archived ? "opacity-60" : ""}`}
-                      onClick={() => switchScenario(scenario.id)}
+                      onClick={() => switchScenario(ws.id, scenario.id)}
                       type="button"
                     >
                       {isActive && (
@@ -260,7 +257,7 @@ export default function Canvas() {
 
                     {/* Level 3: Nodes on this scenario's canvas */}
                     {isActive && (
-                      <div className="mt-0.5 mb-1 ml-4 space-y-0.5 border-border/60 border-l">
+                      <div className="mt-1 mb-1 ml-4 space-y-0.5 border-border/60 border-l">
                         {nodes.map((node) => (
                           <div
                             className="group flex h-8 items-center gap-1 rounded-md pr-1 pl-2 transition-colors hover:bg-accent/50"
@@ -272,85 +269,77 @@ export default function Canvas() {
                             >
                               {node.data.label}
                             </span>
-                            <Tooltip>
-                              <TooltipTrigger
-                                delay={0}
-                                render={
-                                  <Dialog>
-                                    <form>
-                                      <DialogTrigger
-                                        render={
-                                          <Button
-                                            className="size-6 shrink-0 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-accent-foreground focus-visible:opacity-100 group-hover:opacity-100"
-                                            variant="ghost"
-                                          >
-                                            <GitBranch className="size-3.5" />
-                                          </Button>
-                                        }
+                            <Dialog>
+                              <Tooltip>
+                                <TooltipTrigger
+                                  delay={0}
+                                  render={
+                                    <DialogTrigger
+                                      render={
+                                        <Button size="icon" variant="ghost">
+                                          <GitBranch className="size-3.5" />
+                                        </Button>
+                                      }
+                                    />
+                                  }
+                                />
+                                <TooltipContent side="left">
+                                  Fork from here
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Fork Node</DialogTitle>
+                                  <DialogDescription>
+                                    A new scenario would be created from this
+                                    node.
+                                  </DialogDescription>
+                                </DialogHeader>
+
+                                <form
+                                  onSubmit={(e) => {
+                                    e.preventDefault();
+
+                                    const formData = new FormData(
+                                      e.currentTarget,
+                                    );
+                                    const name = String(
+                                      formData.get("name") ?? "",
+                                    ).trim();
+
+                                    if (!name) {
+                                      console.log("Name is required");
+                                      return;
+                                    }
+
+                                    forkNode(node.id, name);
+                                  }}
+                                >
+                                  <FieldGroup className="mb-2">
+                                    <Field>
+                                      <Label htmlFor="name-1">Name</Label>
+                                      <Input
+                                        defaultValue="Product Catalog"
+                                        id="name-1"
+                                        name="name"
                                       />
-                                      <DialogContent className="sm:max-w-sm">
-                                        <DialogHeader>
-                                          <DialogTitle>Fork Node</DialogTitle>
-                                          <DialogDescription>
-                                            A new scenario would be created from
-                                            this node.
-                                          </DialogDescription>
-                                        </DialogHeader>
+                                    </Field>
+                                  </FieldGroup>
 
-                                        <form
-                                          onSubmit={(e) => {
-                                            e.preventDefault();
-
-                                            const formData = new FormData(
-                                              e.currentTarget,
-                                            );
-                                            const name = String(
-                                              formData.get("name") ?? "",
-                                            ).trim();
-
-                                            if (!name) {
-                                              console.log("Name is required");
-                                              return;
-                                            }
-
-                                            forkNode(node.id, name);
-                                          }}
-                                        >
-                                          <FieldGroup className="mb-2">
-                                            <Field>
-                                              <Label htmlFor="name-1">
-                                                Name
-                                              </Label>
-                                              <Input
-                                                defaultValue="Product Catalog"
-                                                id="name-1"
-                                                name="name"
-                                              />
-                                            </Field>
-                                          </FieldGroup>
-
-                                          <DialogFooter>
-                                            <DialogClose
-                                              render={
-                                                <Button variant="outline">
-                                                  Cancel
-                                                </Button>
-                                              }
-                                            />
-                                            <Button type="submit">
-                                              Save changes
-                                            </Button>
-                                          </DialogFooter>
-                                        </form>
-                                      </DialogContent>
-                                    </form>
-                                  </Dialog>
-                                }
-                              />
-                              <TooltipContent side="top">
-                                <p>Fork from here</p>
-                              </TooltipContent>
-                            </Tooltip>
+                                  <DialogFooter>
+                                    <DialogClose
+                                      render={
+                                        <Button variant="outline">
+                                          Cancel
+                                        </Button>
+                                      }
+                                    />
+                                    <Button type="submit">Save changes</Button>
+                                  </DialogFooter>
+                                </form>
+                              </DialogContent>
+                            </Dialog>
                           </div>
                         ))}
 
@@ -414,7 +403,7 @@ export default function Canvas() {
                         </Button>
                       }
                     />
-                    <TooltipContent side="top">
+                    <TooltipContent side="left">
                       <p>Add to canvas</p>
                     </TooltipContent>
                   </Tooltip>
@@ -432,4 +421,14 @@ export default function Canvas() {
       </aside>
     </div>
   );
+}
+
+function resolveLink(c: Connection) {
+  const { source, target, sourceHandle, targetHandle } = c;
+  if (source === target) return null;
+  if (sourceHandle === "bottom" && targetHandle === "top")
+    return { childId: target, parentId: source };
+  if (sourceHandle === "top" && targetHandle === "bottom")
+    return { childId: source, parentId: target };
+  return null;
 }

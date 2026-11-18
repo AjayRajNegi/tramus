@@ -55,7 +55,7 @@ export function TopBar() {
   );
 
   return (
-    <nav className="fixed top-0 left-1/2 flex h-[50px] w-full -translate-x-1/2 items-center justify-between border-border border-b bg-background px-4 text-foreground text-xs">
+    <nav className="flex h-[50px] w-full shrink-0 items-center justify-between border-border border-b bg-background px-4 text-foreground text-xs">
       <div className="flex items-center gap-5">
         <Link className="mr-5 underline underline-offset-2" href="/w">
           Tramus
@@ -102,7 +102,6 @@ export function TopBar() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-
       {/* <div className="flex items-center gap-4">
         <Link className="underline underline-offset-2" href="/w">
           Fork Scenario
@@ -115,7 +114,6 @@ export function TopBar() {
         </Link>
         <ModeToggle />
       </div> */}
-
       <div className="flex items-center gap-4">
         <ExtensionStatusIndicator />
       </div>

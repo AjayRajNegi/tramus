@@ -8,7 +8,7 @@ export default function CanvasLayout({
   return (
     <main className="flex h-dvh w-full flex-col overflow-hidden">
       <TopBar />
-      {children}
+      <div className="min-h-0 flex-1">{children}</div>
     </main>
   );
 }

@@ -8,7 +8,7 @@ import { buildAuthorizationHeader } from "@/components/layout/editor-shell/reque
 import { isExtensionInstalled } from "@/lib/extension";
 import { sendViaExtension } from "@/lib/extension/client";
 import { buildMultipart } from "@/lib/helper/build-multipart";
-import type { EndpointDraft } from "@/lib/store/tab.store.types";
+import type { EndpointDraft } from "@/lib/store/w/tab.store.types";
 
 const MAX_RESPONSE_SIZE = 20 * 1024 * 1024; // 20 MB
 

@@ -2,7 +2,8 @@
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEditorState } from "@/lib/store/editor.store";
+import { selectActiveWorkspace } from "@/lib/store/w/selectors";
+import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 import { cn } from "@/lib/utils";
 import { AuthorizationEditor, createAuthorization } from "./auth-editor";
 import { BodyEditor, createBody } from "./body-editor";
@@ -29,9 +30,13 @@ export const MOCK_PARAMS: KeyValue[] = [
 export const MOCK_BODY = [{ enabled: true, id: "p1", key: "page", value: "1" }];
 
 export function RequestPane() {
-  const { drafts, activeId, updateDraft } = useEditorState();
+  const ws = useWorkspaceStore(selectActiveWorkspace);
+  const updateDraft = useWorkspaceStore((s) => s.updateDraft);
 
-  const draft = activeId ? drafts[activeId]?.draft : undefined;
+  if (!ws) return null;
+
+  const tabId = ws.activeTabId;
+  const draft = tabId ? ws.drafts[tabId]?.draft : undefined;
 
   const EMPTY_BODY = createBody();
   const EMPTY_AUTH = createAuthorization();
@@ -65,8 +70,8 @@ export function RequestPane() {
           <TabsContent value="params">
             <KeyValueEditor
               onChange={(rows) => {
-                activeId &&
-                  updateDraft(activeId, (d) => {
+                tabId &&
+                  updateDraft(ws.id, tabId, (d) => {
                     d.params = rows;
                   });
               }}
@@ -76,8 +81,8 @@ export function RequestPane() {
           <TabsContent value="headers">
             <KeyValueEditor
               onChange={(rows) => {
-                activeId &&
-                  updateDraft(activeId, (d) => {
+                tabId &&
+                  updateDraft(ws.id, tabId, (d) => {
                     d.headers = rows;
                   });
               }}
@@ -87,8 +92,8 @@ export function RequestPane() {
           <TabsContent value="body">
             <BodyEditor
               onChange={(value) => {
-                activeId &&
-                  updateDraft(activeId, (d) => {
+                tabId &&
+                  updateDraft(ws.id, tabId, (d) => {
                     d.body = value;
                   });
               }}
@@ -98,8 +103,8 @@ export function RequestPane() {
           <TabsContent value="auth">
             <AuthorizationEditor
               onChange={(authorization) =>
-                activeId &&
-                updateDraft(activeId, (d) => {
+                tabId &&
+                updateDraft(ws.id, tabId, (d) => {
                   d.authorization = authorization;
                 })
               }

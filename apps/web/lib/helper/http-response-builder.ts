@@ -9,7 +9,7 @@ import type {
   ResponseBody,
   ResponseCookie,
   ResponseHeader,
-} from "../store/response.store.types";
+} from "../store/w/response.store.types";
 
 const MAX_TEXT_CHARS = 5_000_000;
 const encoder = new TextEncoder();

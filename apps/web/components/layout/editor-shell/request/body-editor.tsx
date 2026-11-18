@@ -8,7 +8,7 @@ import { tags as t } from "@lezer/highlight";
 import CodeMirror from "@uiw/react-codemirror";
 import { FileIcon } from "lucide-react";
 import * as React from "react";
-import type { BodyType, RequestBody } from "@/lib/store/tab.store.types";
+import type { BodyType, RequestBody } from "@/lib/store/w/tab.store.types";
 import { cn } from "@/lib/utils";
 import { FormDataEditor } from "./form-data-editor";
 import { KeyValueEditor } from "./key-value-editor";
