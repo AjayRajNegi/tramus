@@ -2,12 +2,11 @@ import { cn } from "cn";
 import { PlusIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { selectActiveWorkspace, selectTabs } from "@/lib/store/w/selectors";
+import { selectActiveWorkspace } from "@/lib/store/w/selectors";
 import { useWorkspaceStore } from "@/lib/store/w/workspace.store";
 
 export default function EndpointBar() {
   const ws = useWorkspaceStore(selectActiveWorkspace);
-  const tabs = useWorkspaceStore((s) => selectTabs(s.activeWorkspaceId)(s));
 
   const openTab = useWorkspaceStore((s) => s.openTab);
   const closeTab = useWorkspaceStore((s) => s.closeTab);
@@ -46,12 +45,15 @@ export default function EndpointBar() {
     });
   };
 
+  console.log(ws.tabs);
+
   return (
     <ScrollArea className="bg-muted">
       <div className="flex items-center bg-muted">
-        {tabs.map((tab) => {
+        {ws.tabs.map((tab) => {
           const isActive = tab.id === ws.activeTabId;
           const endpoint = ws.endpoints[tab.endpointId];
+          console.log(endpoint);
 
           return (
             <Button
@@ -65,7 +67,7 @@ export default function EndpointBar() {
               onClick={() => setActiveTab(ws.id, tab.id)}
               variant="ghost"
             >
-              {endpoint?.name.split(" ")[1] ?? tab.id}
+              {endpoint.name}
               <span
                 aria-label={`Close ${tab.id}`}
                 className={cn(

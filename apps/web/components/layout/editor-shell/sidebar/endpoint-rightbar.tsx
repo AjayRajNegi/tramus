@@ -75,6 +75,8 @@ export function EndpointRightbar() {
     (a, b) => a.createdAt - b.createdAt,
   );
 
+  // console.log(ws.endpoints);
+
   return (
     <Sidebar
       className="h-[calc(100svh-40px)] border-none"
@@ -307,9 +309,7 @@ export function EndpointRightbar() {
             }}
             open={renamingEndpointId !== null}
           >
-            <DialogTrigger>
-              <Button />
-            </DialogTrigger>
+            <DialogTrigger render={<Button />} />
             <DialogContent className="sm:max-w-[320px]">
               <DialogHeader>
                 <DialogTitle>Rename endpoint</DialogTitle>
@@ -365,9 +365,7 @@ export function EndpointRightbar() {
             }}
             open={forkingEndpointId !== null}
           >
-            <DialogTrigger>
-              <Button />
-            </DialogTrigger>
+            <DialogTrigger render={<Button />} />
             <DialogContent className="sm:max-w-[320px]">
               <DialogHeader>
                 <DialogTitle>Fork from endpoint</DialogTitle>
