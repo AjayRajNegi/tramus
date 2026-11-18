@@ -10,15 +10,12 @@ import type {
 
 type Method = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
-/**
- * Demo workspace. Scenarios fork by pointing at an existing node, exactly like
- * the real `fork` action: nothing is copied.
- */
 export function createDemoWorkspace(
   id: WorkspaceId,
   name: string,
   createdAt = Date.now(),
 ): Workspace {
+  console.log("workspaceId", id);
   const w = createWorkspaceData(id, name, createdAt);
   const { endpoints, nodes, scenarios } = w;
   let clock = Date.UTC(2026, 9, 26, 9, 0, 0);

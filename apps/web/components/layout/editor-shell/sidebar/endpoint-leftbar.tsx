@@ -256,9 +256,7 @@ export function EndpointLeftbar() {
             }}
             open={renamingWorkspaceId !== null}
           >
-            <DialogTrigger>
-              <Button />
-            </DialogTrigger>
+            <DialogTrigger render={<button />} />
             <DialogContent className="sm:max-w-[320px]">
               <DialogHeader>
                 <DialogTitle>Rename workspace</DialogTitle>

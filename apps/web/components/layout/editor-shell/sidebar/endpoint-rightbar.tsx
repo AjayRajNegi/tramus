@@ -51,7 +51,7 @@ export function EndpointRightbar() {
   const ws = useWorkspaceStore(selectActiveWorkspace);
   const tabs = useWorkspaceStore((s) => selectTabs(s.activeWorkspaceId)(s));
   const setActiveTab = useWorkspaceStore((s) => s.setActiveTab);
-  const closeTab = useWorkspaceStore((s) => s.closeTab);
+  // const closeTab = useWorkspaceStore((s) => s.closeTab);
   const createEndpoint = useWorkspaceStore((s) => s.createEndpoint);
   const deleteEndpoint = useWorkspaceStore((s) => s.deleteEndpoint);
   const renameEndpoint = useWorkspaceStore((s) => s.renameEndpoint);
@@ -74,8 +74,6 @@ export function EndpointRightbar() {
   const sortedEndpoints = Object.values(ws.endpoints).sort(
     (a, b) => a.createdAt - b.createdAt,
   );
-
-  console.log("Initial render", ws.tabs.length);
 
   return (
     <Sidebar
